@@ -1,5 +1,7 @@
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float
-from database import Base
+
+Base = declarative_base()
 
 class Catador(Base):
     __tablename__ = 'catador'
@@ -14,3 +16,4 @@ class Catador(Base):
 
     def __repr__(self):
         return '<Catador %r>' % (self.name)
+
