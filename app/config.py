@@ -1,9 +1,13 @@
+import os
+
+
 class Config():
 
     """TODO: Docstring for Config. """
 
     config_dict = {
-        'SECRET_KEY': 'AReallySecretKey'
+        'SECRET_KEY': 'AReallySecretKey',
+        'JWT_AUTH_URL_RULE': '/api/auth'
     }
 
     def init_app(self,  app):
@@ -21,10 +25,12 @@ class DevelopmentConfig(Config):
 
     """TODO: Docstring for DevelopmentConfig. """
 
+    DB_NAME = 'dev.db'
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
+
     def __init__(self, app=None):
         """TODO: Docstring for __init__.
-
-        :arg1: TODO
 
         :app: TODO
         :returns: TODO
@@ -33,6 +39,9 @@ class DevelopmentConfig(Config):
         if app:
             self.config_dict.update({
                 'DEBUG': True,
+                'DB_NAME': 'dev.db',
+                'DB_PATH': os.path.join(Config.PROJECT_ROOT, DB_NAME),
+                'SQLALCHEMY_DATABASE_URI': 'sqlite:///{0}'.format(DB_PATH),
             })
             self.init_app(app)
 
