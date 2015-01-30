@@ -78,9 +78,9 @@ class ProductionConfig(Config):
         """
         if app:
             self.init_app(app)
-        
+
 config = {
-        'development': DevelopmentConfig,    
+        'development': DevelopmentConfig,
         'testing': TestingConfig,
         'production': ProductionConfig,
         'default': DevelopmentConfig

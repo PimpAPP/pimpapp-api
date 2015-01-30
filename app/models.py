@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float
 
@@ -18,3 +20,12 @@ class Catador(Base):
     def __repr__(self):
         return '<Catador %r>' % (self.name)
 
+    def to_JSON(self):
+        return json.dumps({
+            "id": self.id,
+            "name": self.name,
+            "phone": self.phone,
+            "address": self.address,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            }, indent=4)
