@@ -1,26 +1,23 @@
 Apenas uma lista simples (e inicial) dos filtros:
 
-### Catadores
+### Localização
+* Bairros de São Paulo
+* Raio com centro em lat + log;
+* Raio com centro em um Endereço;
 
-* filtro por localização (lat + log);
-* filtro por material aceito;
-* filtro por nome;
-* filtro por data de criação;
+### Material
+* Papelão
+* Alumínio
+* Vidro
+* Plástico
+* Residos Perigosos
+* Entulho
+* Moveis Velhos
 
-### Users
+### Tipo de Iniciativa
+* Catador
+* Cooperativa
+* Ferro Velho
+* PEV (Ponto de Entrega Voluntária)
 
-* filtro por local;
-* filtro por nome;
-* filtro por data de criação;
-* filtro por material;
 
-### Materials
-
-* filtro por tipo (reciclavel/não reciclavel);
-* filtro por nome;
-* filtro por classificação;
-
-### Rates
-
-* filtro por usuário;
-* filtro por catador;
