@@ -10,12 +10,14 @@ Interface de filtros.
 * /catadores/?lat="lat"&lon="lon"
 * /catadores/?google_maps_q="google_maps_q"
 * /catadores/?actor="actor"
-* 
+
+
 #### /catador
 Interface para o Profile dos Catadores
 * __GET__ -> Detalhes de um catador especifico.
 * __POST__ ou __PUT__ -> Atualiza os dados de um catador.
 * __DELETE__ -> Apagar um catador.
+
 
 ### Material
 
