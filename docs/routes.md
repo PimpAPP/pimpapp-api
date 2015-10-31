@@ -1,8 +1,29 @@
 _Ideias iniciais para rotas. Passar para wiki depois..._
 
-### Catadores
 
-#### /catadores
+->>>>> <DONE> CARROCEIRO <DONE> <<<<<<-
+
+#### /carroceiro/id/
+
+Interface para o Profile dos Catadores
+
+* __GET__ -> Detalhes de um carroceiro especifico.
+* __PUT__ -> Atualiza os dados de um carroceiro.
+* __DELETE__ -> Apagar um carroceiro.
+
+
+#### /carroceiro/
+
+Lista de carroceiros, para listar todos ou incluir novos.
+
+* __GET__ -> Detalhes de um carroceiro especifico.
+* __POST__ -> Adiciona um novo carroceiro.
+
+
+->>>> TODO <<<<- (Discutir como vai ficar or argumentos e CRUD)
+
+### Carroceiros filtros
+
 Interface de filtros.
 * __GET__ -> Lista com todos os catadores
 * /catadores/?material="slug_material"
@@ -10,14 +31,6 @@ Interface de filtros.
 * /catadores/?lat="lat"&lon="lon"
 * /catadores/?google_maps_q="google_maps_q"
 * /catadores/?actor="actor"
-
-
-#### /catador
-Interface para o Profile dos Catadores
-* __GET__ -> Detalhes de um catador especifico.
-* __POST__ ou __PUT__ -> Atualiza os dados de um catador.
-* __DELETE__ -> Apagar um catador.
-
 
 ### Material
 

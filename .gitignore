@@ -56,3 +56,7 @@ target/
 # Virtualenv
 venv/
 env/
+
+# cache results from py.test
+integration_test/.cache
+.cache

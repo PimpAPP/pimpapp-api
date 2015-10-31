@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -e
+cat ../data/long_lat_pimp_carroceiros_app.sql | sqlite3 ../app_site/db.sqlite3
 
-sqlite3 ../app/db.sqlite3 "SELECT * FROM sqlite_master WHERE type='table';"
-cat ../data/long_lat_pimp_catadores_app.sql | sqlite3 ../app/db.sqlite3
-sqlite3 ../app/db.sqlite3 "SELECT * FROM catador;"
+# Para visualizar atraves de uma GUI o db, eh possivel utilizar o sqlitebrowser passando o db.sqlite3 como argumento
+# sqlitebrowser db.sqlite3
