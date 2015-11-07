@@ -14,9 +14,7 @@ pip install -r requirements.txt
 Como rodar o app:
 =================
 
-==================================================================================================
 Estes dois passos a seguir somente deverao ser executado uma vez ou quando o models.py for alterado
-==================================================================================================
 
 -> Realizar makemigrations (se necessario futuramente alterar o models.py) e migrate para criar as databases atraves do django
 -> *** Posteriormente, caso necessario visualizar o sql gerado pelo django, basta realizar "python manage.py sqlall carroceiro"
