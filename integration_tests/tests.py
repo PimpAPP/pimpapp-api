@@ -49,7 +49,7 @@ class TestCarroceirosListViews():
     def test_post_invalid_carroceiro(self):
 
         try:
-            # post same carroceiro again who as used on test_post_valid_carroceiro
+            # post same carroceiro again who was used on test_post_valid_carroceiro
             data = {"name": "carroceiro_test", "phone": "999111111",
                                              "address": "Av test, 9999", "latitude": -11.11, "longitude": -22.22}
             r = requests.post('http://localhost:8000/carroceiro/', json=data)
@@ -58,11 +58,6 @@ class TestCarroceirosListViews():
             # invalid phone with less than 8 digits
             data = {"name": "carroceiro_test", "phone": "8411122",
                                              "address": "Av test, 9999", "latitude": -11.11, "longitude": -22.22}
-            r = requests.post('http://localhost:8000/carroceiro/', json=data)
-            assert r.status_code == 400 or r.status_code == 500
-
-            # changing the name, thiw will mismatch because this phone already exists and BELONGS to "carroceiro_test"
-            data['name'] = 'carroceiro_test2'
             r = requests.post('http://localhost:8000/carroceiro/', json=data)
             assert r.status_code == 400 or r.status_code == 500
 
@@ -76,7 +71,7 @@ class TestCarroceirosListViews():
             r = requests.post('http://localhost:8000/carroceiro/', json=data)
             assert r.status_code == 400 or r.status_code == 500
 
-            # a null string attribute, all varchar entries in the DB can't be null
+            # name can't be null in our DB!
             data['name'] = ''
             r = requests.post('http://localhost:8000/carroceiro/', json=data)
             assert r.status_code == 400 or r.status_code == 500

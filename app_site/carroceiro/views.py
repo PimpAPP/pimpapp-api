@@ -29,8 +29,8 @@ class CarroceirosList(APIView):
 
 class CarroceiroFindByPhone(APIView):
     """
-    List all Carroceiros given their cellphone, in our database cellphone is not unique but behaves like a id.
-    It's assumed that a Carroceiro can have multiple addresses, hence one cellphone would have multiple entries (all of them MUST belong to the same person though)
+    List all Carroceiros given their cellphone.
+    It's assumed that a Carroceiro can have multiple addresses, hence one cellphone would have multiple entries .
     """
     def get(self, request, phone, format=None):
         try:
@@ -42,7 +42,7 @@ class CarroceiroFindByPhone(APIView):
 
 class CarroceiroDetail(APIView):
     """
-    Update , Retrieve and Delete a instance of Carroceiro given their id.
+    Update ,Retrieve and Delete a instance of Carroceiro given their id.
     """
     def get(self, request, id, format=None):
         try:
