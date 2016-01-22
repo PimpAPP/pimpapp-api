@@ -48,20 +48,40 @@ class Photo(Authorship):
 
 class BaseProfileInfo(Authorship):
 
+    VIVO = 'V'
+    TIM = 'T'
+    CLARO = 'C'
+    OI = 'O'
+    NEXTEL = 'N'
+    # Algar
+    # Sercomtel
+    # Porto Seguro
+
+    # Mobile Network Operator (MNO)
+    MNO_CHOICES = (
+        (VIVO, 'Vivo'),
+        (TIM, 'TIM'),
+        (CLARO, 'Claro'),
+        (OI, 'Oi'),
+        (NEXTEL, 'Nextel'),
+    )
+
     class Meta:
         abstract = True
 
     name = models.CharField(max_length=64)
 
     phone = models.CharField(max_length=16)
-    operadora = models.CharField(max_length=16)
+    mno = models.CharField(max_length=11,
+        verbose_name=u"Operadora Móvel")
     has_whatsapp = models.BooleanField(default=False)
 
     address = models.CharField(max_length=128,
         verbose_name=u"Endereço onde costuma trabalhar.")
     region = models.CharField(max_length=64,
         verbose_name=u"Região onde costuma trabalhar.") # Makes sense?
-    # City ???
+    city = models.CharField(max_length=64,
+        verbose_name=u"Cidade em que trabalha")
 
     has_motor_vehicle = models.BooleanField(default=False)
     carroca_pimpada = models.BooleanField(default=False)
