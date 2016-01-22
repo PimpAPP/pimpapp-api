@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
     'django_extensions',
     'carroceiro',
+    'api',
 )
 
 REST_FRAMEWORK = {

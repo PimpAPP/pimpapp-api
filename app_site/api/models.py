@@ -24,7 +24,7 @@ class Authorship(models.Model):
 
     user = models.ForeignKey(User, unique=False, blank=False)
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
-    created_on =  DateTimeField(auto_now_add=True)
+    created_on =  models.DateTimeField(auto_now_add=True)
     moderation_status = models.CharField(max_length=1,
                                       choices=MODERATION_CHOICES,
                                       default=PENDING)
@@ -57,10 +57,10 @@ class BaseProfileInfo(Authorship):
     operadora = models.CharField(max_length=16)
     has_whatsapp = models.BooleanField(default=False)
 
-    address = models.CharField(max_length=128
-        verbose=u"Endereço onde costuma trabalhar.")
-    region = models.CharField(max_length=64
-        verbose=u"Região onde costuma trabalhar.") # Makes sense?
+    address = models.CharField(max_length=128,
+        verbose_name=u"Endereço onde costuma trabalhar.")
+    region = models.CharField(max_length=64,
+        verbose_name=u"Região onde costuma trabalhar.") # Makes sense?
     # City ???
 
     has_motor_vehicle = models.BooleanField(default=False)
