@@ -7,4 +7,3 @@ py==1.4.30
 pytest==2.8.2
 requests==2.8.1
 six==1.10.0
-test-pkg==0.0
