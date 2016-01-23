@@ -74,7 +74,6 @@ python manage.py migrate
 -> Executar novamente o script load_catadores.sh para inicializar data no db.
 
 ===============
-
 Observações de um iniciante em djnago e sqlite após seguir o procedimento:
 
 Para criação do virtualenv com Python 3.4:
