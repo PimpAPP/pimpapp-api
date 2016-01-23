@@ -73,4 +73,28 @@ python manage.py migrate
 
 -> Executar novamente o script load_catadores.sh para inicializar data no db.
 
+===============
 
+Observações de um iniciante em djnago e sqlite após seguir o procedimento:
+
+Para criação do virtualenv com Python 3.4:
+virtualenv -p /usr/bin/python3.4 venv
+
+Ir para o diretório app_site antes do comando migrate
+
+Instalar sqlite3 para rodar script load_carroceiros.sh
+Pode-se usar o comando: apt-get install sqlite3
+
+Se necessário, dar permissão de escrita no arquivo do banco de dados: db.sqlite3.
+
+Dentro do sqlite3, usar:
+.help para ver comandos existentes
+.open <nome do banco de dados> - app_site/db.sqlite3
+.databases para ver bases de dados
+.tables <tabela> para ver todas as tabelas ou uma tabela específica
+.dump <tabela> para ver dados de todas as tabelas ou uma tabela específica
+
+Criar usuário administrador para acessar Administração do Site / Administração do Django, com o comando:
+python manage.py createsuperuser
+
+Com este usuário logar em <sua máquina>:<sua porta>/admin - 127.0.0.1:8000/admin, conforme descrito no item "Autenticação", tópico "Importante".
