@@ -8,7 +8,9 @@ from django.contrib.auth.models import User
 from carroceiro.models import Carroceiro
 
 class Authorship(models.Model):
-
+    """
+        DOCS: TODO
+    """
     APPROVED = 'A'
     REJECTED = 'R'
     PENDING = 'P'
@@ -31,7 +33,9 @@ class Authorship(models.Model):
 
 
 class Rating(Authorship):
-
+    """
+        DOCS: TODO
+    """
     rating = models.IntegerField(blank=True)
     comment = models.CharField(max_length=140, blank=True)
 
@@ -47,7 +51,9 @@ class Photo(Authorship):
 
 
 class BaseProfileInfo(Authorship):
-
+    """
+        DOCS: TODO
+    """
     VIVO = 'V'
     TIM = 'T'
     CLARO = 'C'
@@ -88,19 +94,40 @@ class BaseProfileInfo(Authorship):
 
 
 class ProfileInfo(BaseProfileInfo):
-
+    """
+        DOCS: TODO
+    """
     def save(self, *args, **kwargs):
-        archive()
-        # do something
+        super(ProfileInfo, self).save(*args, **kwargs)
+        self.archive()
 
     def archive(self):
         obj = ProfileInfoHistoric.from_profile(self)
         obj.save()
 
-
 class ProfileInfoHistoric(BaseProfileInfo):
 
+    """
+        DOCS: TODO
+    """
+    original_pk = models.IntegerField()
+
     @classmethod
-    def from_profile(cls, profile_info):
-        # copy
-        pass
+    def from_profile(cls, profile_info, save=False):
+
+        self = cls()
+
+        fields = ['name', 'phone', 'mno',
+            'has_whatsapp', 'address', 'region',
+            'city', 'has_motor_vehicle', 'carroca_pimpada']
+
+        self.original_pk = profile_info.pk
+
+        for field in fields:
+            value = getattr(profile_info, field)
+            setattr(self, field, value)
+
+        if save:
+            self.save()
+
+        return self

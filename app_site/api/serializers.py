@@ -4,7 +4,7 @@ from .models import ProfileInfo
 from .models import Rating
 from .models import Photo
 
-class ProfileInfoSerializer(serializers.ModelSerializer):
+class ProfileInfoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ProfileInfo
         fields = ('pk',
@@ -13,14 +13,14 @@ class ProfileInfoSerializer(serializers.ModelSerializer):
             'address', 'region', 'city', 'has_motor_vehicle',
             'carroca_pimpada')
 
-class RatingSerializer(serializers.ModelSerializer):
+class RatingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Rating
         fields = ('pk',
             'user', 'carroceiro', 'created_on', 'moderation_status'
             'rating', 'comment')
 
-class PhotoSerializer(serializers.ModelSerializer):
+class PhotoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Photo
         fields = ('pk',
