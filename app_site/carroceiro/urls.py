@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^(?P<id>[0-9]+)/$', views.CarroceiroDetail.as_view(), name='carroceiro-detail'),
     # ex: /carroceiro/rfilter/<lat>&<long>&<radius>
     # ex: /carroceiro/rfilter/-23.5374089,-46.6399287,10/
-    url(r'^rfilter/(?P<lat_1>[-|+]?\d+\.\d+),(?P<long_1>[-|+]?\d+\.\d+),(?P<radius>\d+\.?\d{0,5})/$', views.CarroceiroRadiusFilter.as_view(), name='carroceiro-radius-filter')
+    url(r'^radius_filter/(?P<lat_1>[-|+]?\d+\.\d+),(?P<long_1>[-|+]?\d+\.\d+),(?P<radius>\d+\.?\d{0,5})/$', views.CarroceiroRadiusFilter.as_view(), name='carroceiro-radius-filter')
 ]

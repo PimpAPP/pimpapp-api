@@ -44,12 +44,19 @@ class CarroceiroRadiusFilter(APIView):
         except Carroceiro.DoesNotExist:
             raise Http404
 
+    # TODO move to carroceiro/models.py
     def filterWithinRadius(self, carroceiro_list, lat1, long1, radius):
         filter_carroceiro_list = []
+
         for c in carroceiro_list:
-            (lat_aux, long_aux) = (c.latitude, c.longitude)
+
+            #(lat_aux, long_aux) = (c.latitude, c.longitude)
+            geo_dict = c.geolocation
+            lat_aux, long_aux = geo_dict['latitude'], geo_dict['longitude']
+
             if vincenty((lat_aux, long_aux), (lat1, long1)).km <= float(radius):
                 filter_carroceiro_list.append(c)
+
         return filter_carroceiro_list
 
 
@@ -82,5 +89,4 @@ class CarroceiroDetail(APIView):
                 return Response(serializer.data)
             except CarroceiroAlreadyExistsException:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
