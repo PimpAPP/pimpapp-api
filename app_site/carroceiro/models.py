@@ -8,6 +8,7 @@ class CarroceiroAlreadyExistsException(Exception):
 
 class Materials(self.Models):
     # TODO: Write the rest
+    created_on =  models.DateTimeField(auto_now_add=True)
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
     paper = models.BooleanField(default=False)
     freight = models.BooleanField(default=False)
@@ -18,18 +19,32 @@ class Carroceiro(models.Model):
     Class used for modeling a instance of Carroceiro in our DB.
     by default, this table will be addressed as carroceiro_carroceiro
     """
+
+    CATADOR = 'C'
+    COOPERATIVA = 'O'
+    ECOPONTO = 'P'
+
+    TYPE_CHOICES = (
+        (CATADOR, 'Catador')
+        (COOPERATIVA, 'Cooperativa')
+        (ECOPONTO, 'Ecoponto')
+    )
+
     name = models.CharField(max_length=120, default='')
-    type = models.CharField(max_length=20, default='', null=True, blank=True)
-    phone = models.CharField(max_length=15, validators=[RegexValidator(regex=r'^\d{8,15}$',
-                                                                       message='Phone number must have at least 8 digits and/or up to 15 digits.')], default='', null=True, blank=True)
+    phone = models.CharField(max_length=15,
+        validators=[RegexValidator(regex=r'^\d{8,15}$',
+        message='Phone number must have at least 8 digits and/or up to 15 digits.')],
+        default='', null=True, blank=True)
     address = models.CharField(max_length=120, default='', null=True, blank=True)
     #latitude = models.FloatField(default=0.0)
     #longitude = models.FloatField(default=0.0)
 
+    type = models.CharField(max_length=1, default=CATADOR,
+           choices=TYPE_CHOICES)
+
     @property
     def geolocation(self):
-        obj = LatitudeLongitude.objects.filter(
-            carroceiro=self).latest('created_on')
+        obj = self.latitudelongitude_set.objects.all().latest('created_on')
 
         geo_dict = {
             'latitude': obj.latitude,
@@ -37,6 +52,11 @@ class Carroceiro(models.Model):
         }
 
         return geo_dict
+
+    @property
+    def meterials(self):
+        obj = self.materials_set.objects.all().latest('created_on')
+        return obj
 
     ## This method was overwrittne to avoid that the same person is registred twice on the same adress, latitude and longitude.
     #def save(self, force_insert=False, force_update=False, using=None,
