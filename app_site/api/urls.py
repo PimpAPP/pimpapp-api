@@ -1,0 +1,28 @@
+from django.conf.urls import url
+
+from rest_framework import routers
+
+from . import views
+
+from .views import ProfileInfoViewSet
+from .views import RatingViewSet
+from .views import PhotoViewSet
+
+from .views import RatingByCarroceiroViewSet
+from .views import PhotoByCarroceiroViewSet
+
+router = routers.DefaultRouter()
+
+router.register(r'profile', ProfileInfoViewSet)
+router.register(r'rating', RatingViewSet)
+router.register(r'photo', PhotoViewSet)
+
+urlpatterns = [
+    # Example
+    url('^carroceiro/(?P<carroceiro>\d+)/rating$',
+        RatingByCarroceiroViewSet.as_view()),
+    url('^carroceiro/(?P<carroceiro>\d+)/photo$',
+        PhotoByCarroceiroViewSet.as_view()),
+]
+
+urlpatterns += router.urls

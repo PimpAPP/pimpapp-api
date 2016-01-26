@@ -5,15 +5,6 @@ from django.core.validators import RegexValidator
 class CarroceiroAlreadyExistsException(Exception):
     pass
 
-
-class Materials(self.Models):
-    # TODO: Write the rest
-    created_on =  models.DateTimeField(auto_now_add=True)
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
-    paper = models.BooleanField(default=False)
-    freight = models.BooleanField(default=False)
-    large_objects = models.BooleanField(default=False)
-
 class Carroceiro(models.Model):
     """
     Class used for modeling a instance of Carroceiro in our DB.
@@ -25,9 +16,9 @@ class Carroceiro(models.Model):
     ECOPONTO = 'P'
 
     TYPE_CHOICES = (
-        (CATADOR, 'Catador')
-        (COOPERATIVA, 'Cooperativa')
-        (ECOPONTO, 'Ecoponto')
+        (CATADOR, 'Catador'),
+        (COOPERATIVA, 'Cooperativa'),
+        (ECOPONTO, 'Ecoponto'),
     )
 
     name = models.CharField(max_length=120, default='')
@@ -70,6 +61,15 @@ class Carroceiro(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Materials(models.Model):
+    # TODO: Write the rest
+    created_on =  models.DateTimeField(auto_now_add=True)
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+    paper = models.BooleanField(default=False)
+    freight = models.BooleanField(default=False)
+    large_objects = models.BooleanField(default=False)
 
 
 class LatitudeLongitude(models.Model):
