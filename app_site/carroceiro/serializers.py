@@ -8,5 +8,4 @@ class CarroceiroSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Carroceiro
-        fields = ('id', 'name', 'type', 'phone',
-                  'address', 'geolocation')
+        fields = ('id', 'name', 'type', 'phone', 'address', 'latitude', 'longitude')

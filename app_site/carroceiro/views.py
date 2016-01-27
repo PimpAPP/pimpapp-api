@@ -1,16 +1,13 @@
-from django.http import Http404
-from geopy.distance import vincenty
-
-from rest_framework import status
-from rest_framework import filters
-from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
 from .models import Carroceiro
 from .models import CarroceiroAlreadyExistsException
 from .serializers import CarroceiroSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import Http404
+from rest_framework import status
+from rest_framework import filters
+from rest_framework import generics
+from geopy.distance import vincenty
 
 
 class CarroceirosList(generics.ListAPIView):
@@ -18,12 +15,10 @@ class CarroceirosList(generics.ListAPIView):
     List all Carroceiros and/or Create a new Carroceiro.
     This view allows filtering by the attributes "type" and "phone"
     """
-
     queryset = Carroceiro.objects.all()
     serializer_class = CarroceiroSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('type', 'phone')
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def post(self, request, format=None):
         serializer = CarroceiroSerializer(data=request.data)
@@ -41,9 +36,6 @@ class CarroceiroRadiusFilter(APIView):
     List all Carroceiros who are within a certain radius in kilometers given the user's latitude and longitude which
     is the reference point to calculte this radius filter.
     """
-
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
     def get(self, request, lat_1, long_1, radius, format=None):
         try:
             carroceiro_full_list = Carroceiro.objects.all()
@@ -52,19 +44,12 @@ class CarroceiroRadiusFilter(APIView):
         except Carroceiro.DoesNotExist:
             raise Http404
 
-    # TODO move to carroceiro/models.py
     def filterWithinRadius(self, carroceiro_list, lat1, long1, radius):
         filter_carroceiro_list = []
-
         for c in carroceiro_list:
-
-            #(lat_aux, long_aux) = (c.latitude, c.longitude)
-            geo_dict = c.geolocation
-            lat_aux, long_aux = geo_dict['latitude'], geo_dict['longitude']
-
+            (lat_aux, long_aux) = (c.latitude, c.longitude)
             if vincenty((lat_aux, long_aux), (lat1, long1)).km <= float(radius):
                 filter_carroceiro_list.append(c)
-
         return filter_carroceiro_list
 
 
@@ -72,9 +57,6 @@ class CarroceiroDetail(APIView):
     """
     Update, Retrieve and Delete a instance of Carroceiro given their id.
     """
-
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
     def get(self, request, id, format=None):
         try:
             carroceiro = Carroceiro.objects.get(id=id)
@@ -100,4 +82,5 @@ class CarroceiroDetail(APIView):
                 return Response(serializer.data)
             except CarroceiroAlreadyExistsException:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
