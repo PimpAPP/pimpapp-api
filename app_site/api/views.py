@@ -7,14 +7,24 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Authorship
 from .models import ProfileInfo
+from .models import Carroceiro
 from .models import Rating
 from .models import Photo
 
 from .serializers import ProfileInfoSerializer
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
+from .serializers import CarroceiroSerializer
 
 public_status = (Authorship.APPROVED, Authorship.PENDING)
+
+class CarroceiroViewSet(viewsets.ModelViewSet):
+    """
+        DOCS: CarroceiroViewSet -> TODO
+    """
+    serializer_class = CarroceiroSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Carroceiro.objects.all()
 
 
 class ProfileInfoViewSet(viewsets.ModelViewSet):

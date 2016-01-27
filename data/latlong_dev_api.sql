@@ -1,4 +1,6 @@
+/*
 INSERT INTO auth_user VALUES(1,'pbkdf2_sha256$20000$8rPeln1kYJWz$so4XVqVp6BgNuOcvnzg+lZpBIrcPYfWoeYephQLDxrY=',1,'admin','','','admin@admin.cc',1,1,'2016-01-27 11:04:02.305960',NULL);
+*/
 
 INSERT INTO api_carroceiro (id, name, phone, type) VALUES (1, "Rafael dos Santos", "982416387", "C");
 INSERT INTO api_carroceiro (id, name, phone, type) VALUES (2, "Rodrigue Lucena", "984357774", "C");

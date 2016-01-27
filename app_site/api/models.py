@@ -37,29 +37,19 @@ class Carroceiro(models.Model):
 
     @property
     def geolocation(self):
-        obj = self.latitudelongitude_set.objects.all().latest('created_on')
-
-        geo_dict = {
-            'latitude': obj.latitude,
-            'longitude': obj.longitude,
-        }
-
-        return geo_dict
-
-    @property
-    def meterials(self):
-        obj = self.materials_set.objects.all().latest('created_on')
+        obj = self.latitudelongitude_set.all().latest('created_on')
         return obj
 
-    ## This method was overwrittne to avoid that the same person is registred twice on the same adress, latitude and longitude.
-    #def save(self, force_insert=False, force_update=False, using=None,
-    #         update_fields=None):
-    #    carroceiro_list = Carroceiro.objects.filter(phone=self.phone)
-    #    for c in carroceiro_list:
-    #        if (c.longitude == self.longitude) and (c.latitude == self.latitude) and (c.adress == self.address):
-    #            raise CarroceiroAlreadyExistsException("This carroceiro is already in our database, "
-    #                                                   "you can't register the same person on the same adress twice")
-    #    super(Carroceiro, self).save()
+    @property
+    def materials(self):
+        obj = self.materials_set.all().latest('created_on')
+        return obj
+
+    @property
+    def profile_info(self):
+        # TODO: filter
+        obj = self.profileinfo_set.objects.all().latest('created_on')
+        return obj
 
     def __str__(self):
         return self.name
@@ -181,7 +171,6 @@ class ProfileInfo(BaseProfileInfo):
 
 
 class ProfileInfoHistoric(BaseProfileInfo):
-
     """
         DOCS: TODO
     """
