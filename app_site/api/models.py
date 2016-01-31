@@ -32,7 +32,7 @@ class Carroceiro(models.Model):
         message='Phone number must have at least 8 digits and/or up to 15 digits.')],
         default='', null=True, blank=True)
 
-    type = models.CharField(max_length=1, default=CATADOR,
+    catador_type = models.CharField(max_length=1, default=CATADOR,
            choices=TYPE_CHOICES)
 
     @property
@@ -42,7 +42,12 @@ class Carroceiro(models.Model):
 
     @property
     def materials(self):
-        obj = self.materials_set.all().latest('created_on')
+        obj = self.material_set.all().latest('created_on')
+        return obj
+
+    @property
+    def photos(self):
+        obj = self.photo_set.all().latest('created_on')
         return obj
 
     @property
@@ -75,15 +80,80 @@ class Authorship(models.Model):
     user = models.ForeignKey(User, unique=False, blank=False)
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
     created_on =  models.DateTimeField(auto_now_add=True)
-    moderation_status = models.CharField(max_length=1,
-                                      choices=MODERATION_CHOICES,
-                                      default=PENDING)
+    moderation_status = models.CharField(
+            verbose_name=_('Status de Moderação'),
+            help_text=_('O status "Rejected" não permite que o registro seja mostrado.'),
+            max_length=1,
+            choices=MODERATION_CHOICES,
+            default=PENDING)
 
-class Materials(Authorship):
-    # TODO: Write the rest
-    paper = models.BooleanField(default=False)
-    freight = models.BooleanField(default=False)
-    large_objects = models.BooleanField(default=False)
+
+class Material(Authorship):
+    """
+        Tipical Carroceiro's services:
+            * Serviço de Frete e Carreto
+            * Reciclável (papel, vidro, latas, embalagens, vidro,
+                      embalagem longa vida, etc.)
+            * Resíduo de Construção Civil (entulho, tintas, madeira, etc.)
+            * Resíduos Volumosos (sofá, geladeira, fogão, etc.)
+            * Ferro e metais (cobre, alumínio, etc.)
+            * Resíduos eletroeletrônicos (computadores, pilhas, baterias,
+                                          etc.)
+
+        Materiais que recebe:
+            * Papel (jornal, revista, papel branco, papelão, etc.)
+            * Vidro (garrafas, embalagens, etc.)
+            * Metal (latas de alumínio, embalagem de marmita, etc.)
+            * Plástico (embalagens, canos, etc.)
+            * Volumosos  (sofá, geladeira, fogão, etc.)
+            * Eletroeletrônicos (computadores, pilhas, baterias, etc.)
+            * Madeira
+            * Sucata (ferro, alumínio, metais, etc.)
+            * Óleo de cozinha
+            * Outros (embalagem longa vida, etc.)
+    """
+    class Meta:
+        verbose_name = 'Serviços e Meteriais'
+        verbose_name_plural = 'Serviços e Meteriais'
+
+    freight = models.BooleanField(
+            verbose_name=_("Serviço de Frete e Carreto"),
+            default=False)
+    large_objects = models.BooleanField(
+            verbose_name=_('Volumosos'),
+            help_text=_('Exemplo: sofá, geladeira, fogão, etc...'),
+            default=False)
+    demolition_waste = models.BooleanField(
+            verbose_name=_('Resíduo de Construção Civil'),
+            help_text=_('entulho, tintas, madeira, etc...'),
+            default=False)
+    e_waste = models.BooleanField(
+            verbose_name=_('Eletroeletrônicos'),
+            help_text=_('Exemplo: computadores, pilhas, baterias, etc...'),
+            default=False)
+    paper = models.BooleanField(
+            verbose_name=_('Papel'),
+            help_text=('Exemplo: jornal, revista, papel branco, papelão, etc...'),
+            default=False)
+    glass = models.BooleanField(
+            verbose_name=_('Vidro'),
+            help_text=_('Exemplo: garrafas, embalagens, etc...'),
+            default=False)
+    plastic = models.BooleanField(
+            verbose_name=_('Plástico'),
+            help_text=_('Exemplo: embalagens, canos, etc..'),
+            default=False)
+    metal = models.BooleanField(
+            verbose_name=_('Metais'),
+            help_text=_('Exemplo: ferro, cobre, alumínio, etc..)'),
+            default=False)
+    wood = models.BooleanField(
+            verbose_name=_('Madeira'),
+            help_text=_('Exemplo: tábuas, ripas, etc...'),
+            default=False)
+    cooking_oil = models.BooleanField(
+            verbose_name=_('Óleo de cozinha'),
+            default=False)
 
 
 class LatitudeLongitude(Authorship):
@@ -100,8 +170,17 @@ class Rating(Authorship):
     """
         DOCS: TODO
     """
-    rating = models.IntegerField(blank=True)
-    comment = models.CharField(max_length=140, blank=True)
+
+    class Meta:
+        verbose_name = _('Comentário e Avaliação')
+        verbose_name_plural = _('Comentários e Avaliações')
+
+    rating = models.IntegerField(
+            verbose_name=_('Avaliação'),
+            blank=True)
+    comment = models.CharField(
+            verbose_name=_('Comentário'),
+            max_length=140, blank=True)
 
     def clean(self):
         if not self.rating and not self.comment:
@@ -139,19 +218,34 @@ class BaseProfileInfo(Authorship):
     class Meta:
         abstract = True
 
-    name = models.CharField(max_length=64)
+    name = models.CharField(
+            max_length=64,
+            verbose_name=_('Telefone Móvel'))
 
-    phone = models.CharField(max_length=16)
-    mno = models.CharField(max_length=11,
-        verbose_name=u"Operadora Móvel")
-    has_whatsapp = models.BooleanField(default=False)
+    phone = models.CharField(
+            max_length=16,
+            verbose_name=_('Telefone Móvel'))
 
-    address = models.CharField(max_length=128,
-        verbose_name=u"Endereço onde costuma trabalhar.")
-    region = models.CharField(max_length=64,
-        verbose_name=u"Região onde costuma trabalhar.") # Makes sense?
-    city = models.CharField(max_length=64,
-        verbose_name=u"Cidade em que trabalha")
+    mno = models.CharField(
+            max_length=1,
+            choices=MNO_CHOICES,
+            verbose_name=_('Operadora Móvel'))
+
+    has_whatsapp = models.BooleanField(
+            verbose_name=_('Usa o WhatsAPP?'),
+            default=False)
+
+    address = models.CharField(
+            max_length=128,
+            verbose_name=_("Endereço onde costuma trabalhar."))
+
+    region = models.CharField(
+            max_length=64,
+            verbose_name=_("Região onde costuma trabalhar.")) # Any sense?
+
+    city = models.CharField(
+            max_length=64,
+            verbose_name=_("Cidade em que trabalha"))
 
     has_motor_vehicle = models.BooleanField(default=False)
     carroca_pimpada = models.BooleanField(default=False)
@@ -181,7 +275,7 @@ class ProfileInfoHistoric(BaseProfileInfo):
 
         self = cls()
 
-        fields = ['name', 'phone', 'mno',
+        fields = ['user', 'carroceiro', 'moderation_status', 'name', 'phone', 'mno',
             'has_whatsapp', 'address', 'region',
             'city', 'has_motor_vehicle', 'carroca_pimpada']
 

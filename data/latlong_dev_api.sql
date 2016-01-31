@@ -2,23 +2,23 @@
 INSERT INTO auth_user VALUES(1,'pbkdf2_sha256$20000$8rPeln1kYJWz$so4XVqVp6BgNuOcvnzg+lZpBIrcPYfWoeYephQLDxrY=',1,'admin','','','admin@admin.cc',1,1,'2016-01-27 11:04:02.305960',NULL);
 */
 
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (1, "Rafael dos Santos", "982416387", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (2, "Rodrigue Lucena", "984357774", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (3, "Gabriel dos Santos", "954861273", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (4, "Denilson", "954167784", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (5, "Jorge Natalino", "943270892", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (6, "Nego", "967847079", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (7, "Fábio", "988412088", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (8, "Buiu", "989083725", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (9, "Marco Viana dos Santos","975004604", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (10, "Biro-Biro", "977399129", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (11, "Sergio Bispo", "962270116", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (12, "Fernando Miguel", "948867162", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (13, "Marquinhos", "957207459", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (14, "Priscila", "964579284", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (15, "Jose Teixeira Dantas", "972059149", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (16, "Denilson", "954167784", "C");
-INSERT INTO api_carroceiro (id, name, phone, type) VALUES (17, "Jose Parque do Gato", "984678922", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (1, "Rafael dos Santos", "982416387", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (2, "Rodrigue Lucena", "984357774", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (3, "Gabriel dos Santos", "954861273", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (4, "Denilson", "954167784", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (5, "Jorge Natalino", "943270892", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (6, "Nego", "967847079", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (7, "Fábio", "988412088", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (8, "Buiu", "989083725", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (9, "Marco Viana dos Santos","975004604", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (10, "Biro-Biro", "977399129", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (11, "Sergio Bispo", "962270116", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (12, "Fernando Miguel", "948867162", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (13, "Marquinhos", "957207459", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (14, "Priscila", "964579284", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (15, "Jose Teixeira Dantas", "972059149", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (16, "Denilson", "954167784", "C");
+INSERT INTO api_carroceiro (id, name, phone, catador_type) VALUES (17, "Jose Parque do Gato", "984678922", "C");
 
 INSERT INTO api_latitudelongitude (user_id, carroceiro_id, address, latitude, longitude, moderation_status, created_on) VALUES (1, 1, "Rua Dos Gusmões, 500", -23.5374089, -46.6399287, 'A', '2016-01-27 10:56:13.121701');
 INSERT INTO api_latitudelongitude (user_id, carroceiro_id, address, latitude, longitude, moderation_status, created_on) VALUES (1, 2, "Av Liberdade 163", -23.5544961, -46.6354377, 'A', '2016-01-27 10:56:13.121701');
