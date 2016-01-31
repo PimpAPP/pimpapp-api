@@ -7,8 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
+
 class CarroceiroAlreadyExistsException(Exception):
     pass
+
 
 class Carroceiro(models.Model):
     """
@@ -21,9 +23,9 @@ class Carroceiro(models.Model):
     ECOPONTO = 'P'
 
     TYPE_CHOICES = (
-        (CATADOR, 'Catador'),
-        (COOPERATIVA, 'Cooperativa'),
-        (ECOPONTO, 'Ecoponto'),
+        (CATADOR, _('Catador')),
+        (COOPERATIVA, _('Cooperativa')),
+        (ECOPONTO, _('Ecoponto')),
     )
 
     name = models.CharField(max_length=120, default='')
@@ -69,9 +71,9 @@ class Authorship(models.Model):
     PENDING = 'P'
 
     MODERATION_CHOICES = (
-        (APPROVED, 'Approved'),
-        (REJECTED, 'Rejected'),
-        (PENDING, 'Pending'),
+        (APPROVED, _('Approved')),
+        (REJECTED, _('Rejected')),
+        (PENDING, _('Pending')),
     )
 
     class Meta:
@@ -171,13 +173,25 @@ class Rating(Authorship):
         DOCS: TODO
     """
 
+    POSITIVE = '+'
+    NEUTRAL = '0'
+    NEGATIVE = '-'
+
+    RATING_CHOICES = (
+        (POSITIVE, _('Positiva')),
+        (NEUTRAL, _('Neutra')),
+        (NEGATIVE, _('Negativa')),
+    )
+
     class Meta:
         verbose_name = _('Comentário e Avaliação')
         verbose_name_plural = _('Comentários e Avaliações')
 
-    rating = models.IntegerField(
+    rating = models.CharField(
+            max_length=1,
             verbose_name=_('Avaliação'),
-            blank=True)
+            choices=RATING_CHOICES)
+
     comment = models.CharField(
             verbose_name=_('Comentário'),
             max_length=140, blank=True)
@@ -220,7 +234,7 @@ class BaseProfileInfo(Authorship):
 
     name = models.CharField(
             max_length=64,
-            verbose_name=_('Telefone Móvel'))
+            verbose_name=_('Nome'))
 
     phone = models.CharField(
             max_length=16,
