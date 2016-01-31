@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework import filters
 
 from .models import ProfileInfo
 from .models import Rating
@@ -8,29 +9,29 @@ from .models import Materials
 from .models import LatitudeLongitude
 
 
-class MaterialsSerializer(serializers.HyperlinkedModelSerializer):
+class MaterialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Materials
         fields = ('paper', 'freight', 'large_objects')
 
 
-class LatitudeLongitudeSerializer(serializers.HyperlinkedModelSerializer):
+class LatitudeLongitudeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LatitudeLongitude
         fields = ('latitude', 'longitude', 'address')
 
 
-class ProfileInfoSerializer(serializers.HyperlinkedModelSerializer):
+class ProfileInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileInfo
         fields = ('pk',
-            'user', 'carroceiro', 'created_on', 'moderation_status'
+            'user', 'carroceiro', 'created_on', 'moderation_status',
             'name', 'mno', 'has_whatsapp', 'address', 'region',
             'address', 'region', 'city', 'has_motor_vehicle',
             'carroca_pimpada')
 
 
-class CarroceiroSerializer(serializers.HyperlinkedModelSerializer):
+class CarroceiroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Carroceiro
@@ -41,17 +42,17 @@ class CarroceiroSerializer(serializers.HyperlinkedModelSerializer):
     materials = MaterialsSerializer(required=False)
 
 
-class RatingSerializer(serializers.HyperlinkedModelSerializer):
+class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ('pk',
-            'user', 'carroceiro', 'created_on', 'moderation_status'
+            'user', 'carroceiro', 'created_on', 'moderation_status',
             'rating', 'comment')
 
 
-class PhotoSerializer(serializers.HyperlinkedModelSerializer):
+class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
         fields = ('pk',
-            'user', 'carroceiro', 'created_on', 'moderation_status'
+            'user', 'carroceiro', 'created_on', 'moderation_status',
             'full_photo', 'thumbnail')

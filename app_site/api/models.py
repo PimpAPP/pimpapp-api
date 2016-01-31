@@ -109,9 +109,9 @@ class Rating(Authorship):
 
 
 class Photo(Authorship):
-    # TODO
-    full_photo = models.ImageField()
-    thumbnail = models.ImageField(blank=True)
+    # file will be uploaded to MEDIA_ROOT/full_photo
+    full_photo = models.ImageField(upload_to='full_photo')
+    thumbnail = models.ImageField(blank=True, upload_to='thumbnail')
 
 
 class BaseProfileInfo(Authorship):
