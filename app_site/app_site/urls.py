@@ -24,7 +24,7 @@ urlpatterns = [
     #url(r'^api/carroceiro', include('carroceiro.urls')),
 ]
 
-if settings.DEBUG:
+if settings.SERVE_STATIC_FILES:
     urlpatterns += static(settings.STATIC_URL,
                           document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL,
