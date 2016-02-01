@@ -6,6 +6,18 @@ Pre requisitos para rodar o app
 
 source venv/bin/activate
 
+-> O pacote Pillow depende das seguintes bibliotecas:
+
+libjpeg provides JPEG functionality.
+zlib provides access to compressed PNGs
+libtiff provides group4 tiff functionality
+libfreetype provides type related services
+littlecms provides color management
+libwebp provides the Webp format
+
+Na maquina debian do DigitalOcean os pacotes necessários foram libjpeg-dev e
+zlib1g-dev
+
 -> Instalar todos as python libraries
 
 pip install -r requirements.txt
