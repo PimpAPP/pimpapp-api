@@ -56,6 +56,7 @@ target/
 # Virtualenv
 venv/
 env/
+env34/
 
 # cache results from py.test
 integration_test/.cache
@@ -63,3 +64,6 @@ integration_test/.cache
 
 # PyCharm IDE
 .idea
+
+# Vim files
+*.swp
