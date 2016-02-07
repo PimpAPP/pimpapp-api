@@ -49,13 +49,18 @@ class Carroceiro(models.Model):
 
     @property
     def photos(self):
-        obj = self.photo_set.all().latest('created_on')
-        return obj
+        objs = self.photo_set.all().order_by('created_on')
+        return objs
+
+    @property
+    def comments(self):
+        objs = self.rating_set.all().order_by('created_on')
+        return objs
 
     @property
     def profile_info(self):
         # TODO: filter
-        obj = self.profileinfo_set.objects.all().latest('created_on')
+        obj = self.profileinfo_set.all().latest('created_on')
         return obj
 
     def __str__(self):
