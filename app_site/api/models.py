@@ -212,7 +212,7 @@ class Photo(Authorship):
     thumbnail = models.ImageField(blank=True, upload_to='thumbnail')
 
 
-class BaseProfileInfo(Authorship):
+class Phone(Authorship):
     """
         DOCS: TODO
     """
@@ -234,13 +234,6 @@ class BaseProfileInfo(Authorship):
         (NEXTEL, 'Nextel'),
     )
 
-    class Meta:
-        abstract = True
-
-    name = models.CharField(
-            max_length=64,
-            verbose_name=_('Nome'))
-
     phone = models.CharField(
             max_length=16,
             verbose_name=_('Telefone Móvel'))
@@ -254,6 +247,16 @@ class BaseProfileInfo(Authorship):
             verbose_name=_('Usa o WhatsAPP?'),
             default=False)
 
+
+class BaseProfileInfo(Authorship):
+
+    class Meta:
+        abstract = True
+
+    name = models.CharField(
+            max_length=64,
+            verbose_name=_('Nome'))
+
     address = models.CharField(
             max_length=128,
             verbose_name=_("Endereço onde costuma trabalhar."))
@@ -265,6 +268,8 @@ class BaseProfileInfo(Authorship):
     city = models.CharField(
             max_length=64,
             verbose_name=_("Cidade em que trabalha"))
+
+    phones = ManyToManyField(Phone)
 
     has_motor_vehicle = models.BooleanField(default=False)
     carroca_pimpada = models.BooleanField(default=False)
