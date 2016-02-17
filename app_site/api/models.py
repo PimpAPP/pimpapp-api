@@ -29,10 +29,10 @@ class Carroceiro(models.Model):
     )
 
     name = models.CharField(max_length=120, default='')
-    phone = models.CharField(max_length=15,
+    required_phone = models.CharField(max_length=15,
         validators=[RegexValidator(regex=r'^\d{8,15}$',
         message='Phone number must have at least 8 digits and/or up to 15 digits.')],
-        default='', null=True, blank=True)
+        blank=False)
 
     catador_type = models.CharField(max_length=1, default=CATADOR,
            choices=TYPE_CHOICES)
@@ -241,11 +241,16 @@ class Phone(Authorship):
     mno = models.CharField(
             max_length=1,
             choices=MNO_CHOICES,
-            verbose_name=_('Operadora Móvel'))
+            verbose_name=_('Operadora Móvel'),
+            blank=True)
 
     has_whatsapp = models.BooleanField(
             verbose_name=_('Usa o WhatsAPP?'),
             default=False)
+
+    notes = models.CharField(
+            verbose_name=_('Comentário'),
+            max_length=140, blank=True)
 
 
 class BaseProfileInfo(Authorship):
@@ -268,8 +273,6 @@ class BaseProfileInfo(Authorship):
     city = models.CharField(
             max_length=64,
             verbose_name=_("Cidade em que trabalha"))
-
-    phones = ManyToManyField(Phone)
 
     has_motor_vehicle = models.BooleanField(default=False)
     carroca_pimpada = models.BooleanField(default=False)
