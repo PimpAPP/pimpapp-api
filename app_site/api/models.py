@@ -8,11 +8,36 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 
-class CarroceiroAlreadyExistsException(Exception):
-    pass
+class ModeratedModel(models.Model):
+    """
+        DOCS: TODO
+    """
+    APPROVED = 'A'
+    REJECTED = 'R'
+    PENDING = 'P'
+
+    MODERATION_CHOICES = (
+        (APPROVED, _('Approved')),
+        (REJECTED, _('Rejected')),
+        (PENDING, _('Pending')),
+    )
+
+    class Meta:
+        abstract = True
+
+    history = HistoricalRecords(inherit=True)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    moderation_status = models.CharField(
+            verbose_name=_('Status de Moderação'),
+            help_text=_('O status "Rejected" não permite que o registro seja mostrado.'),
+            max_length=1,
+            choices=MODERATION_CHOICES,
+            default=PENDING)
 
 
-class Carroceiro(models.Model):
+class Carroceiro(ModeratedModel):
     """
     Class used for modeling a instance of Carroceiro in our DB.
     by default, this table will be addressed as carroceiro_carroceiro
@@ -37,14 +62,16 @@ class Carroceiro(models.Model):
     catador_type = models.CharField(max_length=1, default=CATADOR,
            choices=TYPE_CHOICES)
 
+    # Lock feature
+    user = models.OneToOneField(
+            User,
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL)
+
     @property
     def geolocation(self):
         obj = self.latitudelongitude_set.all().latest('created_on')
-        return obj
-
-    @property
-    def materials(self):
-        obj = self.material_set.all().latest('created_on')
         return obj
 
     @property
@@ -57,45 +84,11 @@ class Carroceiro(models.Model):
         objs = self.rating_set.all().order_by('created_on')
         return objs
 
-    @property
-    def profile_info(self):
-        # TODO: filter
-        obj = self.profileinfo_set.all().latest('created_on')
-        return obj
-
     def __str__(self):
         return self.name
 
 
-class Authorship(models.Model):
-    """
-        DOCS: TODO
-    """
-    APPROVED = 'A'
-    REJECTED = 'R'
-    PENDING = 'P'
-
-    MODERATION_CHOICES = (
-        (APPROVED, _('Approved')),
-        (REJECTED, _('Rejected')),
-        (PENDING, _('Pending')),
-    )
-
-    class Meta:
-        abstract = True
-
-    user = models.ForeignKey(User, unique=False, blank=False)
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
-    created_on =  models.DateTimeField(auto_now_add=True)
-    moderation_status = models.CharField(
-            verbose_name=_('Status de Moderação'),
-            help_text=_('O status "Rejected" não permite que o registro seja mostrado.'),
-            max_length=1,
-            choices=MODERATION_CHOICES,
-            default=PENDING)
-
-
-class Material(Authorship):
+class Material(ModeratedModel):
     """
         Tipical Carroceiro's services:
             * Serviço de Frete e Carreto
@@ -119,10 +112,19 @@ class Material(Authorship):
             * Óleo de cozinha
             * Outros (embalagem longa vida, etc.)
     """
+
     class Meta:
         verbose_name = 'Serviços e Meteriais'
         verbose_name_plural = 'Serviços e Meteriais'
 
+    # control:
+    carroceiro = models.OneToOneField(
+            Carroceiro,
+            blank=False,
+            null=True,
+            on_delete=models.SET_NULL)
+
+    # fields:
     freight = models.BooleanField(
             verbose_name=_("Serviço de Frete e Carreto"),
             default=False)
@@ -163,17 +165,22 @@ class Material(Authorship):
             default=False)
 
 
-class LatitudeLongitude(Authorship):
+class LatitudeLongitude(ModeratedModel):
     """
         DOCS: TODO
     """
+
+    # control:
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+    # fields:
     latitude = models.FloatField(blank=False)
     longitude = models.FloatField(blank=False)
     # Reference point
-    address = models.CharField(max_length=120, default='', null=True, blank=True)
+    address = models.CharField(max_length=128, default='', null=True, blank=True)
 
 
-class Rating(Authorship):
+class Rating(ModeratedModel):
     """
         DOCS: TODO
     """
@@ -192,6 +199,11 @@ class Rating(Authorship):
         verbose_name = _('Comentário e Avaliação')
         verbose_name_plural = _('Comentários e Avaliações')
 
+    # control:
+    author = models.ForeignKey(User, unique=False, blank=False)
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+    # fields:
     rating = models.CharField(
             max_length=1,
             verbose_name=_('Avaliação'),
@@ -206,16 +218,26 @@ class Rating(Authorship):
             raise ValidationError(_('Rating or comment required.'))
 
 
-class Photo(Authorship):
+class Photo(ModeratedModel):
+    """
+        DOCS: TODO
+    """
+
+    # control:
+    author = models.ForeignKey(User, unique=False, blank=False)
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+    # fields:
     # file will be uploaded to MEDIA_ROOT/full_photo
     full_photo = models.ImageField(upload_to='full_photo')
     thumbnail = models.ImageField(blank=True, upload_to='thumbnail')
 
 
-class Phone(Authorship):
+class Phone(ModeratedModel):
     """
         DOCS: TODO
     """
+
     VIVO = 'V'
     TIM = 'T'
     CLARO = 'C'
@@ -234,6 +256,10 @@ class Phone(Authorship):
         (NEXTEL, 'Nextel'),
     )
 
+    # control:
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+    # fields:
     phone = models.CharField(
             max_length=16,
             verbose_name=_('Telefone Móvel'))
@@ -253,11 +279,19 @@ class Phone(Authorship):
             max_length=140, blank=True)
 
 
-class BaseProfileInfo(Authorship):
+class ProfileInfo(ModeratedModel):
+    """
+        DOCS: TODO
+    """
 
-    class Meta:
-        abstract = True
+    # control:
+    carroceiro = models.OneToOneField(
+            Carroceiro,
+            blank=False,
+            null=True,
+            on_delete=models.SET_NULL)
 
+    # fields:
     name = models.CharField(
             max_length=64,
             verbose_name=_('Nome'))
@@ -276,43 +310,3 @@ class BaseProfileInfo(Authorship):
 
     has_motor_vehicle = models.BooleanField(default=False)
     carroca_pimpada = models.BooleanField(default=False)
-
-
-class ProfileInfo(BaseProfileInfo):
-    """
-        DOCS: TODO
-    """
-    def save(self, *args, **kwargs):
-        super(ProfileInfo, self).save(*args, **kwargs)
-        self.archive()
-
-    def archive(self):
-        obj = ProfileInfoHistoric.from_profile(self)
-        obj.save()
-
-
-class ProfileInfoHistoric(BaseProfileInfo):
-    """
-        DOCS: TODO
-    """
-    original_pk = models.IntegerField()
-
-    @classmethod
-    def from_profile(cls, profile_info, save=False):
-
-        self = cls()
-
-        fields = ['user', 'carroceiro', 'moderation_status', 'name', 'phone', 'mno',
-            'has_whatsapp', 'address', 'region',
-            'city', 'has_motor_vehicle', 'carroca_pimpada']
-
-        self.original_pk = profile_info.pk
-
-        for field in fields:
-            value = getattr(profile_info, field)
-            setattr(self, field, value)
-
-        if save:
-            self.save()
-
-        return self
