@@ -7,19 +7,21 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-from .models import Authorship
+from .models import ModeratedModel
 from .models import ProfileInfo
 from .models import Carroceiro
 from .models import Rating
 from .models import Photo
+from .models import Phone
 
 from .serializers import ProfileInfoSerializer
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
+from .serializers import PhoneSerializer
 from .serializers import CarroceiroSerializer
 from .serializers import MaterialSerializer
 
-public_status = (Authorship.APPROVED, Authorship.PENDING)
+public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
 class CarroceiroViewSet(viewsets.ModelViewSet):
     """
@@ -30,6 +32,7 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         /api/carroceiro/<pk>/profile_info
         /api/carroceiro/<pk>/comments
         /api/carroceiro/<pk>/photos
+        /api/carroceiro/<pk>/phones
         /api/carroceiro/<pk>/materials
 
     """
@@ -91,6 +94,16 @@ class PhotoViewSet(viewsets.ModelViewSet):
             moderation_status__in=public_status)
 
 
+class PhoneViewSet(viewsets.ModelViewSet):
+    """
+        DOCS: TODO
+    """
+    serializer_class = PhoneSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Photo.objects.filter(
+            moderation_status__in=public_status)
+
+
 class RatingByCarroceiroViewSet(generics.ListAPIView):
     """
         DOCS: TODO
@@ -115,5 +128,19 @@ class PhotoByCarroceiroViewSet(generics.ListAPIView):
     def get_queryset(self):
         carroceiro = self.kwargs['carroceiro']
         queryset = Photo.objects.filter(
+                moderation_status__in=public_status,
+                carroceiro__id=carroceiro)
+
+
+class PhoneByCarroceiroViewSet(generics.ListAPIView):
+    """
+        DOCS: TODO
+    """
+    serializer_class = PhoneSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        carroceiro = self.kwargs['carroceiro']
+        queryset = Phone.objects.filter(
                 moderation_status__in=public_status,
                 carroceiro__id=carroceiro)

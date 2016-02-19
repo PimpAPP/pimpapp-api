@@ -11,6 +11,7 @@ from .views import PhotoViewSet
 
 from .views import RatingByCarroceiroViewSet
 from .views import PhotoByCarroceiroViewSet
+from .views import PhoneByCarroceiroViewSet
 
 router = routers.DefaultRouter()
 
@@ -25,6 +26,8 @@ urlpatterns = [
         RatingByCarroceiroViewSet.as_view()),
     url('^carroceiro/(?P<carroceiro>\d+)/photo$',
         PhotoByCarroceiroViewSet.as_view()),
+    url('^carroceiro/(?P<carroceiro>\d+)/phone$',
+        PhoneByCarroceiroViewSet.as_view()),
 ]
 
 urlpatterns += router.urls

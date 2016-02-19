@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
+from simple_history.models import HistoricalRecords
+
 
 class ModeratedModel(models.Model):
     """
@@ -120,6 +122,7 @@ class Material(ModeratedModel):
     # control:
     carroceiro = models.OneToOneField(
             Carroceiro,
+            related_name='materials',
             blank=False,
             null=True,
             on_delete=models.SET_NULL)
@@ -287,6 +290,7 @@ class ProfileInfo(ModeratedModel):
     # control:
     carroceiro = models.OneToOneField(
             Carroceiro,
+            related_name='profile_info',
             blank=False,
             null=True,
             on_delete=models.SET_NULL)

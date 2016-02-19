@@ -4,6 +4,7 @@ from rest_framework import filters
 from .models import ProfileInfo
 from .models import Rating
 from .models import Photo
+from .models import Phone
 from .models import Carroceiro
 from .models import Material
 from .models import LatitudeLongitude
@@ -28,10 +29,15 @@ class LatitudeLongitudeSerializer(serializers.ModelSerializer):
 class ProfileInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileInfo
-        fields = ('carroceiro', 'created_on',
-                  'name', 'mno', 'has_whatsapp', 'address',
-                  'region', 'address', 'region', 'city',
+        fields = ('carroceiro', 'created_on', 'name', 'region',
+                  'address', 'region', 'city',
                   'has_motor_vehicle', 'carroca_pimpada')
+
+
+class PhoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Phone
+        fields = ('mno', 'has_whatsapp', 'address')
 
 
 class RatingSerializer(serializers.ModelSerializer):
@@ -52,9 +58,8 @@ class CarroceiroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Carroceiro
-        fields = ('pk', 'catador_type', 'geolocation',
-                  'profile_info', 'materials')
+        fields = ('pk', 'catador_type', 'geolocation')
 
     geolocation = LatitudeLongitudeSerializer(required=False)
-    profile_info = ProfileInfoSerializer(required=False)
-    materials = MaterialSerializer(required=False)
+    #profile_info = ProfileInfoSerializer(required=False)
+    #materials = MaterialSerializer(required=False)
