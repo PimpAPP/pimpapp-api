@@ -7,7 +7,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -19,6 +19,43 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+
+VERSATILEIMAGEFIELD_SETTINGS['create_images_on_demand'] = True
+
+# Django-url based file serving for Media and Static
+SERVE_STATIC_FILES = True
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+VERSATILEIMAGEFIELD_SETTINGS = {
+    'cache_length': 2592000,
+    'cache_name': 'versatileimagefield_cache',
+    'jpeg_resize_quality': 70,
+    'sized_directory_name': '__sized__',
+    'filtered_directory_name': '__filtered__',
+    'placeholder_directory_name': '__placeholder__',
+    'create_images_on_demand': True
 }
 
 # Django-url based file serving for Media and Static

@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 from simple_history.models import HistoricalRecords
-
+from versatileimagefield.fields import VersatileImageField
+from versatileimagefield.fields import PPOIField
 
 class ModeratedModel(models.Model):
     """
@@ -232,8 +233,8 @@ class Photo(ModeratedModel):
 
     # fields:
     # file will be uploaded to MEDIA_ROOT/full_photo
-    full_photo = models.ImageField(upload_to='full_photo')
-    thumbnail = models.ImageField(blank=True, upload_to='thumbnail')
+    full_photo = VersatileImageField(upload_to='full_photo')
+    ppoi = PPOIField(verbose_name=_('Primary Point of Interest (PPOI)'))
 
 
 class Phone(ModeratedModel):
