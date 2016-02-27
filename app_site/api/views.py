@@ -8,13 +8,11 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from .models import ModeratedModel
-from .models import ProfileInfo
 from .models import Carroceiro
 from .models import Rating
 from .models import Photo
 from .models import Phone
 
-from .serializers import ProfileInfoSerializer
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
 from .serializers import PhoneSerializer
@@ -29,7 +27,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
 
         /api/carroceiro/
         /api/carroceiro/<pk>
-        /api/carroceiro/<pk>/profile_info
         /api/carroceiro/<pk>/comments
         /api/carroceiro/<pk>/photos
         /api/carroceiro/<pk>/phones
@@ -39,12 +36,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
     serializer_class = CarroceiroSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Carroceiro.objects.all()
-
-    @detail_route(methods=['get'])
-    def profile_info(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer =  ProfileInfoSerializer(carroceiro.profile_info)
-        return Response(serializer.data)
 
     @detail_route(methods=['get'])
     def comments(self, request, pk=None):
@@ -64,15 +55,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         serializer = MaterialSerializer(carroceiro.materials)
         return Response(serializer.data)
 
-
-class ProfileInfoViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = ProfileInfoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = ProfileInfo.objects.filter(
-            moderation_status__in=public_status)
 
 class RatingViewSet(viewsets.ModelViewSet):
     """

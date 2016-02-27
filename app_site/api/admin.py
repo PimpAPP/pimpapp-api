@@ -8,7 +8,6 @@ from .models import Phone
 from .models import LatitudeLongitude
 from .models import Rating
 from .models import Photo
-from .models import ProfileInfo
 
 admin.site.register(Carroceiro, SimpleHistoryAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
@@ -16,4 +15,3 @@ admin.site.register(Phone, SimpleHistoryAdmin)
 admin.site.register(LatitudeLongitude, SimpleHistoryAdmin)
 admin.site.register(Rating, SimpleHistoryAdmin)
 admin.site.register(Photo, SimpleHistoryAdmin)
-admin.site.register(ProfileInfo, SimpleHistoryAdmin)
