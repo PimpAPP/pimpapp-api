@@ -72,23 +72,31 @@ class Carroceiro(ModeratedModel):
 
     is_locked = models.BooleanField(
             verbose_name=_('Permite edição Publica'),
-            default=True)
+            default=False)
 
     # Location
     address_base = models.CharField(
             max_length=128,
+            blank=True,
+            null=True,
             verbose_name=_("Endereço onde costuma trabalhar."))
 
     region = models.CharField(
             max_length=64,
+            blank=True,
+            null=True,
             verbose_name=_("Região onde costuma trabalhar.")) # Any sense?
 
     city = models.CharField(
             max_length=64,
+            blank=True,
+            null=True,
             verbose_name=_("Cidade em que trabalha"))
 
     country = models.CharField(
             max_length=64,
+            blank=True,
+            null=True,
             verbose_name=_("Cidade em que trabalha"))
 
     # Pimp my Caroca
@@ -302,6 +310,7 @@ class Phone(ModeratedModel):
             max_length=1,
             choices=MNO_CHOICES,
             verbose_name=_('Operadora Móvel'),
+            null=True,
             blank=True)
 
     has_whatsapp = models.BooleanField(
@@ -310,5 +319,5 @@ class Phone(ModeratedModel):
 
     notes = models.CharField(
             verbose_name=_('Comentário'),
-            max_length=140, blank=True)
+            max_length=140, blank=True, null=True)
 
