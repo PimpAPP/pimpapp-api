@@ -22,13 +22,13 @@ class LatitudeLongitudeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LatitudeLongitude
         fields = ('carroceiro', 'created_on',
-                  'latitude', 'longitude', 'address')
+                  'latitude', 'longitude', 'reverse_geocoding')
 
 
 class PhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Phone
-        fields = ('mno', 'has_whatsapp', 'address')
+        fields = ('phone', 'mno', 'has_whatsapp', 'notes')
 
 
 class RatingSerializer(serializers.ModelSerializer):
@@ -49,7 +49,10 @@ class CarroceiroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Carroceiro
-        fields = ('pk', 'catador_type', 'geolocation')
+        fields = ('pk', 'catador_type', 'geolocation',
+                'name', 'address_base', 'region', 'city',
+                'country', 'has_motor_vehicle', 'carroca_pimpada',
+                'is_locked')
 
     geolocation = LatitudeLongitudeSerializer(required=False)
     #materials = MaterialSerializer(required=False)

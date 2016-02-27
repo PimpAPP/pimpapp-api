@@ -20,11 +20,11 @@ router.register(r'photo', PhotoViewSet)
 
 urlpatterns = [
     # Example
-    url('^carroceiro/(?P<carroceiro>\d+)/rating$',
+    url('^carroceiro/(?P<carroceiro>\d+)/comments$',
         RatingByCarroceiroViewSet.as_view()),
-    url('^carroceiro/(?P<carroceiro>\d+)/photo$',
+    url('^carroceiro/(?P<carroceiro>\d+)/photos$',
         PhotoByCarroceiroViewSet.as_view()),
-    url('^carroceiro/(?P<carroceiro>\d+)/phone$',
+    url('^carroceiro/(?P<carroceiro>\d+)/phones$',
         PhoneByCarroceiroViewSet.as_view()),
 ]
 
