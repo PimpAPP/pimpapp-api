@@ -56,11 +56,9 @@ class Carroceiro(ModeratedModel):
         (ECOPONTO, _('Ecoponto')),
     )
 
-    name = models.CharField(max_length=120, default='')
-    required_phone = models.CharField(max_length=15,
-        validators=[RegexValidator(regex=r'^\d{8,15}$',
-        message='Phone number must have at least 8 digits and/or up to 15 digits.')],
-        blank=False)
+    name = models.CharField(
+            max_length=64,
+            verbose_name=_('Nome'))
 
     catador_type = models.CharField(max_length=1, default=CATADOR,
            choices=TYPE_CHOICES)
@@ -71,6 +69,36 @@ class Carroceiro(ModeratedModel):
             blank=True,
             null=True,
             on_delete=models.SET_NULL)
+
+    is_locked = models.BooleanField(
+            verbose_name=_('Permite edição Publica'),
+            default=True)
+
+    # Location
+    address_base = models.CharField(
+            max_length=128,
+            verbose_name=_("Endereço onde costuma trabalhar."))
+
+    region = models.CharField(
+            max_length=64,
+            verbose_name=_("Região onde costuma trabalhar.")) # Any sense?
+
+    city = models.CharField(
+            max_length=64,
+            verbose_name=_("Cidade em que trabalha"))
+
+    country = models.CharField(
+            max_length=64,
+            verbose_name=_("Cidade em que trabalha"))
+
+    # Pimp my Caroca
+    has_motor_vehicle = models.BooleanField(
+            default=False,
+            verbose_name=_("Tem veículo motorizado."))
+
+    carroca_pimpada = models.BooleanField(
+            default=False,
+            verbose_name=_("Teve a Carroça Pimpada?"))
 
     @property
     def geolocation(self):
@@ -181,7 +209,7 @@ class LatitudeLongitude(ModeratedModel):
     latitude = models.FloatField(blank=False)
     longitude = models.FloatField(blank=False)
     # Reference point
-    address = models.CharField(max_length=128, default='', null=True, blank=True)
+    reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
 
 
 class Rating(ModeratedModel):
@@ -266,6 +294,8 @@ class Phone(ModeratedModel):
     # fields:
     phone = models.CharField(
             max_length=16,
+            validators=[RegexValidator(regex=r'^\d{8,15}$',
+            message='Phone number must have at least 8 digits and/or up to 15 digits.')],
             verbose_name=_('Telefone Móvel'))
 
     mno = models.CharField(
@@ -282,36 +312,3 @@ class Phone(ModeratedModel):
             verbose_name=_('Comentário'),
             max_length=140, blank=True)
 
-
-class ProfileInfo(ModeratedModel):
-    """
-        DOCS: TODO
-    """
-
-    # control:
-    carroceiro = models.OneToOneField(
-            Carroceiro,
-            related_name='profile_info',
-            blank=False,
-            null=True,
-            on_delete=models.SET_NULL)
-
-    # fields:
-    name = models.CharField(
-            max_length=64,
-            verbose_name=_('Nome'))
-
-    address = models.CharField(
-            max_length=128,
-            verbose_name=_("Endereço onde costuma trabalhar."))
-
-    region = models.CharField(
-            max_length=64,
-            verbose_name=_("Região onde costuma trabalhar.")) # Any sense?
-
-    city = models.CharField(
-            max_length=64,
-            verbose_name=_("Cidade em que trabalha"))
-
-    has_motor_vehicle = models.BooleanField(default=False)
-    carroca_pimpada = models.BooleanField(default=False)
