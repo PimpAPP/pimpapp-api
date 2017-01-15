@@ -11,6 +11,21 @@ from simple_history.models import HistoricalRecords
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
 
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+
+
+# This code is triggered whenever a new user has been created and saved to the database
+#@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance, **kwargs):
+    token, created = Token.objects.get_or_create(user=instance)
+
+
 class ModeratedModel(models.Model):
     """
         DOCS: TODO
@@ -96,8 +111,7 @@ class Carroceiro(ModeratedModel):
     country = models.CharField(
             max_length=64,
             blank=True,
-            null=True,
-            verbose_name=_("Cidade em que trabalha"))
+            null=True)
 
     # Pimp my Caroca
     has_motor_vehicle = models.BooleanField(
@@ -285,7 +299,7 @@ class Phone(ModeratedModel):
     NEXTEL = 'N'
     # Algar
     # Sercomtel
-    # Porto Seguro
+    PORTO = 'P'
 
     # Mobile Network Operator (MNO)
     MNO_CHOICES = (
@@ -294,6 +308,7 @@ class Phone(ModeratedModel):
         (CLARO, 'Claro'),
         (OI, 'Oi'),
         (NEXTEL, 'Nextel'),
+        (NEXTEL, 'Porto Conecta'),
     )
 
     # control:

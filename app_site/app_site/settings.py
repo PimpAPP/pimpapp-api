@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'simple_history',
     'versatileimagefield',
     'django_filters',
-    'carroceiro',
+    #'carroceiro',
     'api',
 )
 
