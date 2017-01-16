@@ -5,6 +5,7 @@ from rest_framework import routers
 from . import views
 
 from .views import CarroceiroViewSet
+from .views import LatitudeLongitudeViewSet
 from .views import RatingViewSet
 from .views import PhotoViewSet
 
@@ -15,6 +16,7 @@ from .views import PhoneByCarroceiroViewSet
 router = routers.DefaultRouter()
 
 router.register(r'carroceiro', CarroceiroViewSet)
+router.register(r'georef', LatitudeLongitudeViewSet)
 router.register(r'rating', RatingViewSet)
 router.register(r'photo', PhotoViewSet)
 

@@ -8,6 +8,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from .models import ModeratedModel
+from .models import LatitudeLongitude
 from .models import Carroceiro
 from .models import Rating
 from .models import Photo
@@ -18,6 +19,7 @@ from .serializers import PhotoSerializer
 from .serializers import PhoneSerializer
 from .serializers import CarroceiroSerializer
 from .serializers import MaterialSerializer
+from .serializers import LatitudeLongitudeSerializer
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
@@ -54,6 +56,16 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         carroceiro = self.get_object()
         serializer = MaterialSerializer(carroceiro.materials)
         return Response(serializer.data)
+
+
+class LatitudeLongitudeViewSet(viewsets.ModelViewSet):
+    """
+        DOCS: TODO
+    """
+    serializer_class = LatitudeLongitudeSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = LatitudeLongitude.objects.filter(
+            moderation_status__in=public_status)
 
 
 class RatingViewSet(viewsets.ModelViewSet):

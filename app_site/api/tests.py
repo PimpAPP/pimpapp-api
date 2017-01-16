@@ -9,6 +9,8 @@ from django.test import Client
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
+from .models import Carroceiro
+from .models import LatitudeLongitude
 
 class CatadorTestCase(APITestCase):
 
@@ -53,12 +55,7 @@ class CatadorTestCase(APITestCase):
 
     def test_update_carroceiro(self):
 
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-        }
-
-        response = self.client.post('/api/carroceiro/', json_obj, format='json')
+        Carroceiro.objects.create(catador_type="C", name="João da Silva")
 
         json_obj = {
             "pk": 1,
@@ -83,6 +80,66 @@ class CatadorTestCase(APITestCase):
 
         self.assertJSONEqual(
             str(response.content, encoding='utf-8'),
+            expected)
+
+
+class GeoRefTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@dummy.com',
+            password='top_secret')
+
+        Carroceiro.objects.create(catador_type="C", name="João da Silva")
+
+        token = Token.objects.get(user=self.user)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+
+    def test_create_geo(self):
+
+        json_obj = {
+            "carroceiro": 1,
+            "latitude": 23.5,
+            "longitude": 46.6
+        }
+
+        response = self.client.post('/api/georef/', json_obj, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
+        #ts = LatitudeLongitude.objects.get(pk=1).created_on
+
+
+        expected = {
+            "pk": 1,
+            "catador_type": "C",
+            "name": "João da Silva",
+            "geolocation": {
+                "carroceiro": 1,
+                "latitude": 23.5,
+                "longitude": 46.6,
+                #"created_on": ts,
+                "reverse_geocoding": ""
+            },
+            "address_base": None,
+            "region": None,
+            "city": None,
+            "country": None,
+            "has_motor_vehicle": False,
+            "carroca_pimpada": False,
+            "is_locked": False
+        }
+
+        result = json.loads(str(response.content, encoding='utf-8'))
+        del result['geolocation']['created_on']
+        result = json.dumps(result)
+
+        self.assertJSONEqual(
+            result,
             expected
         )
+
 
