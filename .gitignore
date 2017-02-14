@@ -67,3 +67,5 @@ integration_test/.cache
 
 # Vim files
 *.swp
+static/
+.env
