@@ -1,8 +1,5 @@
-from django.shortcuts import render
-
 from rest_framework import generics
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -13,6 +10,7 @@ from .models import Carroceiro
 from .models import Rating
 from .models import Photo
 from .models import Phone
+from .models import Collect
 
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
@@ -20,6 +18,7 @@ from .serializers import PhoneSerializer
 from .serializers import CarroceiroSerializer
 from .serializers import MaterialSerializer
 from .serializers import LatitudeLongitudeSerializer
+from .serializers import CollectSerializer
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
@@ -138,3 +137,13 @@ class PhoneByCarroceiroViewSet(generics.ListAPIView):
         queryset = Phone.objects.filter(
                 moderation_status__in=public_status,
                 carroceiro__id=carroceiro)
+
+
+class CollectViewSet(viewsets.ModelViewSet):
+    """
+        DOCS: TODO
+    """
+    serializer_class = CollectSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Collect.objects.filter(
+            moderation_status__in=public_status)
