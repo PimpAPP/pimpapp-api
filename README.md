@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/PimpAPP/pimpapp-api.svg?branch=master)](https://travis-ci.org/PimpAPP/pimpapp-api)
+
 ===============================
 Pre requisitos para rodar o app
 ===============================
