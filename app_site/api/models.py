@@ -149,6 +149,14 @@ class Coleta(ModeratedModel):
 
     #TODO: Colocar os campos
 
+    """
+        Regras:
+        - Usuario pode ter apenas uma coleta em aberto
+        - Catador pode ter um lista de coletas em aberto
+        - Usuario é obrigado a colocar um photo do material
+        - Usuário é obrigado a marcar quais materia estão na coleta
+    """
+
     @property
     def geolocation(self):
         obj = self.latitudelongitudecoleta_set.all().latest('created_on')
