@@ -74,7 +74,9 @@ class CatadorTestCase(APITestCase):
             "is_locked": False
         }
 
-        self.assertJSONEqual(True, True)
+        self.assertJSONEqual(
+            str(response.content, encoding='utf-8'),
+            expected)
 
 
 class GeoRefTestCase(APITestCase):
@@ -101,7 +103,7 @@ class GeoRefTestCase(APITestCase):
         }
 
         response = self.client.post('/api/georef/', json_obj, format='json')
-        # self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 201)
 
         response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
         #ts = LatitudeLongitude.objects.get(pk=1).created_on
@@ -170,6 +172,6 @@ class CollectTestCase(APITestCase):
         result = json.dumps(result)
 
         self.assertJSONEqual(
-            True,
-            True
+            result,
+            expected
         )
