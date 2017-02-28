@@ -336,7 +336,7 @@ class Phone(ModeratedModel):
 
 
 class Collect(ModeratedModel):
-    data = models.DateTimeField()
+    datas = models.DateTimeField()
 
     def __str__(self):
-        return str(self.data)
+        return str(self.date)

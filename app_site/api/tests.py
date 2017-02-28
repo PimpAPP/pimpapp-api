@@ -1,16 +1,12 @@
 import json
-
-from django.contrib.auth.models import AnonymousUser, User
+import datetime
+from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-
-from django.test import TestCase, RequestFactory
-from django.test import Client
-
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-
 from .models import Carroceiro
-from .models import LatitudeLongitude
+from .models import Collect
+
 
 class CatadorTestCase(APITestCase):
 
@@ -143,3 +139,39 @@ class GeoRefTestCase(APITestCase):
         )
 
 
+class CollectTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@dummy.com',
+            password='top_secret')
+
+        Collect.objects.create(datas=datetime.datetime.today())
+
+        token = Token.objects.get(user=self.user)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+
+    def test_create_collect(self):
+
+        json_obj = {"datas": datetime.datetime.today()}
+
+        response = self.client.post('/api/collect/', json_obj, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.patch('/api/collect/1/', json_obj, format='json')
+
+        expected = {
+            "pk": 1,
+            "datas": datetime.datetime.today()
+        }
+
+        result = json.loads(str(response.content, encoding='utf-8'))
+        result = json.dumps(result)
+
+        self.assertJSONEqual(
+            result,
+            expected
+        )
