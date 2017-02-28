@@ -155,15 +155,27 @@ class Collect(ModeratedModel):
         - Usuário é obrigado a marcar quais materia estão na coleta
     """
 
+    catador_confirms = models.BooleanField()
+    user_confirms = models.BooleanField()
+    active = models.BooleanField(default=True)
+
     @property
     def geolocation(self):
         obj = self.latitudelongitudecoleta_set.all().latest('created_on')
         return obj
 
     @property
-    def photos(self):
-        objs = self.photocoleta_set.all().order_by('created_on')
+    def photo_collect_catador(self):
+        objs = self.photocollectcatador_set.all().order_by('created_on')
         return objs
+
+    @property
+    def photo_collect_user(self):
+        objs = self.photocollectuser_set.all().order_by('created_on')
+        return objs
+
+    def __str__(self):
+        return str(self.id)
 
 
 class MaterialBase(ModeratedModel):
@@ -253,7 +265,7 @@ class MaterialColeta(MaterialBase):
 
     # control:
     coleta = models.OneToOneField(
-            Coleta,
+            Collect,
             related_name='materials',
             blank=False,
             null=True,
@@ -282,7 +294,7 @@ class LatitudeLongitude(LatitudeLongitudeBase):
 
 class LatitudeLongitudeColeta(LatitudeLongitudeBase):
     # control:
-    coleta = models.ForeignKey(Coleta, unique=False, blank=False)
+    coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
 
 class Rating(ModeratedModel):
@@ -341,8 +353,19 @@ class Photo(PhotoBase):
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
 
 
-class PhotoColeta(PhotoBase):
-    coleta = models.ForeignKey(Coleta, unique=False, blank=False)
+class PhotoCollectUser(PhotoBase):
+    coleta = models.ForeignKey(Collect, unique=False, blank=False)
+
+    def __str__(self):
+        return self.author.username + ' - ' + str(self.full_photo)
+
+
+class PhotoCollectCatador(PhotoBase):
+    coleta = models.ForeignKey(Collect, unique=False, blank=False)
+
+
+    def __str__(self):
+        return self.author.username + ' - ' + str(self.full_photo)
 
 
 class Phone(ModeratedModel):
