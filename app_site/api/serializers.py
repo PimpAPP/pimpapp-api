@@ -61,4 +61,6 @@ class CarroceiroSerializer(serializers.ModelSerializer):
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
-        fields = ('data',)
+        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
+                  'author', 'carroceiro', 'geolocation',
+                  'photo_collect_catador', 'photo_collect_user')
