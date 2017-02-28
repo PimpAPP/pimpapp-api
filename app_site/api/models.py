@@ -158,6 +158,8 @@ class Collect(ModeratedModel):
     catador_confirms = models.BooleanField()
     user_confirms = models.BooleanField()
     active = models.BooleanField(default=True)
+    author = models.ForeignKey(User, blank=False)
+    carroceiro = models.ForeignKey(Carroceiro, blank=False)
 
     @property
     def geolocation(self):
