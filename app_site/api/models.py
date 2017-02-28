@@ -52,6 +52,14 @@ class ModeratedModel(models.Model):
             choices=MODERATION_CHOICES,
             default=PENDING)
 
+    # Compatibility MeteorJS version
+    mongo_hash = models.CharField(
+            max_length=20,
+            blank=True,
+            null=True
+    )
+
+
 
 class Carroceiro(ModeratedModel):
     """
