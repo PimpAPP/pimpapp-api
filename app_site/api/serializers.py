@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework import filters
 
 from .models import Rating
 from .models import Photo
