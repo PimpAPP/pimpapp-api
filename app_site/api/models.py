@@ -61,6 +61,10 @@ class Carroceiro(ModeratedModel):
     by default, this table will be addressed as carroceiro_carroceiro
     """
 
+
+    class Meta:
+        verbose_name = 'Catadores e Cooperativas'
+
     CATADOR = 'C'
     COOPERATIVA = 'O'
     ECOPONTO = 'P'
@@ -141,7 +145,22 @@ class Carroceiro(ModeratedModel):
         return self.name
 
 
-class Material(ModeratedModel):
+class Coleta(ModeratedModel):
+
+    #TODO: Colocar os campos
+
+    @property
+    def geolocation(self):
+        obj = self.latitudelongitudecoleta_set.all().latest('created_on')
+        return obj
+
+    @property
+    def photos(self):
+        objs = self.photocoleta_set.all().order_by('created_on')
+        return objs
+
+
+class MaterialBase(ModeratedModel):
     """
         Tipical Carroceiro's services:
             * Serviço de Frete e Carreto
@@ -166,17 +185,11 @@ class Material(ModeratedModel):
             * Outros (embalagem longa vida, etc.)
     """
 
+
     class Meta:
+        abstract = True
         verbose_name = 'Serviços e Meteriais'
         verbose_name_plural = 'Serviços e Meteriais'
-
-    # control:
-    carroceiro = models.OneToOneField(
-            Carroceiro,
-            related_name='materials',
-            blank=False,
-            null=True,
-            on_delete=models.SET_NULL)
 
     # fields:
     freight = models.BooleanField(
@@ -219,19 +232,51 @@ class Material(ModeratedModel):
             default=False)
 
 
-class LatitudeLongitude(ModeratedModel):
+class Material(MaterialBase):
+
+    # control:
+    carroceiro = models.OneToOneField(
+            Carroceiro,
+            related_name='materials',
+            blank=False,
+            null=True,
+            on_delete=models.SET_NULL)
+
+
+class MaterialColeta(MaterialBase):
+
+    # control:
+    coleta = models.OneToOneField(
+            Coleta,
+            related_name='materials',
+            blank=False,
+            null=True,
+            on_delete=models.SET_NULL)
+
+
+class LatitudeLongitudeBase(ModeratedModel):
     """
         DOCS: TODO
     """
 
-    # control:
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+    class Meta:
+        abstract = True
 
     # fields:
     latitude = models.FloatField(blank=False)
     longitude = models.FloatField(blank=False)
     # Reference point
     reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
+
+
+class LatitudeLongitude(LatitudeLongitudeBase):
+    # control:
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+
+class LatitudeLongitudeColeta(LatitudeLongitudeBase):
+    # control:
+    coleta = models.ForeignKey(Coleta, unique=False, blank=False)
 
 
 class Rating(ModeratedModel):
@@ -272,19 +317,26 @@ class Rating(ModeratedModel):
             raise ValidationError(_('Rating or comment required.'))
 
 
-class Photo(ModeratedModel):
+class PhotoBase(ModeratedModel):
     """
         DOCS: TODO
     """
 
     # control:
     author = models.ForeignKey(User, unique=False, blank=False)
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
 
     # fields:
     # file will be uploaded to MEDIA_ROOT/full_photo
     full_photo = VersatileImageField(upload_to='full_photo')
     ppoi = PPOIField(verbose_name=_('Primary Point of Interest (PPOI)'))
+
+
+class Photo(PhotoBase):
+    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+
+
+class PhotoColeta(PhotoBase):
+    coleta = models.ForeignKey(Coleta, unique=False, blank=False)
 
 
 class Phone(ModeratedModel):
@@ -308,7 +360,7 @@ class Phone(ModeratedModel):
         (CLARO, 'Claro'),
         (OI, 'Oi'),
         (NEXTEL, 'Nextel'),
-        (NEXTEL, 'Porto Conecta'),
+        (PORTO, 'Porto Conecta'),
     )
 
     # control:
@@ -335,4 +387,3 @@ class Phone(ModeratedModel):
     notes = models.CharField(
             verbose_name=_('Comentário'),
             max_length=140, blank=True, null=True)
-
