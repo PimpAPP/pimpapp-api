@@ -6,6 +6,7 @@ from .models import Phone
 from .models import Carroceiro
 from .models import Material
 from .models import LatitudeLongitude
+from .models import Collect
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -55,3 +56,9 @@ class CarroceiroSerializer(serializers.ModelSerializer):
 
     geolocation = LatitudeLongitudeSerializer(required=False)
     #materials = MaterialSerializer(required=False)
+
+
+class CollectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collect
+        fields = ('data',)

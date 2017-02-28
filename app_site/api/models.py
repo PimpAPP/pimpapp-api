@@ -4,7 +4,6 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 from simple_history.models import HistoricalRecords
@@ -16,7 +15,6 @@ from rest_framework.authtoken.models import Token
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
 
 
 # This code is triggered whenever a new user has been created and saved to the database
@@ -145,7 +143,7 @@ class Carroceiro(ModeratedModel):
         return self.name
 
 
-class Coleta(ModeratedModel):
+class Collect(ModeratedModel):
 
     #TODO: Colocar os campos
 
