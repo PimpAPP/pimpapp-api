@@ -85,6 +85,11 @@ class Carroceiro(ModeratedModel):
             max_length=64,
             verbose_name=_('Nome'))
 
+    minibio = models.CharField(
+            max_length=140,
+            blank=True,
+            null=True)
+
     catador_type = models.CharField(max_length=1, default=CATADOR,
            choices=TYPE_CHOICES)
 
@@ -150,6 +155,89 @@ class Carroceiro(ModeratedModel):
     def __str__(self):
         return self.name
 
+    # Compatibility MeteorJS version
+    def load_mongo_obj(self, mongo_obj):
+
+        """
+            Exemplo:
+
+            {'_id': 'wzkKgRXfg3zCghqg3',
+             'allow_public_edition': True,
+             'moderation_status': 'P',
+             'catador_type': 'C',
+             'created_on': datetime.datetime(2017, 1, 26, 13, 37, 13, 967000),
+
+             'name': 'Kleber Jesuíno',
+             'miniBio': 'Tudo posso naquele que me fortalece ! Dá reciclagem sai minhã casa e todo o meu sustento',
+
+             'motorizedVehicle': False,
+             'carrocaPimpada': False,
+             'email': None,
+
+
+             'base_address': 'Rua dos Trilhos, 1622 - Mooca, São Paulo - SP, Brasil',
+             'latitude': -23.55447239999999,
+             'longitude': -46.59407269999997,
+
+             'city': 'São Paulo',
+             'country': 'BR',
+             'region': 'Mooca',
+             'state': 'SP',
+             'zip': '03169'
+
+             'observations': None,
+
+             'socialNetwork': None,
+             'operator_telephone1': 'TIM',
+             'operator_telephone2': None,
+             'telephone1': '(11) 93001-2241',
+             'telephone2': None,
+             'whatsapp1': True,
+             'whatsapp2': False,
+             'internet1': False,
+             'internet2': False,
+             }
+
+        """
+
+        self.name = mongo_obj.get('name', self.mongo_hash)
+        self.catador_type = mongo_obj.get('catador_type', 'C')
+        self.minibio = mongo_obj.get('miniBio', '')
+        self.has_motor_vehicle = mongo_obj.get('motorizedVehicle', False)
+        self.carroca_pimpada = mongo_obj.get('carrocaPimpada', False)
+
+        self.address_base = mongo_obj.get('base_address', '')
+        self.region = mongo_obj.get('region', '')
+        self.city = mongo_obj.get('city', '')
+        self.country = mongo_obj.get('country', 'Brasil')
+
+        # Other Objects
+        LatitudeLongitude.objects.create(
+                carroceiro=self,
+                reverse_geocoding = mongo_obj.get('base_address', ''),
+                latitude = mongo_obj.get('latitude', 0.0),
+                longitude = mongo_obj.get('longitude', 0.0)
+        )
+
+        if mongo_obj.get('telephone1', ''):
+            Phone.objects.create(
+                    carroceiro=self,
+                    phone = mongo_obj.get('telephone1', ''),
+                    mno = mongo_obj.get('operator_telephone1', '').upper(),
+                    has_whatsapp = mongo_obj.get('whatsapp1', ''),
+                    mobile_internet = mongo_obj.get('internet1', '')
+            )
+
+        if mongo_obj.get('telephone2', ''):
+            Phone.objects.create(
+                    carroceiro=self,
+                    phone = mongo_obj.get('telephone2', ''),
+                    mno = mongo_obj.get('operator_telephone2', '').upper(),
+                    has_whatsapp = mongo_obj.get('whatsapp2', ''),
+                    mobile_internet = mongo_obj.get('internet2', '')
+            )
+
+        self.save()
 
 class Collect(ModeratedModel):
 
@@ -421,6 +509,11 @@ class Phone(ModeratedModel):
 
     has_whatsapp = models.BooleanField(
             verbose_name=_('Usa o WhatsAPP?'),
+            default=False)
+
+
+    mobile_internet = models.BooleanField(
+            verbose_name=_('Tem acesso a internet móvel?'),
             default=False)
 
     notes = models.CharField(
