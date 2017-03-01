@@ -142,30 +142,30 @@ class GeoRefTestCase(APITestCase):
 class CollectTestCase(APITestCase):
 
     def setUp(self):
+        self.json_obj = {"catador_confirms": True, "user_confirms": True,
+                    "active": True, "author": 1, "carroceiro": 1}
+
         self.user = User.objects.create_user(
-            username='tester',
+            username='admin',
             email='tester@dummy.com',
             password='top_secret')
 
-        Collect.objects.create(datas=datetime.datetime.today())
+        self.user = User.objects.get(pk=1)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
-
     def test_create_collect(self):
-
-        json_obj = {"datas": datetime.datetime.today()}
-
-        response = self.client.post('/api/collect/', json_obj, format='json')
+        response = self.client.post('/api/collect/', self.json_obj, format='json')
         self.assertEqual(response.status_code, 201)
 
-        response = self.client.patch('/api/collect/1/', json_obj, format='json')
+    def test_recovery_collect(self):
+        response = self.client.patch('/api/collect/1/', self.json_obj, format='json')
 
         expected = {
-            "pk": 1,
-            "datas": datetime.datetime.today()
+            "catador_confirms": True, "user_confirms": True,
+            "active": True, "author": 1, "carroceiro": 1
         }
 
         result = json.loads(str(response.content, encoding='utf-8'))
