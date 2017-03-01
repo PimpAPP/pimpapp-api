@@ -60,7 +60,6 @@ class ModeratedModel(models.Model):
     )
 
 
-
 class Carroceiro(ModeratedModel):
     """
     Class used for modeling a instance of Carroceiro in our DB.
@@ -244,6 +243,7 @@ class Carroceiro(ModeratedModel):
 
         self.save()
 
+
 class Collect(ModeratedModel):
 
     #TODO: Colocar os campos
@@ -279,6 +279,11 @@ class Collect(ModeratedModel):
 
     def __str__(self):
         return str(self.id)
+
+    def clean(self):
+        '''Usuario pode ter apenas uma coleta em aberto'''
+        if Collect.objects.filter(author=self.author).count() > 0:
+            raise ValidationError('Usoário pode ter apenas uma coleta em aberto')
 
 
 class MaterialBase(ModeratedModel):
