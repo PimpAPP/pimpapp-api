@@ -148,6 +148,11 @@ class Carroceiro(ModeratedModel):
         return objs
 
     @property
+    def phones(self):
+        objs = self.phone_set.all().order_by('created_on')
+        return objs
+
+    @property
     def comments(self):
         objs = self.rating_set.all().order_by('created_on')
         return objs
@@ -491,7 +496,9 @@ class Phone(ModeratedModel):
     )
 
     # control:
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+    carroceiro = models.ForeignKey(Carroceiro,
+            #related_name='phones',
+            unique=False, blank=False)
 
     # fields:
     phone = models.CharField(

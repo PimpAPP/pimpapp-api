@@ -47,7 +47,14 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def photos(self, request, pk=None):
         carroceiro = self.get_object()
+        from IPython import embed; embed()
         serializer = PhotoSerializer(carroceiro.photos, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def phones(self, request, pk=None):
+        carroceiro = self.get_object()
+        serializer = PhoneSerializer(carroceiro.phones, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
@@ -87,14 +94,14 @@ class PhotoViewSet(viewsets.ModelViewSet):
             moderation_status__in=public_status)
 
 
-class PhoneViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhoneSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Photo.objects.filter(
-            moderation_status__in=public_status)
+#class PhoneViewSet(viewsets.ModelViewSet):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhoneSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    queryset = Photo.objects.filter(
+#            moderation_status__in=public_status)
 
 
 class RatingByCarroceiroViewSet(generics.ListAPIView):
@@ -125,18 +132,18 @@ class PhotoByCarroceiroViewSet(generics.ListAPIView):
                 carroceiro__id=carroceiro)
 
 
-class PhoneByCarroceiroViewSet(generics.ListAPIView):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhoneSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        carroceiro = self.kwargs['carroceiro']
-        queryset = Phone.objects.filter(
-                moderation_status__in=public_status,
-                carroceiro__id=carroceiro)
+#class PhoneByCarroceiroViewSet(generics.ListAPIView):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhoneSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#
+#    def get_queryset(self):
+#        carroceiro = self.kwargs['carroceiro']
+#        queryset = Phone.objects.filter(
+#                moderation_status__in=public_status,
+#                carroceiro__id=carroceiro)
 
 
 class CollectViewSet(viewsets.ModelViewSet):
