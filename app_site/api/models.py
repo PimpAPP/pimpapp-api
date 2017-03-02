@@ -18,7 +18,7 @@ from django.dispatch import receiver
 
 
 # This code is triggered whenever a new user has been created and saved to the database
-#@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance, **kwargs):
     token, created = Token.objects.get_or_create(user=instance)
@@ -46,17 +46,17 @@ class ModeratedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
 
     moderation_status = models.CharField(
-            verbose_name=_('Status de Moderação'),
-            help_text=_('O status "Rejected" não permite que o registro seja mostrado.'),
-            max_length=1,
-            choices=MODERATION_CHOICES,
-            default=PENDING)
+        verbose_name=_('Status de Moderação'),
+        help_text=_('O status "Rejected" não permite que o registro seja mostrado.'),
+        max_length=1,
+        choices=MODERATION_CHOICES,
+        default=PENDING)
 
     # Compatibility MeteorJS version
     mongo_hash = models.CharField(
-            max_length=20,
-            blank=True,
-            null=True
+        max_length=20,
+        blank=True,
+        null=True
     )
 
 
@@ -65,7 +65,6 @@ class Carroceiro(ModeratedModel):
     Class used for modeling a instance of Carroceiro in our DB.
     by default, this table will be addressed as carroceiro_carroceiro
     """
-
 
     class Meta:
         verbose_name = 'Catadores e Cooperativas'
@@ -81,60 +80,60 @@ class Carroceiro(ModeratedModel):
     )
 
     name = models.CharField(
-            max_length=64,
-            verbose_name=_('Nome'))
+        max_length=64,
+        verbose_name=_('Nome'))
 
     minibio = models.CharField(
-            max_length=140,
-            blank=True,
-            null=True)
+        max_length=140,
+        blank=True,
+        null=True)
 
     catador_type = models.CharField(max_length=1, default=CATADOR,
-           choices=TYPE_CHOICES)
+                                    choices=TYPE_CHOICES)
 
     # Lock feature
     user = models.OneToOneField(
-            User,
-            blank=True,
-            null=True,
-            on_delete=models.SET_NULL)
+        User,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL)
 
     is_locked = models.BooleanField(
-            verbose_name=_('Permite edição Publica'),
-            default=False)
+        verbose_name=_('Permite edição Publica'),
+        default=False)
 
     # Location
     address_base = models.CharField(
-            max_length=128,
-            blank=True,
-            null=True,
-            verbose_name=_("Endereço onde costuma trabalhar."))
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Endereço onde costuma trabalhar."))
 
     region = models.CharField(
-            max_length=64,
-            blank=True,
-            null=True,
-            verbose_name=_("Região onde costuma trabalhar.")) # Any sense?
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_("Região onde costuma trabalhar."))  # Any sense?
 
     city = models.CharField(
-            max_length=64,
-            blank=True,
-            null=True,
-            verbose_name=_("Cidade em que trabalha"))
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_("Cidade em que trabalha"))
 
     country = models.CharField(
-            max_length=64,
-            blank=True,
-            null=True)
+        max_length=64,
+        blank=True,
+        null=True)
 
     # Pimp my Caroca
     has_motor_vehicle = models.BooleanField(
-            default=False,
-            verbose_name=_("Tem veículo motorizado."))
+        default=False,
+        verbose_name=_("Tem veículo motorizado."))
 
     carroca_pimpada = models.BooleanField(
-            default=False,
-            verbose_name=_("Teve a Carroça Pimpada?"))
+        default=False,
+        verbose_name=_("Teve a Carroça Pimpada?"))
 
     @property
     def geolocation(self):
@@ -217,36 +216,35 @@ class Carroceiro(ModeratedModel):
 
         # Other Objects
         LatitudeLongitude.objects.create(
-                carroceiro=self,
-                reverse_geocoding = mongo_obj.get('base_address', ''),
-                latitude = mongo_obj.get('latitude', 0.0),
-                longitude = mongo_obj.get('longitude', 0.0)
+            carroceiro=self,
+            reverse_geocoding=mongo_obj.get('base_address', ''),
+            latitude=mongo_obj.get('latitude', 0.0),
+            longitude=mongo_obj.get('longitude', 0.0)
         )
 
         if mongo_obj.get('telephone1', ''):
             Phone.objects.create(
-                    carroceiro=self,
-                    phone = mongo_obj.get('telephone1', ''),
-                    mno = mongo_obj.get('operator_telephone1', '').upper(),
-                    has_whatsapp = mongo_obj.get('whatsapp1', ''),
-                    mobile_internet = mongo_obj.get('internet1', '')
+                carroceiro=self,
+                phone=mongo_obj.get('telephone1', ''),
+                mno=mongo_obj.get('operator_telephone1', '').upper(),
+                has_whatsapp=mongo_obj.get('whatsapp1', ''),
+                mobile_internet=mongo_obj.get('internet1', '')
             )
 
         if mongo_obj.get('telephone2', ''):
             Phone.objects.create(
-                    carroceiro=self,
-                    phone = mongo_obj.get('telephone2', ''),
-                    mno = mongo_obj.get('operator_telephone2', '').upper(),
-                    has_whatsapp = mongo_obj.get('whatsapp2', ''),
-                    mobile_internet = mongo_obj.get('internet2', '')
+                carroceiro=self,
+                phone=mongo_obj.get('telephone2', ''),
+                mno=mongo_obj.get('operator_telephone2', '').upper(),
+                has_whatsapp=mongo_obj.get('whatsapp2', ''),
+                mobile_internet=mongo_obj.get('internet2', '')
             )
 
         self.save()
 
 
 class Collect(ModeratedModel):
-
-    #TODO: Colocar os campos
+    # TODO: Colocar os campos
 
     """
         Regras:
@@ -313,7 +311,6 @@ class MaterialBase(ModeratedModel):
             * Outros (embalagem longa vida, etc.)
     """
 
-
     class Meta:
         abstract = True
         verbose_name = 'Serviços e Meteriais'
@@ -321,65 +318,76 @@ class MaterialBase(ModeratedModel):
 
     # fields:
     freight = models.BooleanField(
-            verbose_name=_("Serviço de Frete e Carreto"),
-            default=False)
+        verbose_name=_("Serviço de Frete e Carreto"),
+        default=False)
     large_objects = models.BooleanField(
-            verbose_name=_('Volumosos'),
-            help_text=_('Exemplo: sofá, geladeira, fogão, etc...'),
-            default=False)
+        verbose_name=_('Volumosos'),
+        help_text=_('Exemplo: sofá, geladeira, fogão, etc...'),
+        default=False)
     demolition_waste = models.BooleanField(
-            verbose_name=_('Resíduo de Construção Civil'),
-            help_text=_('entulho, tintas, madeira, etc...'),
-            default=False)
+        verbose_name=_('Resíduo de Construção Civil'),
+        help_text=_('entulho, tintas, madeira, etc...'),
+        default=False)
     e_waste = models.BooleanField(
-            verbose_name=_('Eletroeletrônicos'),
-            help_text=_('Exemplo: computadores, pilhas, baterias, etc...'),
-            default=False)
+        verbose_name=_('Eletroeletrônicos'),
+        help_text=_('Exemplo: computadores, pilhas, baterias, etc...'),
+        default=False)
     paper = models.BooleanField(
-            verbose_name=_('Papel'),
-            help_text=('Exemplo: jornal, revista, papel branco, papelão, etc...'),
-            default=False)
+        verbose_name=_('Papel'),
+        help_text=('Exemplo: jornal, revista, papel branco, papelão, etc...'),
+        default=False)
     glass = models.BooleanField(
-            verbose_name=_('Vidro'),
-            help_text=_('Exemplo: garrafas, embalagens, etc...'),
-            default=False)
+        verbose_name=_('Vidro'),
+        help_text=_('Exemplo: garrafas, embalagens, etc...'),
+        default=False)
     plastic = models.BooleanField(
-            verbose_name=_('Plástico'),
-            help_text=_('Exemplo: embalagens, canos, etc..'),
-            default=False)
+        verbose_name=_('Plástico'),
+        help_text=_('Exemplo: embalagens, canos, etc..'),
+        default=False)
     metal = models.BooleanField(
-            verbose_name=_('Metais'),
-            help_text=_('Exemplo: ferro, cobre, alumínio, etc..)'),
-            default=False)
+        verbose_name=_('Metais'),
+        help_text=_('Exemplo: ferro, cobre, alumínio, etc..)'),
+        default=False)
     wood = models.BooleanField(
-            verbose_name=_('Madeira'),
-            help_text=_('Exemplo: tábuas, ripas, etc...'),
-            default=False)
+        verbose_name=_('Madeira'),
+        help_text=_('Exemplo: tábuas, ripas, etc...'),
+        default=False)
     cooking_oil = models.BooleanField(
-            verbose_name=_('Óleo de cozinha'),
-            default=False)
+        verbose_name=_('Óleo de cozinha'),
+        default=False)
 
 
 class Material(MaterialBase):
+    ''' Usuário é obrigado a marcar quais materia estão na coleta '''
 
     # control:
     carroceiro = models.OneToOneField(
-            Carroceiro,
-            related_name='materials',
-            blank=False,
-            null=True,
-            on_delete=models.SET_NULL)
+        Carroceiro,
+        related_name='materials',
+        blank=False,
+        null=True,
+        on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return str(self.carroceiro)
+
+    def clean(self):
+        if self.freight or self.large_objects or self.demolition_waste or \
+                self.e_waste or self.paper or self.glass or self.plastic or \
+                self.metal or self.wood or self.cooking_oil:
+            return
+        else:
+            raise ValidationError('Pelo menos um tipo de material deve ser informado')
 
 
 class MaterialColeta(MaterialBase):
-
     # control:
     coleta = models.OneToOneField(
-            Collect,
-            related_name='materials',
-            blank=False,
-            null=True,
-            on_delete=models.SET_NULL)
+        Collect,
+        related_name='materials',
+        blank=False,
+        null=True,
+        on_delete=models.SET_NULL)
 
 
 class LatitudeLongitudeBase(ModeratedModel):
@@ -432,13 +440,13 @@ class Rating(ModeratedModel):
 
     # fields:
     rating = models.CharField(
-            max_length=1,
-            verbose_name=_('Avaliação'),
-            choices=RATING_CHOICES)
+        max_length=1,
+        verbose_name=_('Avaliação'),
+        choices=RATING_CHOICES)
 
     comment = models.CharField(
-            verbose_name=_('Comentário'),
-            max_length=140, blank=True)
+        verbose_name=_('Comentário'),
+        max_length=140, blank=True)
 
     def clean(self):
         if not self.rating and not self.comment:
@@ -473,7 +481,6 @@ class PhotoCollectUser(PhotoBase):
 class PhotoCollectCatador(PhotoBase):
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
-
     def __str__(self):
         return self.author.username + ' - ' + str(self.full_photo)
 
@@ -504,32 +511,31 @@ class Phone(ModeratedModel):
 
     # control:
     carroceiro = models.ForeignKey(Carroceiro,
-            #related_name='phones',
-            unique=False, blank=False)
+                                   # related_name='phones',
+                                   unique=False, blank=False)
 
     # fields:
     phone = models.CharField(
-            max_length=16,
-            validators=[RegexValidator(regex=r'^\d{8,15}$',
-            message='Phone number must have at least 8 digits and/or up to 15 digits.')],
-            verbose_name=_('Telefone Móvel'))
+        max_length=16,
+        validators=[RegexValidator(regex=r'^\d{8,15}$',
+                                   message='Phone number must have at least 8 digits and/or up to 15 digits.')],
+        verbose_name=_('Telefone Móvel'))
 
     mno = models.CharField(
-            max_length=1,
-            choices=MNO_CHOICES,
-            verbose_name=_('Operadora Móvel'),
-            null=True,
-            blank=True)
+        max_length=1,
+        choices=MNO_CHOICES,
+        verbose_name=_('Operadora Móvel'),
+        null=True,
+        blank=True)
 
     has_whatsapp = models.BooleanField(
-            verbose_name=_('Usa o WhatsAPP?'),
-            default=False)
-
+        verbose_name=_('Usa o WhatsAPP?'),
+        default=False)
 
     mobile_internet = models.BooleanField(
-            verbose_name=_('Tem acesso a internet móvel?'),
-            default=False)
+        verbose_name=_('Tem acesso a internet móvel?'),
+        default=False)
 
     notes = models.CharField(
-            verbose_name=_('Comentário'),
-            max_length=140, blank=True, null=True)
+        verbose_name=_('Comentário'),
+        max_length=140, blank=True, null=True)

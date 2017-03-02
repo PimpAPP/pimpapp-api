@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from .models import Carroceiro
 from .models import Collect
+from .models import Material
 
 
 class CatadorTestCase(APITestCase):
@@ -185,10 +186,8 @@ class CollectTestCase(APITestCase):
 
         self.assertJSONEqual(str(response.content, encoding='utf-8'), expected)
 
-    def user_can_have_just_one_collect_oppened(self):
+    def test_user_can_have_just_one_collect_oppened(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
-
-        import pdb;pdb.set_trace()
 
         collect1 = Collect.objects.create(
             catador_confirms=True, user_confirms=True, active=True,
@@ -198,4 +197,12 @@ class CollectTestCase(APITestCase):
                                           author=self.user, carroceiro=self.carroceiro, moderation_status='P')
 
         self.assertRaises(ValidationError, collect2.clean)
+
+    def test_user_must_select_at_least_one_material(self):
+        '''Usuário é obrigado a marcar quais materia estão na coleta'''
+
+        material = Material(carroceiro=self.carroceiro)
+
+        self.assertRaises(ValidationError, material.clean)
+
 

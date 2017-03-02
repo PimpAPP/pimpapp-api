@@ -11,6 +11,7 @@ from .models import Photo
 from .models import Collect
 from .models import PhotoCollectUser
 from .models import PhotoCollectCatador
+from .models import MaterialColeta
 
 admin.site.register(Carroceiro, SimpleHistoryAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
