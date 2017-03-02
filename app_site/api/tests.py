@@ -1,5 +1,4 @@
 import json
-import datetime
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -169,14 +168,14 @@ class CollectTestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_recovery_collect(self):
-        response = self.client.get('/api/collect/4/', format='json')
+        response = self.client.get('/api/collect/1/', format='json')
 
-        expected = {"pk": 4,
+        expected = {"pk": 1,
                     "catador_confirms": True,
                     "user_confirms": True,
                     "active": True,
-                    "author": 2,
-                    "carroceiro": 2,
+                    "author": 1,
+                    "carroceiro": 1,
                     "geolocation": None,
                     "photo_collect_user": []}
 
