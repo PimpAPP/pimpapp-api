@@ -1,11 +1,12 @@
 import json
-import datetime
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from .models import Carroceiro
 from .models import Collect
+from .models import Material
 
 
 class CatadorTestCase(APITestCase):
@@ -143,38 +144,65 @@ class GeoRefTestCase(APITestCase):
 
 
 class CollectTestCase(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create_user(
-            username='tester',
+            username='admin',
             email='tester@dummy.com',
             password='top_secret')
 
-        Collect.objects.create(datas=datetime.datetime.today())
+        self.json_obj = {"catador_confirms": True, "user_confirms": True,
+                    "active": True, "author": self.user.id, "carroceiro": 1, "moderation_status": 'P'}
+
+        self.carroceiro = Carroceiro.objects.create(
+            catador_type="C", name="João da Silva")
+
+        self.collect = Collect.objects.create(
+            catador_confirms=True, user_confirms=True, active=True,
+            author=self.user, carroceiro=self.carroceiro)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
-
     def test_create_collect(self):
+        Collect.objects.create(
+            catador_confirms=True, user_confirms=True, active=True,
+            author=self.user, carroceiro=self.carroceiro)
 
-        json_obj = {"datas": datetime.datetime.today()}
-
-        response = self.client.post('/api/collect/', json_obj, format='json')
+        response = self.client.post('/api/collect/', self.json_obj, format='json')
         self.assertEqual(response.status_code, 201)
 
-        response = self.client.patch('/api/collect/1/', json_obj, format='json')
+    def test_recovery_collect(self):
+        response = self.client.get('/api/collect/1/', format='json')
 
-        expected = {
-            "pk": 1,
-            "datas": datetime.datetime.today()
-        }
+        expected = {"pk": 1,
+                    "catador_confirms": True,
+                    "user_confirms": True,
+                    "active": True,
+                    "author": 1,
+                    "carroceiro": 1,
+                    "geolocation": None,
+                    "photo_collect_user": []}
 
-        result = json.loads(str(response.content, encoding='utf-8'))
-        result = json.dumps(result)
+        self.assertJSONEqual(str(response.content, encoding='utf-8'), expected)
 
-        self.assertJSONEqual(
-            result,
-            expected
-        )
+    def test_user_can_have_just_one_collect_oppened(self):
+        '''Usuario pode ter apenas uma coleta em aberto'''
+
+        collect1 = Collect.objects.create(
+            catador_confirms=True, user_confirms=True, active=True,
+            author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+
+        collect2 = Collect.objects.create(catador_confirms=True, user_confirms=True, active=True,
+                                          author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+
+        self.assertRaises(ValidationError, collect2.clean)
+
+    def test_user_must_select_at_least_one_material(self):
+        '''Usuário é obrigado a marcar quais materia estão na coleta'''
+
+        material = Material(carroceiro=self.carroceiro)
+
+        self.assertRaises(ValidationError, material.clean)
+
+
