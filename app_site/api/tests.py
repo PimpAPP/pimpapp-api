@@ -1,5 +1,6 @@
 import json
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -163,7 +164,7 @@ class CollectTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
     def test_create_collect(self):
-        self.collect = Collect.objects.create(
+        Collect.objects.create(
             catador_confirms=True, user_confirms=True, active=True,
             author=self.user, carroceiro=self.carroceiro)
 
@@ -183,3 +184,18 @@ class CollectTestCase(APITestCase):
                     "photo_collect_user": []}
 
         self.assertJSONEqual(str(response.content, encoding='utf-8'), expected)
+
+    def user_can_have_just_one_collect_oppened(self):
+        '''Usuario pode ter apenas uma coleta em aberto'''
+
+        import pdb;pdb.set_trace()
+
+        collect1 = Collect.objects.create(
+            catador_confirms=True, user_confirms=True, active=True,
+            author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+
+        collect2 = Collect.objects.create(catador_confirms=True, user_confirms=True, active=True,
+                                          author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+
+        self.assertRaises(ValidationError, collect2.clean)
+
