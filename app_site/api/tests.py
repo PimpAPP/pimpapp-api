@@ -38,6 +38,7 @@ class CatadorTestCase(APITestCase):
             "region": None,
             "city": None,
             "country": None,
+            "phones": [],
             "has_motor_vehicle": False,
             "carroca_pimpada": False,
             "is_locked": False
@@ -68,6 +69,7 @@ class CatadorTestCase(APITestCase):
             "region": None,
             "city": "São Paulo",
             "country": None,
+            "phones": [],
             "has_motor_vehicle": False,
             "carroca_pimpada": False,
             "is_locked": False
@@ -123,6 +125,7 @@ class GeoRefTestCase(APITestCase):
             "region": None,
             "city": None,
             "country": None,
+            "phones": [],
             "has_motor_vehicle": False,
             "carroca_pimpada": False,
             "is_locked": False
