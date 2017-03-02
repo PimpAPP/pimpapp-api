@@ -282,8 +282,9 @@ class Collect(ModeratedModel):
 
     def clean(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
-        if Collect.objects.filter(author=self.author).count() > 0:
-            raise ValidationError('Usoário pode ter apenas uma coleta em aberto')
+        if self.moderation_status == 'P':
+            if Collect.objects.filter(author=self.author, moderation_status='P').count() > 0:
+                raise ValidationError('Usoário pode ter apenas uma coleta em aberto')
 
 
 class MaterialBase(ModeratedModel):

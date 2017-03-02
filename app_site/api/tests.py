@@ -141,36 +141,43 @@ class GeoRefTestCase(APITestCase):
 
 class CollectTestCase(APITestCase):
     def setUp(self):
-        self.json_obj = {"catador_confirms": True, "user_confirms": True,
-                    "active": True, "author": 1, "carroceiro": 1}
-
         self.user = User.objects.create_user(
             username='admin',
             email='tester@dummy.com',
             password='top_secret')
+
+        self.json_obj = {"catador_confirms": True, "user_confirms": True,
+                    "active": True, "author": self.user.id, "carroceiro": 1, "moderation_status": 'P'}
 
         self.carroceiro = Carroceiro.objects.create(
             catador_type="C", name="João da Silva")
 
         self.collect = Collect.objects.create(
             catador_confirms=True, user_confirms=True, active=True,
-            author_id=1, carroceiro_id=1)
+            author=self.user, carroceiro=self.carroceiro)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-    #
-    # def test_create_collect(self):
-    #     response = self.client.post('/api/collect/', self.json_obj, format='json')
-    #     self.assertEqual(response.status_code, 201)
+
+    def test_create_collect(self):
+        self.collect = Collect.objects.create(
+            catador_confirms=True, user_confirms=True, active=True,
+            author=self.user, carroceiro=self.carroceiro)
+
+        response = self.client.post('/api/collect/', self.json_obj, format='json')
+        self.assertEqual(response.status_code, 201)
 
     def test_recovery_collect(self):
-        response = self.client.get('/api/collect/1/', format='json')
+        response = self.client.get('/api/collect/4/', format='json')
 
-        expected = '{"pk":1,"catador_confirms":true,"user_confirms":true,"active":true,"author":1,' \
-                   '"carroceiro":1,"geolocation":null,"photo_collect_user":[]}'
+        expected = {"pk": 4,
+                    "catador_confirms": True,
+                    "user_confirms": True,
+                    "active": True,
+                    "author": 2,
+                    "carroceiro": 2,
+                    "geolocation": None,
+                    "photo_collect_user": []}
 
-        self.assertEqual(str(response.content, encoding='utf-8'), expected)
-
-    def test_user_can_just_one_collect(self):
-        ''' Usuario pode ter apenas uma coleta em aberto '''
+        self.assertJSONEqual(str(response.content, encoding='utf-8'), expected)
