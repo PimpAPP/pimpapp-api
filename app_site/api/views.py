@@ -132,20 +132,6 @@ class PhotoByCarroceiroViewSet(generics.ListAPIView):
                 carroceiro__id=carroceiro)
 
 
-#class PhoneByCarroceiroViewSet(generics.ListAPIView):
-#    """
-#        DOCS: TODO
-#    """
-#    serializer_class = PhoneSerializer
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#
-#    def get_queryset(self):
-#        carroceiro = self.kwargs['carroceiro']
-#        queryset = Phone.objects.filter(
-#                moderation_status__in=public_status,
-#                carroceiro__id=carroceiro)
-
-
 class CollectViewSet(viewsets.ModelViewSet):
     """
         DOCS: TODO
