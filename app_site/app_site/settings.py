@@ -153,3 +153,10 @@ try:
     from .local_settings import *
 except ImportError:
     print('local_settings.py not found')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
