@@ -149,6 +149,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Django-url based file serving for Media and Static
 SERVE_STATIC_FILES = False
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
 try:
     from .local_settings import *
 except ImportError:
