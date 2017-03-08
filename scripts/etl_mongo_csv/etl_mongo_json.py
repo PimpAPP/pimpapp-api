@@ -1,7 +1,7 @@
 import json
 import os, sys
 import pymongo
-import datatime
+import datetime
 
 client = pymongo.MongoClient()
 db = client['usereco']
@@ -29,4 +29,4 @@ filename = ''.join([
         '.json'])
 
 with open(filename, 'w') as fp:
-    json.dumps(join_dict, fp, indent=4, default=str)
+    json.dump(join_dict, fp, indent=4, default=str)
