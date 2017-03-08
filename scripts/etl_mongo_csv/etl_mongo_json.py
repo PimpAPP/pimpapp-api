@@ -4,7 +4,7 @@ import pymongo
 import datatime
 
 client = pymongo.MongoClient()
-db = client['recopimp']
+db = client['usereco']
 
 join_dict = {}
 for catador in db['carroceiros'].find():
@@ -25,8 +25,8 @@ for geo_info in db['geolocations'].find():
 
 filename = ''.join([
         'usereco-',
-        datetime.datetime.now().strftime("%Y%m%d-%H%hM%mSs"),
+        datetime.datetime.now().strftime("%Y%m%d-%H%M%mS"),
         '.json'])
 
-with open(filename, 'w') as fp
-    json.dumps(join_dict, fp, indent=4)
+with open(filename, 'w') as fp:
+    json.dumps(join_dict, fp, indent=4, default=str)
