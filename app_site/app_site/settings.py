@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'yvmahv(pa39%+5fs8%jxg79ejm^ui13m#fma3rf0kd7#r-wc9k'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -46,7 +44,7 @@ INSTALLED_APPS = (
     'simple_history',
     'versatileimagefield',
     'django_filters',
-    #'carroceiro',
+    # 'carroceiro',
     'api',
 )
 
@@ -57,14 +55,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    #'DEFAULT_FILTER_BACKENDS': (
+    # 'DEFAULT_FILTER_BACKENDS': (
     #    'rest_framework.filters.DjangoFilterBackend',
-    #),
+    # ),
 }
 
 VERSATILEIMAGEFIELD_SETTINGS = {
-     # The amount of time, in seconds, that references to created images
-     # should be stored in the cache. Defaults to `2592000` (30 days)
+    # The amount of time, in seconds, that references to created images
+    # should be stored in the cache. Defaults to `2592000` (30 days)
     'cache_length': 2592000,
     # The name of the cache you'd like `django-versatileimagefield` to use.
     # Defaults to 'versatileimagefield_cache'. If no cache exists with the name
@@ -137,7 +135,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/static/'
@@ -153,6 +150,32 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(module)s %(process)d %(thread)d %(message)s'
+        }
+    },
+    'handlers': {
+        'gunicorn': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/var/log/pimp-logs/gunicorn.errors',
+            'maxBytes': 1024 * 1024 * 100,  # 100 mb
+        }
+    },
+    'loggers': {
+        'gunicorn.errors': {
+            'level': 'DEBUG',
+            'handlers': ['gunicorn'],
+            'propagate': True,
+        },
     }
 }
 
