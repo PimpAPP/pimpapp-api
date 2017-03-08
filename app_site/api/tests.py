@@ -165,6 +165,10 @@ class CollectTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
     def test_create_collect(self):
+        """
+        Assert that the API is able to create a new Collect
+        :return:
+        """
         Collect.objects.create(
             catador_confirms=True, user_confirms=True, active=True,
             author=self.user, carroceiro=self.carroceiro)
@@ -206,3 +210,39 @@ class CollectTestCase(APITestCase):
         self.assertRaises(ValidationError, material.clean)
 
 
+class UsersTestCase(APITestCase):
+    """
+    Tests to assert that the API is able to manage Django Users
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@dummy.com',
+            password='top_secret')
+
+        token = Token.objects.get(user=self.user)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+        self.json_obj = {
+            'username': 'Joao',
+            'email': 'joao_teste_create@pimp.com',
+            'password': 'password$@#@$#%123'
+        }
+
+    def test_create_user(self):
+        """
+        Assert that the API is able to create commum Django Users
+        :return: 201 as a status code
+        """
+        response = self.client.post('/api/users/', self.json_obj, format='json')
+        self.assertEqual(response.status_code, 201)
+
+    def test_user_was_created(self):
+        """
+        Assert that a user was correct created by count the users occurrences
+        on data base
+        :return: 2 as a user counting
+        """
+        self.client.post('/api/users/', self.json_obj, format='json')
+        self.assertTrue(User.objects.get(email='joao_teste_create@pimp.com'))

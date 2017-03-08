@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 from .models import Rating
 from .models import Photo
@@ -7,6 +8,12 @@ from .models import Carroceiro
 from .models import Material
 from .models import LatitudeLongitude
 from .models import Collect
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'email', 'groups')
 
 
 class MaterialSerializer(serializers.ModelSerializer):
