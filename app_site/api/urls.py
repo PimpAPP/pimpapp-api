@@ -10,6 +10,7 @@ from .views import PhotoViewSet
 from .views import RatingByCarroceiroViewSet
 from .views import PhotoByCarroceiroViewSet
 from .views import CollectViewSet
+from .views import UserViewSet
 
 router = routers.DefaultRouter()
 
@@ -18,6 +19,8 @@ router.register(r'georef', LatitudeLongitudeViewSet)
 router.register(r'rating', RatingViewSet)
 router.register(r'photo', PhotoViewSet)
 router.register(r'collect', CollectViewSet)
+router.register(r'users', UserViewSet)
+
 
 urlpatterns = [
     # Example

@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework import viewsets
+from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -9,7 +10,6 @@ from .models import LatitudeLongitude
 from .models import Carroceiro
 from .models import Rating
 from .models import Photo
-from .models import Phone
 from .models import Collect
 
 from .serializers import RatingSerializer
@@ -19,8 +19,18 @@ from .serializers import CarroceiroSerializer
 from .serializers import MaterialSerializer
 from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
+from .serializers import UserSerializer
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+
 
 class CarroceiroViewSet(viewsets.ModelViewSet):
     """
