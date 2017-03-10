@@ -154,6 +154,9 @@ DATABASES = {
 }
 
 try:
-    from .local_settings import *
+    from local_settings import *
 except ImportError:
-    print('local_settings.py not found')
+    try:
+        from .local_settings import *
+    except ImportError:
+        print('local_settings.py not found')
