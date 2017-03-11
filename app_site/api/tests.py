@@ -7,6 +7,22 @@ from rest_framework.test import APITestCase
 from .models import Carroceiro
 from .models import Collect
 from .models import Material
+from .models import Phone
+
+
+class PhoneTestCase(APITestCase):
+
+    def test_mno(self):
+
+        c = Carroceiro.objects.create(catador_type="C", name="João da Silva")
+
+        Phone.objects.create(
+            carroceiro=c,
+            phone='11999999999',
+            mno='TIM',
+            has_whatsapp=True,
+            mobile_internet=True
+        )
 
 
 class CatadorTestCase(APITestCase):
