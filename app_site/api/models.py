@@ -80,7 +80,7 @@ class Carroceiro(ModeratedModel):
     )
 
     name = models.CharField(
-        max_length=64,
+        max_length=128,
         verbose_name=_('Nome'))
 
     minibio = models.CharField(
@@ -110,7 +110,7 @@ class Carroceiro(ModeratedModel):
         verbose_name=_("Endereço onde costuma trabalhar."))
 
     region = models.CharField(
-        max_length=64,
+        max_length=128,
         blank=True,
         null=True,
         verbose_name=_("Região onde costuma trabalhar."))  # Any sense?
