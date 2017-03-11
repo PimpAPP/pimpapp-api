@@ -84,7 +84,7 @@ class Carroceiro(ModeratedModel):
         verbose_name=_('Nome'))
 
     minibio = models.CharField(
-        max_length=140,
+        max_length=512,
         blank=True,
         null=True)
 
