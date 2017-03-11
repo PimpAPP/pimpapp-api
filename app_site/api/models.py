@@ -226,7 +226,7 @@ class Carroceiro(ModeratedModel):
             Phone.objects.create(
                 carroceiro=self,
                 phone=mongo_obj.get('telephone1', ''),
-                mno=mongo_obj.get('operator_telephone1', '').upper(),
+                mno=mongo_obj.get('operator_telephone1', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp1', ''),
                 mobile_internet=mongo_obj.get('internet1', '')
             )
@@ -235,7 +235,7 @@ class Carroceiro(ModeratedModel):
             Phone.objects.create(
                 carroceiro=self,
                 phone=mongo_obj.get('telephone2', ''),
-                mno=mongo_obj.get('operator_telephone2', '').upper(),
+                mno=mongo_obj.get('operator_telephone2', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp2', ''),
                 mobile_internet=mongo_obj.get('internet2', '')
             )
