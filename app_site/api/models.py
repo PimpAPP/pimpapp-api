@@ -516,7 +516,7 @@ class Phone(ModeratedModel):
 
     # fields:
     phone = models.CharField(
-        max_length=16,
+        max_length=20,
         validators=[RegexValidator(regex=r'^\d{8,15}$',
                                    message='Phone number must have at least 8 digits and/or up to 15 digits.')],
         verbose_name=_('Telefone Móvel'))
