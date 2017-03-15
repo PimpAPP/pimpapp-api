@@ -60,14 +60,11 @@ class ModeratedModel(models.Model):
     )
 
 
-class Carroceiro(ModeratedModel):
-    """
-    Class used for modeling a instance of Carroceiro in our DB.
-    by default, this table will be addressed as carroceiro_carroceiro
-    """
+class BaseMapMarker(ModeratedModel):
 
     class Meta:
         verbose_name = 'Catadores e Cooperativas'
+        abstract = True
 
     CATADOR = 'C'
     COOPERATIVA = 'O'
@@ -83,6 +80,11 @@ class Carroceiro(ModeratedModel):
         max_length=128,
         verbose_name=_('Nome'))
 
+    slug = models.CharField(
+        max_length=141,
+        blank=True,
+        null=True)
+    
     minibio = models.CharField(
         max_length=512,
         blank=True,
@@ -125,6 +127,17 @@ class Carroceiro(ModeratedModel):
         max_length=64,
         blank=True,
         null=True)
+    
+
+class Carroceiro(BaseMapMarker):
+    
+    """
+    Class used for modeling a instance of Carroceiro in our DB.
+    by default, this table will be addressed as carroceiro_carroceiro
+    """
+    
+    class Meta:
+        verbose_name = 'Catadores'
 
     # Pimp my Caroca
     has_motor_vehicle = models.BooleanField(
@@ -135,6 +148,14 @@ class Carroceiro(ModeratedModel):
         default=False,
         verbose_name=_("Teve a Carroça Pimpada?"))
 
+    safety_kit = models.BooleanField(
+        default=False,
+        verbose_name=_("Recebeu o Kit de Segurança?"))
+    
+    has_family = models.BooleanField(
+        default=False,
+        verbose_name=_("Possui Familia"))
+    
     @property
     def geolocation(self):
         obj = self.latitudelongitude_set.all().latest('created_on')
@@ -316,6 +337,11 @@ class MaterialBase(ModeratedModel):
         verbose_name = 'Serviços e Meteriais'
         verbose_name_plural = 'Serviços e Meteriais'
 
+    # Metadata about recycling
+    works_since = models.DateTimeField(blank=True)
+    est_kg_day = models.PositiveIntegerField(blank=True)
+    days_week = models.PositiveIntegerField(blank=True)
+        
     # fields:
     freight = models.BooleanField(
         verbose_name=_("Serviço de Frete e Carreto"),
