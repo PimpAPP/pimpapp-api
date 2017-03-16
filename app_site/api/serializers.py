@@ -11,6 +11,7 @@ from .models import Collect
 from .models import Residue
 from .models import ResiduePhoto
 from .models import ResidueLocation
+from .models import ResiduePhoto
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -76,12 +77,6 @@ class CollectSerializer(serializers.ModelSerializer):
                   'author', 'carroceiro', 'geolocation', 'photo_collect_user')
 
 
-class ResiduePhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResiduePhoto
-        fields = ['full_photo', ]
-
-
 class ResidueSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
@@ -110,4 +105,10 @@ class ResidueSerializer(serializers.ModelSerializer):
 class ResidueLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidueLocation
+        fields = '__all__'
+
+
+class ResiduePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResiduePhoto
         fields = '__all__'

@@ -24,6 +24,7 @@ from .serializers import CollectSerializer
 from .serializers import UserSerializer
 from .serializers import ResidueSerializer
 from .serializers import ResidueLocationSerializer
+from .serializers import ResiduePhotoSerializer
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
@@ -162,10 +163,31 @@ class ResidueListAPIView(generics.ListAPIView):
 
 
 class ResidueCreateAPIView(generics.CreateAPIView):
+    """
+        curl -H "Content-Type: application/json" -X POST -d '{"description": "Via cURL",
+        "materials": [1,2]}' http://localhost:8000/api/residues-create/
+        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
+
+    """
     serializer_class = ResidueSerializer
-    permission_classes = [AllowAny, ]
 
 
 class ResidueLocationCreateAPIView(generics.CreateAPIView):
+    """
+        curl -H "Content-Type: application/json" -X POST -d
+        '{"moderation_status": "A", "mongo_hash": "Hash mongo by cURL",
+        "latitude": 123, "longitude": 999, "reverse_geocoding": "reverse cURL",
+        "residue": 4}' http://localhost:8000/api/residues-location-create/
+        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
+    """
     serializer_class = ResidueLocationSerializer
-    permission_classes = [AllowAny, ]
+
+
+class ResiduePhotoCreateAPIView(generics.CreateAPIView):
+    """
+        curl -i -X POST -H "Content-Type: multipart/form-data" -F "full_photo=@/home/xtreme/gp.png" -F
+        "moderation_status=A" -F "mongo_hash=hash" -F "author=1" -F "residue=1"
+        http://localhost:8000/api/residues-photo-create/
+        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
+    """
+    serializer_class = ResiduePhotoSerializer

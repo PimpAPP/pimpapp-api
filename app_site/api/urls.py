@@ -15,6 +15,7 @@ from .views import UserViewSet
 from .views import ResidueListAPIView
 from .views import ResidueCreateAPIView
 from .views import ResidueLocationCreateAPIView
+from .views import ResiduePhotoCreateAPIView
 
 router = routers.DefaultRouter()
 
@@ -36,6 +37,8 @@ urlpatterns = [
     url(r'^residues/$', ResidueListAPIView.as_view(), name='residue-list'),
     url(r'^residues-create/$', ResidueCreateAPIView.as_view(), name='residue-create'),
     url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
+    url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
+    url(r'^residues-photo-create/$', ResiduePhotoCreateAPIView.as_view(), name='residue-photo-create'),
 ]
 
 urlpatterns += router.urls
