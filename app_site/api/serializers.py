@@ -35,7 +35,7 @@ class LatitudeLongitudeSerializer(serializers.ModelSerializer):
 class PhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Phone
-        fields = ('phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
+        fields = ('pk', 'carroceiro', 'phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
 
 
 class RatingSerializer(serializers.ModelSerializer):

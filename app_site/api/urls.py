@@ -6,6 +6,7 @@ from .views import CarroceiroViewSet
 from .views import LatitudeLongitudeViewSet
 from .views import RatingViewSet
 from .views import PhotoViewSet
+from .views import MobileViewSet
 
 from .views import RatingByCarroceiroViewSet
 from .views import PhotoByCarroceiroViewSet
@@ -18,6 +19,7 @@ router.register(r'carroceiro', CarroceiroViewSet)
 router.register(r'georef', LatitudeLongitudeViewSet)
 router.register(r'rating', RatingViewSet)
 router.register(r'photo', PhotoViewSet)
+router.register(r'mobile', MobileViewSet)
 router.register(r'collect', CollectViewSet)
 router.register(r'users', UserViewSet)
 
@@ -28,8 +30,6 @@ urlpatterns = [
         RatingByCarroceiroViewSet.as_view()),
     url('^carroceiro/(?P<carroceiro>\d+)/photos$',
         PhotoByCarroceiroViewSet.as_view()),
-    #url('^carroceiro/(?P<carroceiro>\d+)/phones$',
-    #    PhoneByCarroceiroViewSet.as_view()),
 ]
 
 urlpatterns += router.urls

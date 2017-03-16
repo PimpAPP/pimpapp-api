@@ -1,4 +1,6 @@
 import json
+import unittest
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
@@ -10,20 +12,69 @@ from .models import Material
 from .models import Phone
 
 
-class PhoneTestCase(APITestCase):
+class BaseTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@dummy.com',
+            password='top_secret')
+
+        self.carroceiro = Carroceiro.objects.create(catador_type="C", name="João da Silva")
+
+        token = Token.objects.get(user=self.user)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+
+class PhoneTestCase(BaseTestCase):
 
     def test_mno(self):
 
-        c = Carroceiro.objects.create(catador_type="C", name="João da Silva")
-
         Phone.objects.create(
-            carroceiro=c,
+            carroceiro=self.carroceiro,
             phone='11999999999',
             mno='TIM',
             has_whatsapp=True,
             mobile_internet=True
         )
 
+        # Deveria falhar
+
+    def test_update(self):
+
+        p = Phone.objects.create(
+            carroceiro=self.carroceiro,
+            phone='11999999999',
+            mno='TIM',
+            has_whatsapp=True,
+            mobile_internet=True
+        )
+
+        json_obj = {
+            'phone': '(21) 99468-8149',
+            'mno': 'O',
+            'has_whatsapp': True,
+            'mobile_internet': True
+        }
+
+        response = self.client.patch('/api/mobile/1/',
+                                        json_obj, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/api/mobile/1/', format='json')
+        self.assertEqual(response.status_code, 200)
+
+        result = json.loads(str(response.content, encoding='utf-8'))
+        del result['pk']
+        del result['carroceiro']
+        del result['notes']
+        result = json.dumps(result)
+
+        self.assertJSONEqual(
+            result,
+            json.dumps(json_obj)
+        )
 
 class CatadorTestCase(APITestCase):
 
@@ -66,6 +117,25 @@ class CatadorTestCase(APITestCase):
             str(response.content, encoding='utf-8'),
             expected
         )
+
+    @unittest.expectedFailure
+    def test_create_carroceiro_fk(self):
+
+        json_obj = {
+            "catador_type": "C",
+            "name": "João da Silva",
+            "phones": [
+                {
+                    "phone": "(21) 99468-8149",
+                    "mno": "O",
+                    "has_whatsapp": False,
+                    "mobile_internet": False,
+                }
+            ],
+        }
+
+        response = self.client.post('/api/carroceiro/', json_obj, format='json')
+        self.assertEqual(response.status_code, 200)
 
     def test_update_carroceiro(self):
 

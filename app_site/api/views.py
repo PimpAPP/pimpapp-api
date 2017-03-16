@@ -10,6 +10,7 @@ from .models import LatitudeLongitude
 from .models import Carroceiro
 from .models import Rating
 from .models import Photo
+from .models import Phone
 from .models import Collect
 
 from .serializers import RatingSerializer
@@ -57,7 +58,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def photos(self, request, pk=None):
         carroceiro = self.get_object()
-        from IPython import embed; embed()
         serializer = PhotoSerializer(carroceiro.photos, many=True)
         return Response(serializer.data)
 
@@ -104,14 +104,14 @@ class PhotoViewSet(viewsets.ModelViewSet):
             moderation_status__in=public_status)
 
 
-#class PhoneViewSet(viewsets.ModelViewSet):
-#    """
-#        DOCS: TODO
-#    """
-#    serializer_class = PhoneSerializer
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    queryset = Photo.objects.filter(
-#            moderation_status__in=public_status)
+class MobileViewSet(viewsets.ModelViewSet):
+    """
+        DOCS: TODO
+    """
+    serializer_class = PhoneSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = Phone.objects.filter(
+            moderation_status__in=public_status)
 
 
 class RatingByCarroceiroViewSet(generics.ListAPIView):
