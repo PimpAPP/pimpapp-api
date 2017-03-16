@@ -12,6 +12,9 @@ from .views import RatingByCarroceiroViewSet
 from .views import PhotoByCarroceiroViewSet
 from .views import CollectViewSet
 from .views import UserViewSet
+from .views import ResidueListAPIView
+from .views import ResidueCreateAPIView
+from .views import ResidueLocationCreateAPIView
 
 router = routers.DefaultRouter()
 
@@ -30,6 +33,9 @@ urlpatterns = [
         RatingByCarroceiroViewSet.as_view()),
     url('^carroceiro/(?P<carroceiro>\d+)/photos$',
         PhotoByCarroceiroViewSet.as_view()),
+    url(r'^residues/$', ResidueListAPIView.as_view(), name='residue-list'),
+    url(r'^residues-create/$', ResidueCreateAPIView.as_view(), name='residue-create'),
+    url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
 ]
 
 urlpatterns += router.urls

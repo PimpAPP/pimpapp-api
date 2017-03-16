@@ -44,7 +44,6 @@ INSTALLED_APPS = (
     'simple_history',
     'versatileimagefield',
     'django_filters',
-    # 'carroceiro',
     'api',
 )
 
@@ -55,9 +54,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    # 'DEFAULT_FILTER_BACKENDS': (
-    #    'rest_framework.filters.DjangoFilterBackend',
-    # ),
 }
 
 VERSATILEIMAGEFIELD_SETTINGS = {
@@ -121,9 +117,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'app_site.wsgi.application'
 
 CORS_ORIGIN_ALLOW_ALL = True
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'pt-br'
 

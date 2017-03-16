@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
@@ -12,6 +12,7 @@ from .models import Rating
 from .models import Photo
 from .models import Phone
 from .models import Collect
+from .models import Residue
 
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
@@ -21,6 +22,8 @@ from .serializers import MaterialSerializer
 from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
 from .serializers import UserSerializer
+from .serializers import ResidueSerializer
+from .serializers import ResidueLocationSerializer
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
@@ -150,3 +153,19 @@ class CollectViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Collect.objects.filter(
             moderation_status__in=public_status)
+
+
+class ResidueListAPIView(generics.ListAPIView):
+    serializer_class = ResidueSerializer
+    queryset = Residue.objects.filter()
+    permission_classes = [AllowAny, ]
+
+
+class ResidueCreateAPIView(generics.CreateAPIView):
+    serializer_class = ResidueSerializer
+    permission_classes = [AllowAny, ]
+
+
+class ResidueLocationCreateAPIView(generics.CreateAPIView):
+    serializer_class = ResidueLocationSerializer
+    permission_classes = [AllowAny, ]

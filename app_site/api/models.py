@@ -593,7 +593,8 @@ class ResiduePhoto(PhotoBase):
 
 
 class ResidueLocation(LatitudeLongitudeBase):
-    residue = models.ForeignKey(Residue, unique=True, blank=False)
+    residue = models.OneToOneField(
+        Residue)
 
     def __str__(self):
         return self.residue.description + ': Lat: ' + str(self.latitude) +\
