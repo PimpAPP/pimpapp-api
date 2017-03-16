@@ -565,3 +565,36 @@ class Phone(ModeratedModel):
     notes = models.CharField(
         verbose_name=_('Comentário'),
         max_length=140, blank=True, null=True)
+
+
+class Residue(models.Model):
+    description = models.CharField(max_length=200)
+    materials = models.ManyToManyField(Material)
+
+    def __str__(self):
+        return str(self.description)
+
+    @property
+    def residue_photos(self):
+        photos = self.residuephoto_set.all()
+        return photos
+
+    @property
+    def residue_location(self):
+        location = self.residuelocation_set.all()
+        return location
+
+
+class ResiduePhoto(PhotoBase):
+    residue = models.ForeignKey(Residue, unique=False, blank=False)
+
+    def __str__(self):
+        return str(self.residue) + ' - ' + str(self.full_photo)
+
+
+class ResidueLocation(LatitudeLongitudeBase):
+    residue = models.ForeignKey(Residue, unique=True, blank=False)
+
+    def __str__(self):
+        return self.residue.description + ': Lat: ' + str(self.latitude) +\
+               ' - Long: ' + str(self.longitude)
