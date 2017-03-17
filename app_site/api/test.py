@@ -6,10 +6,10 @@ from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from .models import Carroceiro
-from .models import Collect
-from .models import Material
-from .models import Phone
+from app_site.api.models import Carroceiro
+from app_site.api.models import Collect
+from app_site.api.models import Material
+from app_site.api.models import Phone
 
 
 class BaseTestCase(APITestCase):
@@ -75,6 +75,7 @@ class PhoneTestCase(BaseTestCase):
             result,
             json.dumps(json_obj)
         )
+
 
 class CatadorTestCase(APITestCase):
 
@@ -182,7 +183,6 @@ class GeoRefTestCase(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
-
     def test_create_geo(self):
 
         json_obj = {
@@ -196,7 +196,6 @@ class GeoRefTestCase(APITestCase):
 
         response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
         #ts = LatitudeLongitude.objects.get(pk=1).created_on
-
 
         expected = {
             "pk": 1,
