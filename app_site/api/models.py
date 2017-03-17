@@ -93,7 +93,7 @@ class BaseMapMarker(ModeratedModel):
         blank=True,
         null=True)
 
-    minibio = models.CharField(
+    minibio = models.TextField(
         max_length=512,
         blank=True,
         null=True)
@@ -169,11 +169,16 @@ class Carroceiro(BaseMapMarker):
     life_history = models.TextField(
         blank=True, null=True)
 
-    how_many_collect = models.FloatField(
+    how_many_collect_day = models.FloatField(
         blank=True, null=True,
         verbose_name=_('Quanto coleta por dia?'))
 
-    how_years_many_collect = models.FloatField(
+    how_many_collect_week = models.FloatField(
+        blank=True, null=True,
+        verbose_name=_('Quanto coleta por semana?'))
+
+
+    how_years_many_collect = models.IntegerField(
         blank=True, null=True,
         verbose_name=_('A quantos anos coleta?'))
 
@@ -184,7 +189,7 @@ class Carroceiro(BaseMapMarker):
     days_week_work = models.CharField(
         max_length=13, null=True, blank=True)
 
-    works_since = models.DateTimeField(blank=True, null=True)
+    works_since = models.DateField(blank=True, null=True)
 
     @property
     def geolocation(self):

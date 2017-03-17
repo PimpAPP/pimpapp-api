@@ -15,9 +15,13 @@ from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Rating
 from .models import MaterialType
+from .forms import DaysWeekWorkAdminForm
 
 
-admin.site.register(Carroceiro, SimpleHistoryAdmin)
+class DaysWeekWorkAdmin(admin.ModelAdmin):
+    form = DaysWeekWorkAdminForm
+
+admin.site.register(Carroceiro, DaysWeekWorkAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
 admin.site.register(Phone, SimpleHistoryAdmin)
 admin.site.register(LatitudeLongitude, SimpleHistoryAdmin)
