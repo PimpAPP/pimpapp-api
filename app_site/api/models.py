@@ -166,6 +166,26 @@ class Carroceiro(BaseMapMarker):
 
     materials_collected = models.ManyToManyField(MaterialType)
 
+    life_history = models.TextField(
+        blank=True, null=True)
+
+    how_many_collect = models.FloatField(
+        blank=True, null=True,
+        verbose_name=_('Quanto coleta por dia?'))
+
+    how_years_many_collect = models.FloatField(
+        blank=True, null=True,
+        verbose_name=_('A quantos anos coleta?'))
+
+    internet_outside = models.BooleanField(
+        default=False,
+        verbose_name=_('Possui internet na rua?'))
+
+    days_week_work = models.CharField(
+        max_length=13, null=True, blank=True)
+
+    works_since = models.DateTimeField(blank=True, null=True)
+
     @property
     def geolocation(self):
         obj = self.latitudelongitude_set.all().latest('created_on')
