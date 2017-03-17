@@ -54,7 +54,7 @@ class ResidueTestCase(APITestCase):
         Certify that the API is able to receive file Upload
         :return: 201 when a file is successful uploaded
         """
-        url = reverse('residue-photo-create')
+        url = '/api/residues-photo-create/'
 
         path_to_image = os.path.join(BASE_DIR, 'tests/file-for-tests.png')
         data = {'full_photo': open(path_to_image, 'rb'),
@@ -70,7 +70,7 @@ class ResidueTestCase(APITestCase):
             "description": "Via tests",
             "materials": [self.material.id, ]}
 
-        response = self.client.post(reverse('residue-create'), json_obj, format='json')
+        response = self.client.post('/api/residues-create/', json_obj, format='json')
 
         self.assertEqual(response.status_code, 201)
 
@@ -79,7 +79,7 @@ class ResidueTestCase(APITestCase):
             "description": "Via tests",
             "materials": [self.material.id, ]}
 
-        response = self.client.post(reverse('residue-create'), json_obj, format='json')
+        response = self.client.post('/api/residues-create/', json_obj, format='json')
 
         expected = {'description': 'Via tests', 'id': 2, 'latitude': None, 'longitude': None,
                     'materials': [1], 'photos': []}
@@ -110,7 +110,7 @@ class ResidueTestCase(APITestCase):
             "residue": self.residue.id
         }
 
-        response = self.client.post(reverse('residue-location-create'), json_obj, format='json')
+        response = self.client.post('/api/residues-location-create/', json_obj, format='json')
 
         self.assertEqual(response.status_code, 201)
 
@@ -124,7 +124,7 @@ class ResidueTestCase(APITestCase):
             "residue": self.residue.id
         }
 
-        response = self.client.post(reverse('residue-location-create'), json_obj, format='json')
+        response = self.client.post('/api/residues-location-create/', json_obj, format='json')
 
         expected = {'id': 1, "moderation_status": "A", "mongo_hash": "Hash", "latitude": 123.0,
             "longitude": 456.0,
