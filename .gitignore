@@ -69,3 +69,4 @@ integration_test/.cache
 *.swp
 static/
 .env
+*.sqlite3
