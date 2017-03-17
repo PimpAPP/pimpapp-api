@@ -34,9 +34,10 @@ urlpatterns = [
         RatingByCarroceiroViewSet.as_view()),
     url('^carroceiro/(?P<carroceiro>\d+)/photos$',
         PhotoByCarroceiroViewSet.as_view()),
+
+    # Resideu URL stuffs
     url(r'^residues/$', ResidueListAPIView.as_view(), name='residue-list'),
     url(r'^residues-create/$', ResidueCreateAPIView.as_view(), name='residue-create'),
-    url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
     url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
     url(r'^residues-photo-create/$', ResiduePhotoCreateAPIView.as_view(), name='residue-photo-create'),
 ]

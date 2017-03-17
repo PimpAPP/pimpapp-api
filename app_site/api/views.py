@@ -1,7 +1,9 @@
 from rest_framework import generics
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
+    AllowAny, IsAdminUser
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
@@ -159,7 +161,8 @@ class CollectViewSet(viewsets.ModelViewSet):
 class ResidueListAPIView(generics.ListAPIView):
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
-    permission_classes = [AllowAny, ]
+    filter_backends = [SearchFilter, ]
+    search_fields = ['id']
 
 
 class ResidueCreateAPIView(generics.CreateAPIView):
@@ -181,6 +184,7 @@ class ResidueLocationCreateAPIView(generics.CreateAPIView):
         -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
     """
     serializer_class = ResidueLocationSerializer
+    permission_classes = [AllowAny, ]
 
 
 class ResiduePhotoCreateAPIView(generics.CreateAPIView):

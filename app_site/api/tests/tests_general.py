@@ -6,10 +6,10 @@ from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from app_site.api.models import Carroceiro
-from app_site.api.models import Collect
-from app_site.api.models import Material
-from app_site.api.models import Phone
+from ..models import Carroceiro
+from ..models import Collect
+from ..models import Material
+from ..models import Phone
 
 
 class BaseTestCase(APITestCase):
