@@ -10,6 +10,7 @@ from ..models import Carroceiro
 from ..models import Collect
 from ..models import Material
 from ..models import Phone
+from ..models import MaterialType
 
 
 class BaseTestCase(APITestCase):
@@ -89,35 +90,36 @@ class CatadorTestCase(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
+        self.material = MaterialType.objects.create(description='Material teste')
+        self.material.save()
+
     def test_create_carroceiro(self):
 
         json_obj = {
             "catador_type": "C",
             "name": "João da Silva",
+            "materials_collected": [self.material.id],
+            "days_week_work": "3,4",
         }
 
-        response = self.client.post('/api/carroceiro/', json_obj, format='json')
+        self.client.post('/api/carroceiro/', json_obj, format='json')
         response = self.client.get('/api/carroceiro/1/', format='json')
 
         expected = {
-            "pk": 1,
-            "catador_type": "C",
-            "name": "João da Silva",
-            "geolocation": None,
-            "address_base": None,
-            "region": None,
-            "city": None,
-            "country": None,
-            "phones": [],
-            "has_motor_vehicle": False,
-            "carroca_pimpada": False,
-            "is_locked": False
+            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
+            "mongo_hash": None, "name": "João da Silva", "slug": None,
+            "minibio": None, "catador_type": "C", "is_locked": False,
+             "address_base": None, "region": None, "city": None, "country": None,
+            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
+            "has_family": False, "life_history": None, "how_many_collect_day": None,
+            "how_many_collect_week": None, "how_years_many_collect": None,
+             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
+            "user": None, "materials_collected": [1]
         }
 
-        self.assertJSONEqual(
-            str(response.content, encoding='utf-8'),
-            expected
-        )
+        result = json.loads(str(response.content, encoding='utf-8'))
+        result = json.dumps(result)
+        self.assertJSONEqual(result, expected)
 
     @unittest.expectedFailure
     def test_create_carroceiro_fk(self):
@@ -143,25 +145,24 @@ class CatadorTestCase(APITestCase):
         Carroceiro.objects.create(catador_type="C", name="João da Silva")
 
         json_obj = {
-            "pk": 1,
-            "city": "São Paulo",
+            "catador_type": "C",
+            "name": "João da Silva",
+            "materials_collected": [self.material.id],
+            "days_week_work": "3,4",
         }
 
         response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
 
         expected = {
-            "pk": 1,
-            "catador_type": "C",
-            "name": "João da Silva",
-            "geolocation": None,
-            "address_base": None,
-            "region": None,
-            "city": "São Paulo",
-            "country": None,
-            "phones": [],
-            "has_motor_vehicle": False,
-            "carroca_pimpada": False,
-            "is_locked": False
+            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
+            "mongo_hash": None, "name": "João da Silva", "slug": None,
+            "minibio": None, "catador_type": "C", "is_locked": False,
+             "address_base": None, "region": None, "city": None, "country": None,
+            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
+            "has_family": False, "life_history": None, "how_many_collect_day": None,
+            "how_many_collect_week": None, "how_years_many_collect": None,
+             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
+            "user": None, "materials_collected": [1]
         }
 
         self.assertJSONEqual(
@@ -195,27 +196,38 @@ class GeoRefTestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
 
         response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
-        #ts = LatitudeLongitude.objects.get(pk=1).created_on
 
         expected = {
-            "pk": 1,
-            "catador_type": "C",
-            "name": "João da Silva",
-            "geolocation": {
-                "carroceiro": 1,
-                "latitude": 23.5,
-                "longitude": 46.6,
-                #"created_on": ts,
-                "reverse_geocoding": ""
+            'how_many_collect_week': None,
+            'region': None,
+            'internet_outside': False,
+            'id': 1,
+            'works_since': None,
+            'city': None,
+            'moderation_status': 'P',
+            'how_years_many_collect': None,
+            'carroca_pimpada': False,
+             'materials_collected': [],
+            'is_locked': False,
+            'minibio': None,
+            'mongo_hash': None,
+            'phones': [],
+            'life_history': None,
+            'slug': None, 'has_motor_vehicle': False,
+            'geolocation': {
+                'longitude': 46.6, 'latitude': 23.5,
+                            'reverse_geocoding': '',
+                            'carroceiro': 1
             },
-            "address_base": None,
-            "region": None,
-            "city": None,
-            "country": None,
-            "phones": [],
-            "has_motor_vehicle": False,
-            "carroca_pimpada": False,
-            "is_locked": False
+            'catador_type': 'C',
+            'how_many_collect_day': None,
+            'country': None,
+            'safety_kit': False,
+            'name': 'João da Silva',
+            'days_week_work': None,
+            'has_family': False,
+            'user': None,
+            'address_base': None
         }
 
         result = json.loads(str(response.content, encoding='utf-8'))

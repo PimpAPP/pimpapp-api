@@ -60,14 +60,10 @@ class CarroceiroSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Carroceiro
-        fields = ('pk', 'catador_type', 'geolocation', 'phones',
-                'name', 'address_base', 'region', 'city',
-                'country', 'has_motor_vehicle', 'carroca_pimpada',
-                'is_locked')
+        exclude = ['created_on', ]
 
     geolocation = LatitudeLongitudeSerializer(required=False)
     phones = PhoneSerializer(required=False, many=True)
-    #materials = MaterialSerializer(required=False)
 
 
 class CollectSerializer(serializers.ModelSerializer):
