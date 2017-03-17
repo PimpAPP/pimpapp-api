@@ -14,6 +14,8 @@ from .models import Residue
 from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Rating
+from .models import MaterialType
+
 
 admin.site.register(Carroceiro, SimpleHistoryAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
@@ -27,3 +29,4 @@ admin.site.register(Residue)
 admin.site.register(ResiduePhoto)
 admin.site.register(ResidueLocation)
 admin.site.register(Rating)
+admin.site.register(MaterialType)

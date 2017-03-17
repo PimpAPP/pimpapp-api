@@ -4,8 +4,6 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from django.core.validators import RegexValidator
-
 from simple_history.models import HistoricalRecords
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
@@ -22,6 +20,16 @@ from django.dispatch import receiver
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance, **kwargs):
     token, created = Token.objects.get_or_create(user=instance)
+
+
+class MaterialType(models.Model):
+    description = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Tipos de materiais'
+
+    def __str__(self):
+        return self.description
 
 
 class ModeratedModel(models.Model):
@@ -155,6 +163,8 @@ class Carroceiro(BaseMapMarker):
     has_family = models.BooleanField(
         default=False,
         verbose_name=_("Possui Familia"))
+
+    materials_collected = models.ManyToManyField(MaterialType)
 
     @property
     def geolocation(self):
