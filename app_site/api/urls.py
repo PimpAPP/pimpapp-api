@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from rest_framework import routers
 
@@ -20,26 +20,23 @@ from .views import ResiduePhotoCreateAPIView
 router = routers.DefaultRouter()
 
 router.register(r'carroceiro', CarroceiroViewSet)
+router.register(r'^carroceiro/(?P<carroceiro>\d+)/comments$',
+                RatingByCarroceiroViewSet, base_name='Carroceiro')
+router.register(r'^carroceiro/(?P<carroceiro>\d+)/photos$',
+                PhotoByCarroceiroViewSet, base_name='Carroceiro')
 router.register(r'georef', LatitudeLongitudeViewSet)
 router.register(r'rating', RatingViewSet)
 router.register(r'photo', PhotoViewSet)
 router.register(r'mobile', MobileViewSet)
 router.register(r'collect', CollectViewSet)
 router.register(r'users', UserViewSet)
+router.register(r'residues', ResidueListAPIView, base_name='Residue')
+router.register(r'residues-create', ResidueCreateAPIView, base_name='Residue')
+router.register(r'residues-location-create', ResidueLocationCreateAPIView, base_name='Residue')
+router.register(r'residues-photo-create', ResiduePhotoCreateAPIView, base_name='Residue')
 
 
 urlpatterns = [
-    # Example
-    url('^carroceiro/(?P<carroceiro>\d+)/comments$',
-        RatingByCarroceiroViewSet.as_view()),
-    url('^carroceiro/(?P<carroceiro>\d+)/photos$',
-        PhotoByCarroceiroViewSet.as_view()),
-
-    # Resideu URL stuffs
-    url(r'^residues/$', ResidueListAPIView.as_view(), name='residue-list'),
-    url(r'^residues-create/$', ResidueCreateAPIView.as_view(), name='residue-create'),
-    url(r'^residues-location-create/$', ResidueLocationCreateAPIView.as_view(), name='residue-location-create'),
-    url(r'^residues-photo-create/$', ResiduePhotoCreateAPIView.as_view(), name='residue-photo-create'),
+    url(r'^', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
-
-urlpatterns += router.urls

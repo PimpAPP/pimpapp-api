@@ -120,7 +120,7 @@ class MobileViewSet(viewsets.ModelViewSet):
             moderation_status__in=public_status)
 
 
-class RatingByCarroceiroViewSet(generics.ListAPIView):
+class RatingByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
     """
         DOCS: TODO
     """
@@ -134,7 +134,7 @@ class RatingByCarroceiroViewSet(generics.ListAPIView):
                 carroceiro__id=carroceiro)
 
 
-class PhotoByCarroceiroViewSet(generics.ListAPIView):
+class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
     """
         DOCS: TODO
     """
@@ -158,14 +158,14 @@ class CollectViewSet(viewsets.ModelViewSet):
             moderation_status__in=public_status)
 
 
-class ResidueListAPIView(generics.ListAPIView):
+class ResidueListAPIView(viewsets.ViewSetMixin, generics.ListAPIView):
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
     filter_backends = [SearchFilter, ]
     search_fields = ['id']
 
 
-class ResidueCreateAPIView(generics.CreateAPIView):
+class ResidueCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
     """
         curl -H "Content-Type: application/json" -X POST -d '{"description": "Via cURL",
         "materials": [1,2]}' http://localhost:8000/api/residues-create/
@@ -175,7 +175,7 @@ class ResidueCreateAPIView(generics.CreateAPIView):
     serializer_class = ResidueSerializer
 
 
-class ResidueLocationCreateAPIView(generics.CreateAPIView):
+class ResidueLocationCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
     """
         curl -H "Content-Type: application/json" -X POST -d
         '{"moderation_status": "A", "mongo_hash": "Hash mongo by cURL",
@@ -187,7 +187,7 @@ class ResidueLocationCreateAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny, ]
 
 
-class ResiduePhotoCreateAPIView(generics.CreateAPIView):
+class ResiduePhotoCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
     """
         curl -i -X POST -H "Content-Type: multipart/form-data" -F "full_photo=@/home/xtreme/gp.png" -F
         "moderation_status=A" -F "mongo_hash=hash" -F "author=1" -F "residue=1"

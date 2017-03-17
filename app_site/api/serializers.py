@@ -45,7 +45,7 @@ class PhoneSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('pk', 'user', 'carroceiro', 'created_on',
+        fields = ('pk', 'author', 'carroceiro', 'created_on',
                   'rating', 'comment')
 
 
