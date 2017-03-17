@@ -15,6 +15,10 @@ from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Rating
 from .models import MaterialType
+from .models import PhotoCooperative
+from .models import Partner
+from .models import Cooperative
+from .models import PhoneNumbers
 from .forms import DaysWeekWorkAdminForm
 
 
@@ -34,3 +38,7 @@ admin.site.register(ResiduePhoto)
 admin.site.register(ResidueLocation)
 admin.site.register(Rating)
 admin.site.register(MaterialType)
+admin.site.register(PhotoCooperative)
+admin.site.register(Partner)
+admin.site.register(Cooperative)
+admin.site.register(PhoneNumbers)

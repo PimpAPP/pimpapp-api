@@ -86,7 +86,7 @@ class BaseMapMarker(ModeratedModel):
 
     name = models.CharField(
         max_length=128,
-        verbose_name=_('Nome'))
+        verbose_name=_('Apelido'))
 
     slug = models.CharField(
         max_length=141,
@@ -160,9 +160,9 @@ class Carroceiro(BaseMapMarker):
         default=False,
         verbose_name=_("Recebeu o Kit de Segurança?"))
 
-    has_family = models.BooleanField(
-        default=False,
-        verbose_name=_("Possui Familia"))
+    has_family = models.CharField(
+        max_length=200,
+        null=True, blank=True)
 
     materials_collected = models.ManyToManyField(MaterialType)
 
@@ -176,7 +176,6 @@ class Carroceiro(BaseMapMarker):
     how_many_collect_week = models.FloatField(
         blank=True, null=True,
         verbose_name=_('Quanto coleta por semana?'))
-
 
     how_years_many_collect = models.IntegerField(
         blank=True, null=True,
@@ -634,3 +633,59 @@ class ResidueLocation(LatitudeLongitudeBase):
     def __str__(self):
         return self.residue.description + ': Lat: ' + str(self.latitude) +\
                ' - Long: ' + str(self.longitude)
+
+
+class PhoneNumbers(models.Model):
+    MNO_CHOICES = (
+        ('V', 'Vivo'),
+        ('T', 'TIM'),
+        ('C', 'Claro'),
+        ('O', 'Oi'),
+        ('N', 'Nextel'),
+        ('P', 'Porto Conecta'),
+    )
+    number = models.CharField(max_length=15)
+    mobile_operator = models.CharField(max_length=1, choices=MNO_CHOICES)
+
+    def __str__(self):
+        return self.number + ' - ' + self.mobile_operator
+
+
+class Cooperative(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phrase = models.CharField(max_length=200)
+    history = models.TextField(max_length=500, null=True, blank=True)
+    phones = models.ManyToManyField(PhoneNumbers)
+    user = models.OneToOneField(User)
+    address = models.CharField(max_length=200)
+    region_where_operates = models.CharField(max_length=200)
+    how_many_cooperators = models.IntegerField()
+    how_many_collect_day = models.FloatField()
+    how_many_collect_week = models.FloatField()
+    how_many_years_collecting = models.IntegerField()
+    how_many_material_collected = models.FloatField()
+    image = VersatileImageField(upload_to='cooperatives')
+
+    @property
+    def photos(self):
+        objs = self.photocooperative.all().order_by('created_on')
+        return objs
+
+    def __str__(self):
+        return self.name
+
+class PhotoCooperative(PhotoBase):
+    cooperative = models.ForeignKey(Cooperative, unique=False, blank=False)
+
+
+    def __str__(self):
+        return self.cooperative.name + ' - ' + self.full_photo.name
+
+
+class Partner(ModeratedModel):
+    name = models.CharField(max_length=100)
+    image = VersatileImageField(upload_to='cooperatives/partners')
+
+    def __str__(self):
+        return self.name
