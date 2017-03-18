@@ -16,6 +16,7 @@ from .views import ResidueListAPIView
 from .views import ResidueCreateAPIView
 from .views import ResidueLocationCreateAPIView
 from .views import ResiduePhotoCreateAPIView
+from .views import CooperativeViewSet
 
 router = routers.DefaultRouter()
 
@@ -37,6 +38,7 @@ router.register(r'residues-location-create',
                 ResidueLocationCreateAPIView, base_name='residue-location-create')
 router.register(r'residues-photo-create',
                 ResiduePhotoCreateAPIView, base_name='residue-photo-create')
+router.register(r'cooperative', CooperativeViewSet, base_name='cooperative')
 
 
 urlpatterns = [

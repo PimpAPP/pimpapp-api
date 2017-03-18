@@ -1,11 +1,12 @@
 from rest_framework import generics
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    AllowAny, IsAdminUser
-from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated, \
+    AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import ModeratedModel
 from .models import LatitudeLongitude
@@ -15,6 +16,7 @@ from .models import Photo
 from .models import Phone
 from .models import Collect
 from .models import Residue
+from .models import Cooperative
 
 from .serializers import RatingSerializer
 from .serializers import PhotoSerializer
@@ -27,6 +29,10 @@ from .serializers import UserSerializer
 from .serializers import ResidueSerializer
 from .serializers import ResidueLocationSerializer
 from .serializers import ResiduePhotoSerializer
+from .serializers import CooperativeSerializer
+
+from .permissions import IsObjectOwner
+
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
@@ -37,6 +43,16 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+
+
+class PermissionBase(APIView):
+    def get_permissions(self):
+        if self.request.method in ['GET', 'OPTIONS', 'HEAD', 'POST']:
+            self.permission_classes = [IsAuthenticated]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [IsAuthenticated, IsObjectOwner]
+
+        return super(PermissionBase, self).get_permissions()
 
 
 class CarroceiroViewSet(viewsets.ModelViewSet):
@@ -195,3 +211,11 @@ class ResiduePhotoCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
         -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
     """
     serializer_class = ResiduePhotoSerializer
+
+
+class CooperativeViewSet(PermissionBase, viewsets.ModelViewSet):
+    serializer_class = CooperativeSerializer
+    queryset = Cooperative.objects.all()
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'email', 'id']
+    ordering_fields = ['name', 'email', 'id']

@@ -11,7 +11,7 @@ from .models import Collect
 from .models import Residue
 from .models import ResiduePhoto
 from .models import ResidueLocation
-from .models import ResiduePhoto
+from .models import Cooperative
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -107,4 +107,10 @@ class ResidueLocationSerializer(serializers.ModelSerializer):
 class ResiduePhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResiduePhoto
+        fields = '__all__'
+
+
+class CooperativeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cooperative
         fields = '__all__'

@@ -604,6 +604,7 @@ class Phone(ModeratedModel):
 class Residue(models.Model):
     description = models.CharField(max_length=200)
     materials = models.ManyToManyField(Material)
+    user = models.ForeignKey(User)
 
     def __str__(self):
         return str(self.description)
@@ -651,6 +652,14 @@ class PhoneNumbers(models.Model):
         return self.number + ' - ' + self.mobile_operator
 
 
+class Partner(ModeratedModel):
+    name = models.CharField(max_length=100)
+    image = VersatileImageField(upload_to='cooperatives/partners')
+
+    def __str__(self):
+        return self.name
+
+
 class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -666,6 +675,8 @@ class Cooperative(models.Model):
     how_many_years_collecting = models.IntegerField()
     how_many_material_collected = models.FloatField()
     image = VersatileImageField(upload_to='cooperatives')
+    materials_collected = models.ManyToManyField(MaterialType)
+    partners = models.ManyToManyField(Partner, blank=True)
 
     @property
     def photos(self):
@@ -675,17 +686,9 @@ class Cooperative(models.Model):
     def __str__(self):
         return self.name
 
+
 class PhotoCooperative(PhotoBase):
     cooperative = models.ForeignKey(Cooperative, unique=False, blank=False)
 
-
     def __str__(self):
         return self.cooperative.name + ' - ' + self.full_photo.name
-
-
-class Partner(ModeratedModel):
-    name = models.CharField(max_length=100)
-    image = VersatileImageField(upload_to='cooperatives/partners')
-
-    def __str__(self):
-        return self.name
