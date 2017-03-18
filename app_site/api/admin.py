@@ -1,6 +1,10 @@
 from django.contrib import admin
 
 from simple_history.admin import SimpleHistoryAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+
+from .models import UserProfile
 
 from .models import Carroceiro
 from .models import Material
@@ -19,11 +23,26 @@ from .models import PhotoCooperative
 from .models import Partner
 from .models import Cooperative
 from .models import PhoneNumbers
+from .models import PhotoBase
 from .forms import DaysWeekWorkAdminForm
 
 
 class DaysWeekWorkAdmin(admin.ModelAdmin):
     form = DaysWeekWorkAdminForm
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'Profiles'
+
+
+class UserAdmin(BaseUserAdmin):
+    inlines = (UserProfileInline, )
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+
 
 admin.site.register(Carroceiro, DaysWeekWorkAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
@@ -42,3 +61,4 @@ admin.site.register(PhotoCooperative)
 admin.site.register(Partner)
 admin.site.register(Cooperative)
 admin.site.register(PhoneNumbers)
+admin.site.register(PhotoBase)

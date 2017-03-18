@@ -12,12 +12,37 @@ from .models import Residue
 from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Cooperative
+from .models import UserProfile
+from .models import PhotoBase
+from .models import MaterialType
+
+
+class PhotoBaseSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = PhotoBase
+        fields = ['full_photo', ]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    photo = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups')
+        fields = ('url', 'username', 'email', 'photo', 'first_name', 'last_name')
+
+    def get_photo(self, obj):
+        return PhotoBaseSerializer(obj.photobase_set, many=True).data
+
+
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = ('url', 'username', 'email', 'groups', 'user')
+
+    def get_user(self, obj):
+        return UserSerializer(obj.user)
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -73,10 +98,17 @@ class CollectSerializer(serializers.ModelSerializer):
                   'author', 'carroceiro', 'geolocation', 'photo_collect_user')
 
 
+class MaterialTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaterialType
+        fields = '__all__'
+
+
 class ResidueSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
+    materials = MaterialTypeSerializer(read_only=True, many=True)
 
     class Meta:
         model = Residue
