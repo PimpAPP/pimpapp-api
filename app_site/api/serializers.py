@@ -12,6 +12,7 @@ from .models import Residue
 from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Cooperative
+from .models import MaterialType
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -73,10 +74,17 @@ class CollectSerializer(serializers.ModelSerializer):
                   'author', 'carroceiro', 'geolocation', 'photo_collect_user')
 
 
+class MaterialTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaterialType
+        fields = '__all__'
+
+
 class ResidueSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
+    materials = MaterialTypeSerializer(read_only=True, many=True)
 
     class Meta:
         model = Residue

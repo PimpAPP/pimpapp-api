@@ -603,7 +603,7 @@ class Phone(ModeratedModel):
 
 class Residue(models.Model):
     description = models.CharField(max_length=200)
-    materials = models.ManyToManyField(Material)
+    materials = models.ManyToManyField(MaterialType)
     user = models.ForeignKey(User)
 
     def __str__(self):
