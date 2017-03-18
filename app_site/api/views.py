@@ -27,11 +27,9 @@ from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
 from .serializers import UserSerializer
 from .serializers import ResidueSerializer
-from .serializers import ResidueLocationSerializer
-from .serializers import ResiduePhotoSerializer
 from .serializers import CooperativeSerializer
 
-from .permissions import IsObjectOwner
+from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
@@ -169,48 +167,16 @@ class CollectViewSet(viewsets.ModelViewSet):
         DOCS: TODO
     """
     serializer_class = CollectSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsCatadorOrCollectOwner, IsAuthenticated)
     queryset = Collect.objects.filter(
             moderation_status__in=public_status)
 
 
-class ResidueListAPIView(viewsets.ViewSetMixin, generics.ListAPIView):
+class ResidueViewSet(PermissionBase, viewsets.ModelViewSet):
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
-    filter_backends = [SearchFilter, ]
-    search_fields = ['id']
-
-
-class ResidueCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -H "Content-Type: application/json" -X POST -d '{"description": "Via cURL",
-        "materials": [1,2]}' http://localhost:8000/api/residues-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-
-    """
-    serializer_class = ResidueSerializer
-
-
-class ResidueLocationCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -H "Content-Type: application/json" -X POST -d
-        '{"moderation_status": "A", "mongo_hash": "Hash mongo by cURL",
-        "latitude": 123, "longitude": 999, "reverse_geocoding": "reverse cURL",
-        "residue": 4}' http://localhost:8000/api/residues-location-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-    """
-    serializer_class = ResidueLocationSerializer
-    permission_classes = [AllowAny, ]
-
-
-class ResiduePhotoCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -i -X POST -H "Content-Type: multipart/form-data" -F "full_photo=@/home/xtreme/gp.png" -F
-        "moderation_status=A" -F "mongo_hash=hash" -F "author=1" -F "residue=1"
-        http://localhost:8000/api/residues-photo-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-    """
-    serializer_class = ResiduePhotoSerializer
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['id', 'description', 'user']
 
 
 class CooperativeViewSet(PermissionBase, viewsets.ModelViewSet):

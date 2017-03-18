@@ -71,7 +71,8 @@ class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
         fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'carroceiro', 'geolocation', 'photo_collect_user')
+                  'author', 'carroceiro', 'geolocation', 'photo_collect_user',
+                  'residue')
 
 
 class MaterialTypeSerializer(serializers.ModelSerializer):
@@ -84,7 +85,7 @@ class ResidueSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
-    materials = MaterialTypeSerializer(read_only=True, many=True)
+    materials = MaterialTypeSerializer(read_only=False, many=True)
 
     class Meta:
         model = Residue

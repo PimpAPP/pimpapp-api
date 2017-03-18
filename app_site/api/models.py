@@ -314,6 +314,7 @@ class Collect(ModeratedModel):
     active = models.BooleanField(default=True)
     author = models.ForeignKey(User, blank=False)
     carroceiro = models.ForeignKey(Carroceiro, blank=False)
+    residue = models.ForeignKey('Residue', blank=False)
 
     @property
     def geolocation(self):
