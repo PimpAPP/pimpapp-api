@@ -497,6 +497,9 @@ class Rating(ModeratedModel):
         verbose_name = _('Comentário e Avaliação')
         verbose_name_plural = _('Comentários e Avaliações')
 
+    def __str__(self):
+        return self.author.username + ' - ' + self.comment
+
     # control:
     author = models.ForeignKey(User, unique=False, blank=False)
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
