@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Carroceiro
+from .models import Catador
 
 DAYS_WEEK = (
     (1, _('Domingo')),
@@ -14,11 +14,13 @@ DAYS_WEEK = (
 )
 
 
+# TODO: REMOVER
+
 class DaysWeekWorkAdminForm(forms.ModelForm):
     days_week_work = forms.MultipleChoiceField(choices=DAYS_WEEK)
 
     class Meta:
-        model = Carroceiro
+        model = Catador
         fields = '__all__'
 
     def clean_days_week_work(self):
