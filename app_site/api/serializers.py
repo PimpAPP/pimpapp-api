@@ -57,21 +57,21 @@ class PhotoSerializer(serializers.ModelSerializer):
                   'full_photo', 'thumbnail')
 
 
-class CarroceiroSerializer(serializers.ModelSerializer):
+class CollectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collect
+        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
+                  'author', 'catador', 'geolocation', 'photo_collect_user')
 
+
+class CarroceiroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carroceiro
         exclude = ['created_on', ]
 
     geolocation = LatitudeLongitudeSerializer(required=False)
     phones = PhoneSerializer(required=False, many=True)
-
-
-class CollectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Collect
-        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'carroceiro', 'geolocation', 'photo_collect_user')
+    collects = CollectSerializer(required=False, many=True)
 
 
 class MaterialTypeSerializer(serializers.ModelSerializer):

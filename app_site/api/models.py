@@ -210,6 +210,10 @@ class Carroceiro(BaseMapMarker):
         objs = self.rating_set.all().order_by('created_on')
         return objs
 
+    @property
+    def collects(self):
+        return self.collect_set.all()
+
     def __str__(self):
         return self.name
 
