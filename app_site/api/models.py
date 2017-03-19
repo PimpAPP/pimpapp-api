@@ -165,6 +165,20 @@ class Catador(BaseMapMarker):
         max_length=200,
         null=True, blank=True)
 
+    # M2M
+    rating_m2m = models.ManyToManyField('Rating',null=True,blank=True,
+                                        related_name='catadores',
+                                        through='RatingCatador')
+
+    mobile_m2m = models.ManyToManyField('Mobile',null=True,blank=True,
+                                        related_name='catadores',
+                                        through='MobileCatador')
+
+    georef_m2m = models.ManyToManyField('LatitudeLongitude',
+                                        null=True,blank=True,
+                                        related_name='catadores',
+                                        through='GeorefCatador')
+
     @property
     def geolocation(self):
         obj = self.latitudelongitude_set.all().latest('created_on')
@@ -369,13 +383,13 @@ class Material(ModeratedModel):
 
 
 
-class LatitudeLongitudeBase(ModeratedModel):
+class LatitudeLongitude(ModeratedModel):
     """
         DOCS: TODO
     """
 
     class Meta:
-        abstract = True
+        verbose_name = 'GeoReferencia'
 
     # fields:
     latitude = models.FloatField(blank=False)
@@ -384,17 +398,35 @@ class LatitudeLongitudeBase(ModeratedModel):
     reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
 
 
-class LatitudeLongitude(LatitudeLongitudeBase):
+class GeorefCatador(models.Model):
     # control:
-    catador = models.ForeignKey('Catador', unique=False, blank=False)
+    catador = models.ForeignKey(Catador, unique=False, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
 
 
-class LatitudeLongitudeColeta(LatitudeLongitudeBase):
+class GeorefColeta(models.Model):
     # control:
     coleta = models.ForeignKey('Collect', unique=False, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
 
 
-class RatingBase(ModeratedModel):
+class GeorefCooperative(models.Model):
+    # control:
+    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
+
+
+class ResidueLocation(models.Model):
+    # control:
+    residue = models.ForeignKey('Residue', unique=False, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
+
+    def __str__(self):
+        return self.residue.description + ': Lat: ' + str(self.latitude) +\
+               ' - Long: ' + str(self.longitude)
+
+
+class Rating(ModeratedModel):
     """
         DOCS: TODO
     """
@@ -437,11 +469,13 @@ class RatingBase(ModeratedModel):
 class RatingCatador(ModeratedModel):
     # control:
     catador = models.ForeignKey('Catador', unique=False, blank=False)
+    rating = models.ForeignKey(Rating, unique=True, blank=False)
 
 
 class RatingCooperative(ModeratedModel):
     # control:
     cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+    georef = models.ForeignKey('Rating', unique=True, blank=False)
 
 
 class PhotoBase(ModeratedModel):
@@ -494,7 +528,7 @@ class ResiduePhoto(PhotoBase):
         return str(self.residue) + ' - ' + str(self.full_photo)
 
 
-class BaseMobile(ModeratedModel):
+class Mobile(ModeratedModel):
     """
         DOCS: TODO
     """
@@ -545,17 +579,18 @@ class BaseMobile(ModeratedModel):
         max_length=140, blank=True, null=True)
 
 
-class MobileCatador(ModeratedModel):
+class MobileCatador(models.Model):
     # control:
     catador = models.ForeignKey(Catador,
-                                   # related_name='phones',
                                    unique=False, blank=False)
+    mobile = models.ForeignKey(Mobile, unique=True, blank=False)
 
-class MobileCooperative(ModeratedModel):
+
+class MobileCooperative(models.Model):
     # control:
     cooperative = models.ForeignKey('Cooperative',
-                                   # related_name='phones',
                                    unique=False, blank=False)
+    mobile = models.ForeignKey(Mobile, unique=True, blank=False)
 
 
 class Residue(models.Model):
@@ -582,16 +617,6 @@ class Residue(models.Model):
         return location
 
 
-class ResidueLocation(LatitudeLongitudeBase):
-    residue = models.OneToOneField(
-        Residue)
-
-    def __str__(self):
-        return self.residue.description + ': Lat: ' + str(self.latitude) +\
-               ' - Long: ' + str(self.longitude)
-
-
-
 class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -605,6 +630,20 @@ class Cooperative(models.Model):
 
     # Meterials
     materials_collected = models.ManyToManyField('Material')
+
+    # M2M
+    rating_m2m = models.ManyToManyField('Rating',null=True,blank=True,
+                                        related_name='cooperatives',
+                                        through='RatingCooperative')
+
+    mobile_m2m = models.ManyToManyField('Mobile',null=True,blank=True,
+                                        related_name='cooperatives',
+                                        through='MobileCooperative')
+
+    georef_m2m = models.ManyToManyField('LatitudeLongitude',
+                                        null=True,blank=True,
+                                        related_name='cooperatives',
+                                        through='GeorefCooperative')
 
     @property
     def photos(self):
@@ -621,5 +660,3 @@ class Partner(ModeratedModel):
 
     def __str__(self):
         return self.name
-
-

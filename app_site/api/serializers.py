@@ -1,15 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from .models import Rating
-from .models import Photo
-from .models import Mobile
 from .models import Catador
+from .models import Rating
+from .models import PhotoCatador
+from .models import MobileCatador
+from .models import ResiduePhoto
+
 from .models import Material
 from .models import LatitudeLongitude
 from .models import Collect
 from .models import Residue
-from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Cooperative
 from .models import Material
@@ -39,7 +40,7 @@ class LatitudeLongitudeSerializer(serializers.ModelSerializer):
 
 class MobileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Mobile
+        model = MobileCatador
         fields = ('pk', 'catador', 'phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
 
 
@@ -50,18 +51,19 @@ class RatingSerializer(serializers.ModelSerializer):
                   'rating', 'comment')
 
 
-class PhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Photo
-        fields = ('pk', 'catador', 'created_on',
-                  'full_photo', 'thumbnail')
+#class PhotoSerializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = Photo
+#        fields = ('pk', 'catador', 'created_on',
+#                  'full_photo', 'thumbnail')
 
 
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
         fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'catador', 'geolocation', 'photo_collect_user')
+                  'author', 'catador', 'geolocation', 'photo_collect_user',
+                  'residue')
 
 
 class CatadorSerializer(serializers.ModelSerializer):
@@ -74,17 +76,15 @@ class CatadorSerializer(serializers.ModelSerializer):
     collects = CollectSerializer(required=False, many=True)
 
 
-class CollectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Collect
-        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'catador', 'geolocation', 'photo_collect_user',
-                  'residue')
-
-
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
+        fields = '__all__'
+
+
+class ResiduePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResiduePhoto
         fields = '__all__'
 
 
@@ -117,12 +117,6 @@ class ResidueSerializer(serializers.ModelSerializer):
 class ResidueLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidueLocation
-        fields = '__all__'
-
-
-class ResiduePhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResiduePhoto
         fields = '__all__'
 
 

@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from ..models import Catador
 from ..models import Collect
 from ..models import Material
-from ..models import MobileCatador
+from ..models import Mobile
 from ..models import Material
 
 
@@ -32,7 +32,7 @@ class MobileTestCase(BaseTestCase):
 
     def test_mno(self):
 
-        MobileCatador.objects.create(
+        Mobile.objects.create(
             catador=self.catador,
             phone='11999999999',
             mno='TIM',
@@ -44,7 +44,7 @@ class MobileTestCase(BaseTestCase):
 
     def test_update(self):
 
-        p = MobileCatador.objects.create(
+        p = Mobile.objects.create(
             catador=self.catador,
             phone='11999999999',
             mno='TIM',
@@ -212,7 +212,6 @@ class GeoRefTestCase(APITestCase):
             'minibio': None,
             'mongo_hash': None,
             'phones': [],
-            'life_history': None,
             'slug': None, 'has_motor_vehicle': False,
             'geolocation': {
                 'longitude': 46.6, 'latitude': 23.5,
@@ -254,8 +253,8 @@ class CollectTestCase(APITestCase):
             catador_type="C", name="João da Silva")
 
         self.collect = Collect.objects.create(
-            catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, catador=self.catador)
+            catador_confirms=True, user_confirms=True,
+            active=True, catador=self.catador)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
@@ -267,8 +266,8 @@ class CollectTestCase(APITestCase):
         :return:
         """
         Collect.objects.create(
-            catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, catador=self.catador)
+            catador_confirms=True, user_confirms=True,
+            active=True, catador=self.catador)
 
         response = self.client.post('/api/collect/', self.json_obj, format='json')
         self.assertEqual(response.status_code, 201)

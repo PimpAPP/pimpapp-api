@@ -12,15 +12,25 @@ from django.shortcuts import get_object_or_404
 from .models import ModeratedModel
 from .models import LatitudeLongitude
 from .models import Catador
-from .models import Rating
-from .models import Photo
+
+from .models import RatingCatador
+from .models import RatingCooperative
+
+from .models import PhotoCatador
+from .models import PhotoCollectUser
+from .models import PhotoCollectCatador
+
+from .models import MobileCatador
+from .models import MobileCooperative
+
 from .models import Mobile
+from .models import Rating
 from .models import Collect
 from .models import Residue
 from .models import Cooperative
 
 from .serializers import RatingSerializer
-from .serializers import PhotoSerializer
+#from .serializers import PhotoSerializer
 from .serializers import MobileSerializer
 from .serializers import CatadorSerializer
 from .serializers import MaterialSerializer
@@ -101,11 +111,11 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         serializer = RatingSerializer(catador.comments, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
-    def photos(self, request, pk=None):
-        catador = self.get_object()
-        serializer = PhotoSerializer(catador.photos, many=True)
-        return Response(serializer.data)
+    #@detail_route(methods=['get'])
+    #def photos(self, request, pk=None):
+    #    catador = self.get_object()
+    #    serializer = PhotoSerializer(catador.photos, many=True)
+    #    return Response(serializer.data)
 
     @detail_route(methods=['get'])
     def phones(self, request, pk=None):
@@ -140,14 +150,14 @@ class RatingViewSet(viewsets.ModelViewSet):
         moderation_status__in=public_status)
 
 
-class PhotoViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Photo.objects.filter(
-        moderation_status__in=public_status)
+#class PhotoViewSet(viewsets.ModelViewSet):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhotoSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    queryset = Photo.objects.filter(
+#        moderation_status__in=public_status)
 
 
 class MobileViewSet(viewsets.ModelViewSet):
@@ -156,7 +166,7 @@ class MobileViewSet(viewsets.ModelViewSet):
     """
     serializer_class = MobileSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Phone.objects.filter(
+    queryset = Mobile.objects.filter(
         moderation_status__in=public_status)
 
 
@@ -173,18 +183,18 @@ class RatingByCarroceiroViewSet(PermissionBase, viewsets.ModelViewSet):
             carroceiro__id=carroceiro)
 
 
-class PhotoByCatadorViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        catador = self.kwargs['catador']
-        queryset = Photo.objects.filter(
-            moderation_status__in=public_status,
-            carroceiro__id=carroceiro)
+#class PhotoByCatadorViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhotoSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#
+#    def get_queryset(self):
+#        catador = self.kwargs['catador']
+#        queryset = Photo.objects.filter(
+#            moderation_status__in=public_status,
+#            carroceiro__id=carroceiro)
 
 
 class CollectViewSet(viewsets.ModelViewSet):
