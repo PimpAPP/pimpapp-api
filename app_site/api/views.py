@@ -7,6 +7,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
 from .models import LatitudeLongitude
@@ -31,7 +32,6 @@ from .serializers import CooperativeSerializer
 
 from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
-
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
 
@@ -53,13 +53,20 @@ class PermissionBase(APIView):
         return super(PermissionBase, self).get_permissions()
 
 
+def create_new_comment(data):
+    comment = Rating(comment=data['comment'], author_id=data['author'],
+                     rating=data['rating'],
+                     carroceiro_id=data['carroceiro'])
+    return comment.save()
+
+
 class CarroceiroViewSet(viewsets.ModelViewSet):
     """
         CarroceiroViewSet Routes:
 
         /api/carroceiro/
         /api/carroceiro/<pk>
-        /api/carroceiro/<pk>/comments
+        /api/carroceiro/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
         /api/carroceiro/<pk>/photos
         /api/carroceiro/<pk>/phones
         /api/carroceiro/<pk>/materials
@@ -69,10 +76,29 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Carroceiro.objects.all()
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                  permission_classes=[IsAuthenticated])
     def comments(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer =  RatingSerializer(carroceiro.comments, many=True)
+        catador = self.get_object()
+
+        data = request.data
+
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            defaults = {'comment': data.get('comment'),
+                        'author_id': data.get('author'),
+                        'rating': data.get('rating'),
+                        'carroceiro_id': data.get('carroceiro')
+                        }
+            catador.comments.update_or_create(defaults, id=data.get('pk'))
+
+        if request.method == 'DELETE':
+            rating = get_object_or_404(
+                Rating, pk=data.get('pk'), author_id=data.get('author'),
+                carroceiro_id=data.get('carroceiro')
+            )
+            rating.delete()
+
+        serializer = RatingSerializer(catador.comments, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
@@ -101,7 +127,7 @@ class LatitudeLongitudeViewSet(viewsets.ModelViewSet):
     serializer_class = LatitudeLongitudeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = LatitudeLongitude.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
 class RatingViewSet(viewsets.ModelViewSet):
@@ -111,7 +137,7 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Rating.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
 class PhotoViewSet(viewsets.ModelViewSet):
@@ -121,7 +147,7 @@ class PhotoViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Photo.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
 class MobileViewSet(viewsets.ModelViewSet):
@@ -131,21 +157,20 @@ class MobileViewSet(viewsets.ModelViewSet):
     serializer_class = PhoneSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Phone.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
-class RatingByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+class RatingByCarroceiroViewSet(PermissionBase, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
     serializer_class = RatingSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         carroceiro = self.kwargs['carroceiro']
         queryset = Rating.objects.filter(
-                moderation_status__in=public_status,
-                carroceiro__id=carroceiro)
+            moderation_status__in=public_status,
+            carroceiro__id=carroceiro)
 
 
 class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
@@ -158,8 +183,8 @@ class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
     def get_queryset(self):
         carroceiro = self.kwargs['carroceiro']
         queryset = Photo.objects.filter(
-                moderation_status__in=public_status,
-                carroceiro__id=carroceiro)
+            moderation_status__in=public_status,
+            carroceiro__id=carroceiro)
 
 
 class CollectViewSet(viewsets.ModelViewSet):
@@ -169,7 +194,7 @@ class CollectViewSet(viewsets.ModelViewSet):
     serializer_class = CollectSerializer
     permission_classes = (IsCatadorOrCollectOwner, IsAuthenticated)
     queryset = Collect.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
 class ResidueViewSet(PermissionBase, viewsets.ModelViewSet):

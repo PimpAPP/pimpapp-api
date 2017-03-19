@@ -78,7 +78,7 @@ class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
         fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'carroceiro', 'geolocation', 'photo_collect_user',
+                  'author', 'catador', 'geolocation', 'photo_collect_user',
                   'residue')
 
 

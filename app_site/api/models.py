@@ -1,9 +1,7 @@
 # TODO
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
 from simple_history.models import HistoricalRecords
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
@@ -51,7 +49,7 @@ class ModeratedModel(models.Model):
 
     history = HistoricalRecords(inherit=True)
 
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now=True)
 
     moderation_status = models.CharField(
         verbose_name=_('Status de Moderação'),
