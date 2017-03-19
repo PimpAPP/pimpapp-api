@@ -3,10 +3,16 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class IsObjectOwner(BasePermission):
-    message = _('Você deve ser o alterar apenas os seus requistros')
+    message = _('Você pode alterar apenas os seus registros')
 
     def has_object_permission(self, request, view, obj):
-        return obj.user == request.user
+        if obj.user:
+            return obj.user == request.user
+        elif obj.author:
+            return obj.author == request.user
+        else:
+            message = _('A permissão não pode ser determinada')
+            return False
 
 
 class IsCatadorOrCollectOwner(BasePermission):
