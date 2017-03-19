@@ -210,6 +210,10 @@ class Carroceiro(BaseMapMarker):
         objs = self.rating_set.all().order_by('created_on')
         return objs
 
+    @property
+    def collects(self):
+        return self.collect_set.all()
+
     def __str__(self):
         return self.name
 
@@ -313,8 +317,8 @@ class Collect(ModeratedModel):
     user_confirms = models.BooleanField()
     active = models.BooleanField(default=True)
     author = models.ForeignKey(User, blank=False)
-    carroceiro = models.ForeignKey(Carroceiro, blank=False)
     residue = models.ForeignKey('Residue', blank=False)
+    catador = models.ForeignKey(Carroceiro, blank=False)
 
     @property
     def geolocation(self):
@@ -332,7 +336,7 @@ class Collect(ModeratedModel):
         return objs
 
     def __str__(self):
-        return str(self.id)
+        return 'Cat: ' + self.catador.user.username + ' - Autor:' + self.author.username
 
     def clean(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
