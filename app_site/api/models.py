@@ -532,6 +532,13 @@ class PhotoBase(ModeratedModel):
     full_photo = VersatileImageField(upload_to='full_photo')
     ppoi = PPOIField(verbose_name=_('Primary Point of Interest (PPOI)'))
 
+    def __str__(self):
+        return self.author.username + ' - ' + str(self.full_photo)
+
+    class Meta:
+        verbose_name = 'Fotos de usuários'
+        verbose_name_plural = 'Fotos de usuários'
+
 
 class Photo(PhotoBase):
     carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
@@ -611,6 +618,10 @@ class Residue(models.Model):
     description = models.CharField(max_length=200)
     materials = models.ManyToManyField(MaterialType)
     user = models.ForeignKey(User)
+    how_many_kilos = models.FloatField(
+        verbose_name=_('Quantos kilos aproximadamente?'),
+        default=0
+    )
 
     def __str__(self):
         return str(self.description)
@@ -698,3 +709,8 @@ class PhotoCooperative(PhotoBase):
 
     def __str__(self):
         return self.cooperative.name + ' - ' + self.full_photo.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    avatar = models.ImageField()
