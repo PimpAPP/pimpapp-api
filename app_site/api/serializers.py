@@ -53,8 +53,7 @@ class RatingSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ('pk', 'carroceiro', 'created_on',
-                  'full_photo', 'thumbnail')
+        fields = ('pk', 'carroceiro', 'created_on', 'full_photo')
 
 
 class CollectSerializer(serializers.ModelSerializer):
@@ -72,6 +71,7 @@ class CarroceiroSerializer(serializers.ModelSerializer):
     geolocation = LatitudeLongitudeSerializer(required=False)
     phones = PhoneSerializer(required=False, many=True)
     collects = CollectSerializer(required=False, many=True)
+    photos= PhotoSerializer(required=False, many=True)
 
 
 class CollectSerializer(serializers.ModelSerializer):

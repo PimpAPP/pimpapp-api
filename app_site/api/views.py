@@ -69,7 +69,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         /api/carroceiro/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
         /api/carroceiro/<pk>/photos
         /api/carroceiro/<pk>/phones
-        /api/carroceiro/<pk>/materials
 
     """
     serializer_class = CarroceiroSerializer
@@ -111,12 +110,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
     def phones(self, request, pk=None):
         carroceiro = self.get_object()
         serializer = PhoneSerializer(carroceiro.phones, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['get'])
-    def materials(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = MaterialSerializer(carroceiro.materials)
         return Response(serializer.data)
 
 
@@ -187,7 +180,7 @@ class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
             carroceiro__id=carroceiro)
 
 
-class CollectViewSet(viewsets.ModelViewSet):
+class CollectViewSet(PermissionBase, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """

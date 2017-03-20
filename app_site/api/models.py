@@ -210,7 +210,7 @@ class Carroceiro(BaseMapMarker):
 
     @property
     def collects(self):
-        return self.collect_set.all()
+        return self.collect_set.filter(active=True)
 
     def __str__(self):
         return self.name
