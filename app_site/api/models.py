@@ -20,6 +20,11 @@ def create_auth_token(sender, instance, **kwargs):
     token, created = Token.objects.get_or_create(user=instance)
 
 
+def get_upload_path(self, filename):
+    path = self._upload_to + '/' + filename
+    return path
+
+
 class ModeratedModel(models.Model):
     """
         DOCS: TODO
@@ -135,11 +140,7 @@ class Catador(BaseMapMarker):
         verbose_name=_('Apelido'))
 
     # Lock feature
-    user = models.OneToOneField(
-        User,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL)
+    user = models.OneToOneField(User)
 
     is_locked = models.BooleanField(
         verbose_name=_('Permite edição Publica'),
@@ -166,18 +167,17 @@ class Catador(BaseMapMarker):
         null=True, blank=True)
 
     # M2M
-    rating_m2m = models.ManyToManyField('Rating',null=True,blank=True,
-                                        related_name='catadores',
-                                        through='RatingCatador')
+    rating_m2m = models.ManyToManyField(
+        'Rating', blank=True, related_name='catadores',
+        through='RatingCatador')
 
-    mobile_m2m = models.ManyToManyField('Mobile',null=True,blank=True,
-                                        related_name='catadores',
-                                        through='MobileCatador')
+    mobile_m2m = models.ManyToManyField(
+        'Mobile', blank=True, related_name='catadores',
+        through='MobileCatador')
 
-    georef_m2m = models.ManyToManyField('LatitudeLongitude',
-                                        null=True,blank=True,
-                                        related_name='catadores',
-                                        through='GeorefCatador')
+    georef_m2m = models.ManyToManyField(
+        'LatitudeLongitude', blank=True, related_name='catadores',
+        through='GeorefCatador')
 
     @property
     def geolocation(self):
@@ -294,6 +294,7 @@ class Catador(BaseMapMarker):
 
 
 class Collect(ModeratedModel):
+    _upload_to = 'collectfolder'
     # TODO: Colocar os campos
 
     """
@@ -336,13 +337,13 @@ class Collect(ModeratedModel):
         return objs
 
     def __str__(self):
-        return 'Cat: ' + self.catador.user.username + ' - Autor:' + self.author.username
+        return 'Cat: ' + str(self.catador)
 
     def clean(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
 
-        if self.moderation_status == 'P':
-            if Collect.objects.filter(author=self.author, moderation_status='P').count() > 0:
+        if self.moderation_status == 'P' and self.catador:
+            if Collect.objects.filter(catador=self.catador, moderation_status='P').count() > 0:
                 raise ValidationError('Usuário pode ter apenas uma coleta em aberto')
 
 
@@ -382,7 +383,6 @@ class Material(ModeratedModel):
         return '%s - %s' % (self.name, self.description)
 
 
-
 class LatitudeLongitude(ModeratedModel):
     """
         DOCS: TODO
@@ -397,33 +397,18 @@ class LatitudeLongitude(ModeratedModel):
     # Reference point
     reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
 
+    def __str__(self):
+        return '(' + str(self.latitude) + ', ' + str(self.longitude) + ')'
+
 
 class GeorefCatador(models.Model):
-    # control:
+    '''
+        Esta classe esta sendo mantida pois futuramente existe a possibilidade
+        do catador mandar sua localização e criarmos um caminho por onde ele passou
+        quando esse dia chegar basta mudar a chave de foreignkey para onetoone
+    '''
     catador = models.ForeignKey(Catador, unique=False, blank=False)
-    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
-
-
-class GeorefColeta(models.Model):
-    # control:
-    coleta = models.ForeignKey('Collect', unique=False, blank=False)
-    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
-
-
-class GeorefCooperative(models.Model):
-    # control:
-    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
-    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
-
-
-class ResidueLocation(models.Model):
-    # control:
-    residue = models.ForeignKey('Residue', unique=False, blank=False)
-    georef = models.ForeignKey(LatitudeLongitude, unique=True, blank=False)
-
-    def __str__(self):
-        return self.residue.description + ': Lat: ' + str(self.latitude) +\
-               ' - Long: ' + str(self.longitude)
+    georef = models.ForeignKey(LatitudeLongitude, blank=False)
 
 
 class Rating(ModeratedModel):
@@ -469,19 +454,26 @@ class Rating(ModeratedModel):
 class RatingCatador(ModeratedModel):
     # control:
     catador = models.ForeignKey('Catador', unique=False, blank=False)
-    rating = models.ForeignKey(Rating, unique=True, blank=False)
+    rating = models.OneToOneField(Rating, blank=False)
+
+    def __str__(self):
+        return str(self.catador) + ' - ' + str(self.rating)
 
 
 class RatingCooperative(ModeratedModel):
     # control:
     cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
-    georef = models.ForeignKey('Rating', unique=True, blank=False)
+    rating = models.OneToOneField('Rating', blank=False)
+
+    def __str__(self):
+        return str(self.cooperative) + ' - ' + str(self.rating)
 
 
 class PhotoBase(ModeratedModel):
     """
         DOCS: TODO
     """
+    _upload_to = 'users'
 
     # control:
     author = models.ForeignKey(User, unique=False, blank=False)
@@ -489,6 +481,7 @@ class PhotoBase(ModeratedModel):
     # fields:
     # file will be uploaded to MEDIA_ROOT/full_photo
     ppoi = PPOIField(verbose_name=_('Primary Point of Interest (PPOI)'))
+    full_photo = VersatileImageField(upload_to=get_upload_path)
 
     def __str__(self):
         return self.author.username + ' - ' + str(self.full_photo)
@@ -499,12 +492,12 @@ class PhotoBase(ModeratedModel):
 
 
 class PhotoCatador(PhotoBase):
-    full_photo = VersatileImageField(upload_to='catador')
+    _upload_to = 'catador'
     catador = models.ForeignKey(Catador, unique=False, blank=False)
 
 
 class PhotoCollectUser(PhotoBase):
-    full_photo = VersatileImageField(upload_to='coleta')
+    _upload_to = 'collects'
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
     def __str__(self):
@@ -512,7 +505,7 @@ class PhotoCollectUser(PhotoBase):
 
 
 class PhotoCollectCatador(PhotoBase):
-    full_photo = VersatileImageField(upload_to='coleta-catador')
+    _upload_to = 'collect_catador'
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
     def __str__(self):
@@ -520,15 +513,15 @@ class PhotoCollectCatador(PhotoBase):
 
 
 class PhotoCooperative(PhotoBase):
-    full_photo = VersatileImageField(upload_to='cooperative')
+    _upload_to = 'cooperatives'
     cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
 
     def __str__(self):
         return self.cooperative.name + ' - ' + self.full_photo.name
 
 
-class ResiduePhoto(PhotoBase):
-    full_photo = VersatileImageField(upload_to='residue')
+class PhotoResidue(PhotoBase):
+    _upload_to = 'residue'
     residue = models.ForeignKey('Residue', unique=False, blank=False)
 
     def __str__(self):
@@ -585,19 +578,29 @@ class Mobile(ModeratedModel):
         verbose_name=_('Comentário'),
         max_length=140, blank=True, null=True)
 
+    def __str__(self):
+        return self.phone
+
 
 class MobileCatador(models.Model):
     # control:
-    catador = models.ForeignKey(Catador,
-                                   unique=False, blank=False)
-    mobile = models.ForeignKey(Mobile, unique=True, blank=False)
+    catador = models.ForeignKey(
+        Catador, unique=False, blank=False)
+    mobile = models.OneToOneField(Mobile, blank=False)
+
+    def __str__(self):
+        return str(self.catador) + ' - ' + self.mobile.phone
 
 
 class MobileCooperative(models.Model):
     # control:
-    cooperative = models.ForeignKey('Cooperative',
-                                   unique=False, blank=False)
-    mobile = models.ForeignKey(Mobile, unique=True, blank=False)
+    cooperative = models.OneToOneField(
+        'Cooperative', blank=False)
+    mobile = models.OneToOneField(Mobile, blank=False)
+
+
+    def __str__(self):
+        return str(self.cooperative.name) + ' - ' + self.mobile.phone
 
 
 class Residue(models.Model):
@@ -629,6 +632,11 @@ class Residue(models.Model):
         return location
 
 
+class GeorefResidue(models.Model):
+    residue = models.OneToOneField(Residue, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, blank=False)
+
+
 class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -644,18 +652,16 @@ class Cooperative(models.Model):
     materials_collected = models.ManyToManyField('Material')
 
     # M2M
-    rating_m2m = models.ManyToManyField('Rating',null=True,blank=True,
-                                        related_name='cooperatives',
-                                        through='RatingCooperative')
+    rating_m2m = models.ManyToManyField(
+        'Rating', blank=True, related_name='cooperatives',
+        through='RatingCooperative')
 
-    mobile_m2m = models.ManyToManyField('Mobile',null=True,blank=True,
-                                        related_name='cooperatives',
-                                        through='MobileCooperative')
+    mobile_m2m = models.ManyToManyField(
+        'Mobile', blank=True, related_name='cooperatives',
+        through='MobileCooperative')
 
-    georef_m2m = models.ManyToManyField('LatitudeLongitude',
-                                        null=True,blank=True,
-                                        related_name='cooperatives',
-                                        through='GeorefCooperative')
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     @property
     def photos(self):
@@ -671,7 +677,7 @@ class Partner(ModeratedModel):
     image = VersatileImageField(upload_to='cooperatives/partners')
 
     def __str__(self):
-        return self.cooperative.name + ' - ' + self.full_photo.name
+        return self.name + ' - ' + self.image.name
 
 
 class UserProfile(models.Model):

@@ -1,3 +1,4 @@
 # Sqlite3 Database
 *.sqlite3
 migrations
+media

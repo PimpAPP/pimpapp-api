@@ -5,11 +5,11 @@ from .models import Catador
 from .models import Rating
 from .models import PhotoCatador
 from .models import MobileCatador
-from .models import ResiduePhoto
+from .models import PhotoResidue
 from .models import LatitudeLongitude
 from .models import Collect
 from .models import Residue
-from .models import ResidueLocation
+from .models import GeorefResidue
 from .models import Cooperative
 from .models import UserProfile
 from .models import PhotoBase
@@ -105,7 +105,7 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 class ResiduePhotoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ResiduePhoto
+        model = PhotoResidue
         fields = '__all__'
 
 
@@ -143,7 +143,7 @@ class ResidueSerializer(serializers.ModelSerializer):
 
 class ResidueLocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ResidueLocation
+        model = GeorefResidue
         fields = '__all__'
 
 
