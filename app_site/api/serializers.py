@@ -1,20 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from .models import Catador
 from .models import Rating
-from .models import Photo
-from .models import Phone
-from .models import Carroceiro
-from .models import Material
+from .models import PhotoCatador
+from .models import MobileCatador
+from .models import ResiduePhoto
 from .models import LatitudeLongitude
 from .models import Collect
 from .models import Residue
-from .models import ResiduePhoto
 from .models import ResidueLocation
 from .models import Cooperative
 from .models import UserProfile
 from .models import PhotoBase
-from .models import MaterialType
+from .models import Material
 
 
 class PhotoBaseSerializer(serializers.HyperlinkedModelSerializer):
@@ -48,7 +47,7 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
-        fields = ('carroceiro', 'created_on',
+        fields = ('catador', 'created_on',
                   'freight', 'large_objects', 'demolition_waste',
                   'e_waste', 'paper', 'glass', 'plastic', 'metal',
                   'wood', 'cooking_oil')
@@ -57,46 +56,27 @@ class MaterialSerializer(serializers.ModelSerializer):
 class LatitudeLongitudeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LatitudeLongitude
-        fields = ('carroceiro', 'created_on',
+        fields = ('catador', 'created_on',
                   'latitude', 'longitude', 'reverse_geocoding')
 
 
-class PhoneSerializer(serializers.ModelSerializer):
+class MobileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Phone
-        fields = ('pk', 'carroceiro', 'phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
+        model = MobileCatador
+        fields = ('pk', 'catador', 'phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
 
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('pk', 'author', 'carroceiro', 'created_on',
+        fields = ('pk', 'author', 'catador', 'created_on',
                   'rating', 'comment')
 
 
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Photo
+        model = PhotoBase
         fields = ('pk', 'carroceiro', 'created_on', 'full_photo')
-
-
-class CollectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Collect
-        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'catador', 'geolocation', 'photo_collect_user')
-
-
-class CarroceiroSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Carroceiro
-        exclude = ['created_on', ]
-
-    geolocation = LatitudeLongitudeSerializer(required=False)
-    phones = PhoneSerializer(required=False, many=True)
-    collects = CollectSerializer(required=False, many=True)
-    photos= PhotoSerializer(required=False, many=True)
-
 
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -106,15 +86,32 @@ class CollectSerializer(serializers.ModelSerializer):
                   'residue')
 
 
-class MaterialTypeSerializer(serializers.ModelSerializer):
+class CatadorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MaterialType
+        model = Catador
+        exclude = ['created_on', ]
+
+    geolocation = LatitudeLongitudeSerializer(required=False)
+    phones = MobileSerializer(required=False, many=True)
+    collects = CollectSerializer(required=False, many=True)
+    photos= PhotoSerializer(required=False, many=True)
+
+
+class MaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Material
+        fields = '__all__'
+
+
+class ResiduePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResiduePhoto
         fields = '__all__'
 
 
 class MaterialTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MaterialType
+        model = Material
         fields = '__all__'
 
 
@@ -147,12 +144,6 @@ class ResidueSerializer(serializers.ModelSerializer):
 class ResidueLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidueLocation
-        fields = '__all__'
-
-
-class ResiduePhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResiduePhoto
         fields = '__all__'
 
 

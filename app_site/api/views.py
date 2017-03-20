@@ -11,18 +11,28 @@ from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
 from .models import LatitudeLongitude
-from .models import Carroceiro
+from .models import Catador
+
+from .models import RatingCatador
+from .models import RatingCooperative
+
+from .models import PhotoCatador
+from .models import PhotoCollectUser
+from .models import PhotoCollectCatador
+
+from .models import MobileCatador
+from .models import MobileCooperative
+
+from .models import Mobile
 from .models import Rating
-from .models import Photo
-from .models import Phone
 from .models import Collect
 from .models import Residue
 from .models import Cooperative
 
 from .serializers import RatingSerializer
-from .serializers import PhotoSerializer
-from .serializers import PhoneSerializer
-from .serializers import CarroceiroSerializer
+#from .serializers import PhotoSerializer
+from .serializers import MobileSerializer
+from .serializers import CatadorSerializer
 from .serializers import MaterialSerializer
 from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
@@ -62,7 +72,7 @@ def create_new_comment(data):
 
 class CarroceiroViewSet(viewsets.ModelViewSet):
     """
-        CarroceiroViewSet Routes:
+        CatadorViewSet Routes:
 
         /api/carroceiro/
         /api/carroceiro/<pk>
@@ -71,9 +81,9 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         /api/carroceiro/<pk>/phones
 
     """
-    serializer_class = CarroceiroSerializer
+    serializer_class = CatadorSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Carroceiro.objects.all()
+    queryset = Catador.objects.all()
 
     @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
                   permission_classes=[IsAuthenticated])
@@ -101,15 +111,15 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
-    def photos(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = PhotoSerializer(carroceiro.photos, many=True)
+    def phones(self, request, pk=None):
+        catador = self.get_object()
+        serializer = MobileSerializer(catador.phones, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['get'])
-    def phones(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = PhoneSerializer(carroceiro.phones, many=True)
+    def materials(self, request, pk=None):
+        catador = self.get_object()
+        serializer = MaterialSerializer(catador.materials)
         return Response(serializer.data)
 
 
@@ -133,23 +143,23 @@ class RatingViewSet(viewsets.ModelViewSet):
         moderation_status__in=public_status)
 
 
-class PhotoViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Photo.objects.filter(
-        moderation_status__in=public_status)
+#class PhotoViewSet(viewsets.ModelViewSet):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhotoSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    queryset = Photo.objects.filter(
+#        moderation_status__in=public_status)
 
 
 class MobileViewSet(viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
-    serializer_class = PhoneSerializer
+    serializer_class = MobileSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Phone.objects.filter(
+    queryset = Mobile.objects.filter(
         moderation_status__in=public_status)
 
 
@@ -160,24 +170,24 @@ class RatingByCarroceiroViewSet(PermissionBase, viewsets.ModelViewSet):
     serializer_class = RatingSerializer
 
     def get_queryset(self):
-        carroceiro = self.kwargs['carroceiro']
+        catador = self.kwargs['catador']
         queryset = Rating.objects.filter(
             moderation_status__in=public_status,
-            carroceiro__id=carroceiro)
+            carroceiro__id=Catador(user=self.request.user))
 
 
-class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        carroceiro = self.kwargs['carroceiro']
-        queryset = Photo.objects.filter(
-            moderation_status__in=public_status,
-            carroceiro__id=carroceiro)
+#class PhotoByCatadorViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+#    """
+#        DOCS: TODO
+#    """
+#    serializer_class = PhotoSerializer
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#
+#    def get_queryset(self):
+#        catador = self.kwargs['catador']
+#        queryset = Photo.objects.filter(
+#            moderation_status__in=public_status,
+#            carroceiro__id=carroceiro)
 
 
 class CollectViewSet(PermissionBase, viewsets.ModelViewSet):

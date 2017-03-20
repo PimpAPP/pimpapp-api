@@ -26,7 +26,7 @@ class ResidueTestCase(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
-        self.material = Material.objects.create(works_since='2001-01-01', est_kg_day=1, days_week=1)
+        self.material = Material.objects.create(description='Metal')
         self.material.save()
 
         self.residue = Residue.objects.create(description='Test Residue')

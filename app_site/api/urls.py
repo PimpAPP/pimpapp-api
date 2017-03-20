@@ -5,11 +5,11 @@ from rest_framework import routers
 from .views import CarroceiroViewSet
 from .views import LatitudeLongitudeViewSet
 from .views import RatingViewSet
-from .views import PhotoViewSet
+#from .views import PhotoViewSet
 from .views import MobileViewSet
 
 from .views import RatingByCarroceiroViewSet
-from .views import PhotoByCarroceiroViewSet
+#from .views import PhotoByCarroceiroViewSet
 from .views import CollectViewSet
 from .views import UserViewSet
 from .views import CooperativeViewSet
@@ -20,7 +20,7 @@ router = routers.DefaultRouter()
 router.register(r'carroceiro', CarroceiroViewSet)
 router.register(r'georef', LatitudeLongitudeViewSet)
 router.register(r'rating', RatingViewSet)
-router.register(r'photo', PhotoViewSet)
+#router.register(r'photo', PhotoViewSet)
 router.register(r'mobile', MobileViewSet)
 router.register(r'collect', CollectViewSet)
 router.register(r'users', UserViewSet)
