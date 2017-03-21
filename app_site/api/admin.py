@@ -25,6 +25,7 @@ from .models import Partner
 from .models import Cooperative
 from .models import PhotoBase
 from .models import PhotoCatador
+from .models import GeorefCatador
 
 from .forms import DaysWeekWorkAdminForm
 
@@ -64,3 +65,4 @@ admin.site.register(MobileCooperative)
 admin.site.register(PhotoBase)
 admin.site.register(PhotoCatador)
 admin.site.register(Mobile)
+admin.site.register(GeorefCatador)

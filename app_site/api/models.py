@@ -96,7 +96,7 @@ class BaseMapMarker(ModeratedModel):
 
     # Location
     address_base = models.CharField(
-        max_length=128,
+        max_length=500,
         blank=True,
         null=True,
         verbose_name=_("Endereço onde costuma trabalhar."))
@@ -253,7 +253,7 @@ class Catador(BaseMapMarker):
 
         """
 
-        self.name = mongo_obj.get('name', self.mongo_hash)
+        self.name = mongo_obj.get('name', self.name)
         self.catador_type = mongo_obj.get('catador_type', 'C')
         self.minibio = mongo_obj.get('miniBio', '')
         self.has_motor_vehicle = mongo_obj.get('motorizedVehicle', False)
@@ -263,34 +263,41 @@ class Catador(BaseMapMarker):
         self.region = mongo_obj.get('region', '')
         self.city = mongo_obj.get('city', '')
         self.country = mongo_obj.get('country', 'Brasil')
+        self.mongo_hash = mongo_obj.get('catador_id')
 
-        # Other Objects
-        LatitudeLongitude.objects.create(
-            catador=self,
-            reverse_geocoding=mongo_obj.get('base_address', ''),
-            latitude=mongo_obj.get('latitude', 0.0),
-            longitude=mongo_obj.get('longitude', 0.0)
-        )
+        catador = self.save()
 
         if mongo_obj.get('telephone1', ''):
-            Mobile.objects.create(
-                catador=self,
+            tel1 = Mobile.objects.create(
                 phone=mongo_obj.get('telephone1', ''),
                 mno=mongo_obj.get('operator_telephone1', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp1', ''),
                 mobile_internet=mongo_obj.get('internet1', '')
             )
+            tel1.save()
+            m1 = MobileCatador.objects.create(mobile=tel1, catador_id=self.id)
+            m1.save()
 
         if mongo_obj.get('telephone2', ''):
-            Mobile.objects.create(
-                catador=self,
+            tel2 = Mobile.objects.create(
                 phone=mongo_obj.get('telephone2', ''),
                 mno=mongo_obj.get('operator_telephone2', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp2', ''),
                 mobile_internet=mongo_obj.get('internet2', '')
             )
+            tel2.save()
+            m2 = MobileCatador.objects.create(mobile=tel2, catador_id=self.id)
+            m2.save()
 
-        self.save()
+        # Other Objects
+        lat = LatitudeLongitude.objects.create(
+            reverse_geocoding=mongo_obj.get('base_address', ''),
+            latitude=mongo_obj.get('latitude', 0.0),
+            longitude=mongo_obj.get('longitude', 0.0)
+        )
+
+        georef = GeorefCatador.objects.create(georef=lat, catador_id=self.id)
+        georef.save()
 
 
 class Collect(ModeratedModel):
@@ -347,6 +354,8 @@ class Collect(ModeratedModel):
                 raise ValidationError('Usuário pode ter apenas uma coleta em aberto')
 
 
+
+
 class Material(ModeratedModel):
     """
         Tipical Catador's services:
@@ -395,7 +404,7 @@ class LatitudeLongitude(ModeratedModel):
     latitude = models.FloatField(blank=False)
     longitude = models.FloatField(blank=False)
     # Reference point
-    reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
+    reverse_geocoding = models.CharField(max_length=500, default='', null=True, blank=True)
 
     def __str__(self):
         return '(' + str(self.latitude) + ', ' + str(self.longitude) + ')'
