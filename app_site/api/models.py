@@ -192,12 +192,12 @@ class Catador(BaseMapMarker):
 
     @property
     def phones(self):
-        objs = self.phonecatador_set.all().order_by('created_on')
+        objs = self.mobile_m2m.get_queryset()
         return objs
 
     @property
     def comments(self):
-        objs = self.rating_set.all().order_by('created_on')
+        objs = self.rating_m2m.get_queryset()
         return objs
 
     @property
@@ -205,7 +205,7 @@ class Catador(BaseMapMarker):
         return self.collect_set.filter(active=True)
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ' - ' + self.name
 
     # Compatibility MeteorJS version
     def load_mongo_obj(self, mongo_obj):
@@ -694,4 +694,4 @@ class UserProfile(models.Model):
     avatar = models.ImageField()
 
     def __str__(self):
-        return self.name
+        return self.user.username

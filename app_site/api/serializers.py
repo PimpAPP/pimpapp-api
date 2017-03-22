@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from .models import Catador
 from .models import Rating
-from .models import PhotoCatador
+from .models import Mobile
 from .models import MobileCatador
 from .models import PhotoResidue
 from .models import LatitudeLongitude
@@ -30,7 +30,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'email', 'photo', 'first_name', 'last_name')
 
     def get_photo(self, obj):
-        return PhotoBaseSerializer(obj.photobase_set, many=True).data
+        user_profile = UserProfile.objects.filter(user=obj)
+        if user_profile:
+            return user_profile[0].avatar.url
+        return ''
 
 
 class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,20 +59,25 @@ class MaterialSerializer(serializers.ModelSerializer):
 class LatitudeLongitudeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LatitudeLongitude
-        fields = ('catador', 'created_on',
-                  'latitude', 'longitude', 'reverse_geocoding')
+        fields = ('created_on', 'latitude', 'longitude', 'reverse_geocoding')
 
 
 class MobileSerializer(serializers.ModelSerializer):
     class Meta:
+        model = Mobile
+        fields = '__all__'
+
+
+class MobileCatadorSerializer(serializers.ModelSerializer):
+    class Meta:
         model = MobileCatador
-        fields = ('pk', 'catador', 'phone', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
+        fields = ('pk', 'catador', 'mobile', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
 
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('pk', 'author', 'catador', 'created_on',
+        fields = ('pk', 'author', 'created_on',
                   'rating', 'comment')
 
 
@@ -82,19 +90,18 @@ class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
         fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'author', 'catador', 'geolocation', 'photo_collect_user',
-                  'residue')
+                  'catador', 'geolocation', 'photo_collect_user', 'residue')
 
 
 class CatadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Catador
-        exclude = ['created_on', ]
+        exclude = ['created_on', 'mobile_m2m']
 
     geolocation = LatitudeLongitudeSerializer(required=False)
     phones = MobileSerializer(required=False, many=True)
     collects = CollectSerializer(required=False, many=True)
-    photos= PhotoSerializer(required=False, many=True)
+    photos = PhotoSerializer(required=False, many=True)
 
 
 class MaterialSerializer(serializers.ModelSerializer):

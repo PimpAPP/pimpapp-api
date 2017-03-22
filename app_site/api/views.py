@@ -1,4 +1,3 @@
-from rest_framework import generics
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, \
@@ -10,31 +9,17 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
-from .models import LatitudeLongitude
 from .models import Catador
 
-from .models import RatingCatador
-from .models import RatingCooperative
-
-from .models import PhotoCatador
-from .models import PhotoCollectUser
-from .models import PhotoCollectCatador
-
-from .models import MobileCatador
-from .models import MobileCooperative
-
-from .models import Mobile
 from .models import Rating
 from .models import Collect
 from .models import Residue
 from .models import Cooperative
 
 from .serializers import RatingSerializer
-#from .serializers import PhotoSerializer
 from .serializers import MobileSerializer
 from .serializers import CatadorSerializer
 from .serializers import MaterialSerializer
-from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
 from .serializers import UserSerializer
 from .serializers import ResidueSerializer
@@ -42,15 +27,9 @@ from .serializers import CooperativeSerializer
 
 from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
+from .pagination import PostLimitOffSetPagination
+
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
 
 
 class PermissionBase(APIView):
@@ -63,6 +42,18 @@ class PermissionBase(APIView):
         return super(PermissionBase, self).get_permissions()
 
 
+class RecoBaseView(PermissionBase):
+    pagination_class = PostLimitOffSetPagination
+
+
+class UserViewSet(RecoBaseView, viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+
+
 def create_new_comment(data):
     comment = Rating(comment=data['comment'], author_id=data['author'],
                      rating=data['rating'],
@@ -70,20 +61,20 @@ def create_new_comment(data):
     return comment.save()
 
 
-class CarroceiroViewSet(viewsets.ModelViewSet):
+class CatadorViewSet(viewsets.ModelViewSet):
     """
         CatadorViewSet Routes:
 
-        /api/carroceiro/
-        /api/carroceiro/<pk>
-        /api/carroceiro/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
-        /api/carroceiro/<pk>/photos
-        /api/carroceiro/<pk>/phones
+        /api/catador/
+        /api/catador/<pk>
+        /api/catador/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
+        /api/catador/<pk>/phones
 
     """
     serializer_class = CatadorSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Catador.objects.all()
+    pagination_class = PostLimitOffSetPagination
 
     @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
                   permission_classes=[IsAuthenticated])
@@ -123,16 +114,6 @@ class CarroceiroViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class LatitudeLongitudeViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = LatitudeLongitudeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = LatitudeLongitude.objects.filter(
-        moderation_status__in=public_status)
-
-
 class RatingViewSet(viewsets.ModelViewSet):
     """
         DOCS: TODO
@@ -141,29 +122,10 @@ class RatingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Rating.objects.filter(
         moderation_status__in=public_status)
+    pagination_class = PostLimitOffSetPagination
 
 
-#class PhotoViewSet(viewsets.ModelViewSet):
-#    """
-#        DOCS: TODO
-#    """
-#    serializer_class = PhotoSerializer
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    queryset = Photo.objects.filter(
-#        moderation_status__in=public_status)
-
-
-class MobileViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = MobileSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Mobile.objects.filter(
-        moderation_status__in=public_status)
-
-
-class RatingByCarroceiroViewSet(PermissionBase, viewsets.ModelViewSet):
+class RatingByCarroceiroViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
@@ -176,21 +138,7 @@ class RatingByCarroceiroViewSet(PermissionBase, viewsets.ModelViewSet):
             carroceiro__id=Catador(user=self.request.user))
 
 
-#class PhotoByCatadorViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
-#    """
-#        DOCS: TODO
-#    """
-#    serializer_class = PhotoSerializer
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#
-#    def get_queryset(self):
-#        catador = self.kwargs['catador']
-#        queryset = Photo.objects.filter(
-#            moderation_status__in=public_status,
-#            carroceiro__id=carroceiro)
-
-
-class CollectViewSet(PermissionBase, viewsets.ModelViewSet):
+class CollectViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
@@ -200,14 +148,14 @@ class CollectViewSet(PermissionBase, viewsets.ModelViewSet):
         moderation_status__in=public_status)
 
 
-class ResidueViewSet(PermissionBase, viewsets.ModelViewSet):
+class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['id', 'description', 'user']
 
 
-class CooperativeViewSet(PermissionBase, viewsets.ModelViewSet):
+class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
     serializer_class = CooperativeSerializer
     queryset = Cooperative.objects.all()
     filter_backends = [SearchFilter, OrderingFilter]

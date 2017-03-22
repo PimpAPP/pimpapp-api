@@ -26,12 +26,9 @@ from .models import Cooperative
 from .models import PhotoBase
 from .models import PhotoCatador
 from .models import GeorefCatador
+from .models import Rating
 
 from .forms import DaysWeekWorkAdminForm
-
-
-class DaysWeekWorkAdmin(admin.ModelAdmin):
-    form = DaysWeekWorkAdminForm
 
 
 class UserProfileInline(admin.StackedInline):
@@ -40,13 +37,20 @@ class UserProfileInline(admin.StackedInline):
     verbose_name_plural = 'Profiles'
 
 
+class CatadorAdmin(admin.ModelAdmin):
+    list_filter = ('id', 'name')
+    search_fields = ['id', 'name']
+    form = DaysWeekWorkAdminForm
+    list_display = ('pk', 'name', 'catador_type', 'city', 'country')
+
+
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline, )
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-admin.site.register(Catador, DaysWeekWorkAdmin)
+admin.site.register(Catador, CatadorAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
 admin.site.register(LatitudeLongitude, SimpleHistoryAdmin)
 admin.site.register(Collect)
@@ -66,3 +70,4 @@ admin.site.register(PhotoBase)
 admin.site.register(PhotoCatador)
 admin.site.register(Mobile)
 admin.site.register(GeorefCatador)
+admin.site.register(Rating)
