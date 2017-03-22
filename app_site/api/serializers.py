@@ -86,6 +86,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = PhotoBase
         fields = ('pk', 'carroceiro', 'created_on', 'full_photo')
 
+
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect

@@ -1,6 +1,4 @@
 import json
-import unittest
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
@@ -8,20 +6,18 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from ..models import Catador
 from ..models import Collect
-from ..models import Material
 from ..models import Mobile
 from ..models import Material
 
 
 class BaseTestCase(APITestCase):
+    user = None
 
     def setUp(self):
         self.user = User.objects.create_user(
             username='tester',
             email='tester@dummy.com',
             password='top_secret')
-
-        self.catador = Catador.objects.create(catador_type="C", name="João da Silva")
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
@@ -76,98 +72,6 @@ class MobileTestCase(BaseTestCase):
             result,
             json.dumps(json_obj)
         )
-
-
-class CatadorTestCase(APITestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='tester',
-            email='tester@dummy.com',
-            password='top_secret')
-
-        token = Token.objects.get(user=self.user)
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-
-        self.material = Material.objects.create(description='Material teste')
-        self.material.save()
-
-    def test_create_catador(self):
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "materials_collected": [self.material.id],
-            "days_week_work": "3,4",
-        }
-
-        self.client.post('/api/catador/', json_obj, format='json')
-        response = self.client.get('/api/catador/1/', format='json')
-
-        expected = {
-            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
-            "mongo_hash": None, "name": "João da Silva", "slug": None,
-            "minibio": None, "catador_type": "C", "is_locked": False,
-             "address_base": None, "region": None, "city": None, "country": None,
-            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
-            "has_family": False, "life_history": None, "how_many_collect_day": None,
-            "how_many_collect_week": None, "how_years_many_collect": None,
-             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
-            "user": None, "materials_collected": [1]
-        }
-
-        result = json.loads(str(response.content, encoding='utf-8'))
-        result = json.dumps(result)
-        self.assertJSONEqual(result, expected)
-
-    @unittest.expectedFailure
-    def test_create_catador_fk(self):
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "phones": [
-                {
-                    "phone": "(21) 99468-8149",
-                    "mno": "O",
-                    "has_whatsapp": False,
-                    "mobile_internet": False,
-                }
-            ],
-        }
-
-        response = self.client.post('/api/catador/', json_obj, format='json')
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_catador(self):
-
-        Catador.objects.create(catador_type="C", name="João da Silva")
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "materials_collected": [self.material.id],
-            "days_week_work": "3,4",
-        }
-
-        response = self.client.patch('/api/catador/1/', json_obj, format='json')
-
-        expected = {
-            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
-            "mongo_hash": None, "name": "João da Silva", "slug": None,
-            "minibio": None, "catador_type": "C", "is_locked": False,
-             "address_base": None, "region": None, "city": None, "country": None,
-            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
-            "has_family": False, "life_history": None, "how_many_collect_day": None,
-            "how_many_collect_week": None, "how_years_many_collect": None,
-             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
-            "user": None, "materials_collected": [1]
-        }
-
-        self.assertJSONEqual(
-            str(response.content, encoding='utf-8'),
-            expected)
 
 
 class GeoRefTestCase(APITestCase):

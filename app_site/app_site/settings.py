@@ -133,6 +133,14 @@ SERVE_STATIC_FILES = False
 
 AUTH_PROFILE_MODULE = 'api.models.UserProfile'
 
+# KEEP THIS FOR TRAVIS
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db2.sqlite3',
+    }
+}
+
 try:
     from local_settings import *
 except ImportError:

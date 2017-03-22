@@ -414,10 +414,14 @@ class GeorefCatador(models.Model):
     '''
         Esta classe esta sendo mantida pois futuramente existe a possibilidade
         do catador mandar sua localização e criarmos um caminho por onde ele passou
-        quando esse dia chegar basta mudar a chave de foreignkey para onetoone
+        quando esse dia chegar basta mudar a chave de onetoone para foreignkey
     '''
-    catador = models.ForeignKey(Catador, unique=False, blank=False)
-    georef = models.ForeignKey(LatitudeLongitude, blank=False)
+    catador = models.OneToOneField(Catador, blank=False)
+    georef = models.OneToOneField(LatitudeLongitude, blank=False)
+
+    def __str__(self):
+        return self.catador.name + '(' + str(self.georef.latitude) +\
+               ', ' + str(self.georef.longitude) + ')'
 
 
 class Rating(ModeratedModel):

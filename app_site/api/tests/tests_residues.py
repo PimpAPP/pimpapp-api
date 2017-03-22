@@ -1,12 +1,9 @@
 import os
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.shortcuts import reverse
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-
-from ..models import ResiduePhoto
 from ..models import Residue
 from ..models import Material
 

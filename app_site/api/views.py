@@ -65,10 +65,10 @@ class CatadorViewSet(viewsets.ModelViewSet):
     """
         CatadorViewSet Routes:
 
-        /api/catador/
-        /api/catador/<pk>
-        /api/catador/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
-        /api/catador/<pk>/phones
+        /api/catadores/
+        /api/catadores/<pk>
+        /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
+        /api/catadores/<pk>/phones
 
     """
     serializer_class = CatadorSerializer
