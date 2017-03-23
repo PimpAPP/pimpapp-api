@@ -10,11 +10,12 @@ from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
 from .models import Catador
-
+from .models import LatitudeLongitude
 from .models import Rating
 from .models import Collect
 from .models import Residue
 from .models import Cooperative
+from .models import GeorefCatador
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -24,6 +25,7 @@ from .serializers import CollectSerializer
 from .serializers import UserSerializer
 from .serializers import ResidueSerializer
 from .serializers import CooperativeSerializer
+from .serializers import LatitudeLongitudeSerializer
 
 from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
@@ -68,13 +70,38 @@ class CatadorViewSet(viewsets.ModelViewSet):
         /api/catadores/
         /api/catadores/<pk>
         /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
-        /api/catadores/<pk>/phones
+        /api/catadores/<pk>/phones (GET)
+        /api/catadores/<pk>/georef (GET, POST)
 
     """
     serializer_class = CatadorSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
     pagination_class = PostLimitOffSetPagination
+
+    @detail_route(methods=['GET', 'POST'],
+                  permission_classes=[IsObjectOwner])
+    def georef(self, request, pk=None):
+        """
+        Get all geolocation from one Catador
+        :param request:
+        :param pk:
+        :return:
+        """
+        if request.method == 'POST':
+            data = request.data
+
+            georeference = LatitudeLongitude.objects.create(
+                latitude=data.get('latitude'),
+                longitude=data.get('longitude'))
+
+            GeorefCatador.objects.create(
+                georef=georeference, catador=self.get_object())
+
+        serializer = LatitudeLongitudeSerializer(
+            self.get_object().geolocation, many=True)
+
+        return Response(serializer.data)
 
     @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
                   permission_classes=[IsAuthenticated])

@@ -181,7 +181,7 @@ class Catador(BaseMapMarker):
 
     @property
     def geolocation(self):
-        obj = self.latitudelongitude_set.all().latest('created_on')
+        obj = self.georef_m2m.all()
         return obj
 
     @property

@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from ..models import Residue
 from ..models import Material
+from ..models import PhotoResidue
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,7 +38,7 @@ class ResidueTestCase(APITestCase):
 
         except ObjectDoesNotExist:
             pass
-        ResiduePhoto.objects.all().delete()
+        PhotoResidue.objects.all().delete()
 
     def _create_test_file(self, path):
         f = open(path, 'w')

@@ -14,6 +14,7 @@ from .models import Cooperative
 from .models import UserProfile
 from .models import PhotoBase
 from .models import Material
+from .models import GeorefCatador
 
 
 class PhotoBaseSerializer(serializers.HyperlinkedModelSerializer):
@@ -84,7 +85,7 @@ class RatingSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoBase
-        fields = ('pk', 'carroceiro', 'created_on', 'full_photo')
+        fields = ('pk', 'created_on', 'full_photo')
 
 
 class CollectSerializer(serializers.ModelSerializer):
@@ -97,9 +98,9 @@ class CollectSerializer(serializers.ModelSerializer):
 class CatadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Catador
-        exclude = ['created_on', 'mobile_m2m']
+        exclude = ['created_on', 'mobile_m2m', 'georef_m2m']
 
-    geolocation = LatitudeLongitudeSerializer(required=False)
+    geolocation = LatitudeLongitudeSerializer(required=False, many=True)
     phones = MobileSerializer(required=False, many=True)
     collects = CollectSerializer(required=False, many=True)
     photos = PhotoSerializer(required=False, many=True)
@@ -158,4 +159,11 @@ class ResidueLocationSerializer(serializers.ModelSerializer):
 class CooperativeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cooperative
+        fields = '__all__'
+
+
+class GeorefCatadorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GeorefCatador
         fields = '__all__'
