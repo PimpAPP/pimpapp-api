@@ -75,7 +75,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
     """
     serializer_class = CatadorSerializer
-    permission_classes = (IsObjectOwner,)
+    permission_classes = (IsAuthenticated,)
     queryset = Catador.objects.all()
     pagination_class = PostLimitOffSetPagination
 
