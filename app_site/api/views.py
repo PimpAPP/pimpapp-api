@@ -10,11 +10,12 @@ from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
 from .models import Catador
-
+from .models import MobileCatador
 from .models import Rating
 from .models import Collect
 from .models import Residue
 from .models import Cooperative
+from .models import Mobile
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -68,7 +69,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
         /api/catadores/
         /api/catadores/<pk>
         /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
-        /api/catadores/<pk>/phones
+        /api/catadores/<pk>/phones (GET, POST, DELETE)
 
     """
     serializer_class = CatadorSerializer
@@ -101,11 +102,26 @@ class CatadorViewSet(viewsets.ModelViewSet):
         serializer = RatingSerializer(catador.comments, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'])
     def phones(self, request, pk=None):
         catador = self.get_object()
+        data = request.data
+
+        if request.method == 'POST':
+            m = Mobile.objects.create(
+                phone=data.get('phone'), mno=data.get('mno'),
+                has_whatsapp=data.get('has_whatsapp', False),
+                mobile_internet=data.get('mobile_internet', False),
+                notes=data.get('notes')
+            )
+            MobileCatador.objects.create(mobile=m, catador=catador)
+        elif request.method == 'DELETE':
+            Mobile.objects.get(id=data.get('id')).delete()
+
         serializer = MobileSerializer(catador.phones, many=True)
+
         return Response(serializer.data)
+
 
     @detail_route(methods=['get'])
     def materials(self, request, pk=None):
