@@ -2,10 +2,19 @@ import json
 
 from django.contrib.auth.models import User
 from ..models import Catador, Material
-from ..models import LatitudeLongitude
-from ..models import GeorefCatador
+from ..models import Mobile
+from ..models import MobileCatador
 
 from .tests_general import BaseTestCase
+
+
+def new_catador():
+    user = User.objects.create_user(
+        username='test_create', email='tester@dummy.com', password='top_secret')
+
+    catador = Catador.objects.create(name='Fulano', user=user)
+    catador.save()
+    return catador
 
 
 class CatadorTestCase(BaseTestCase):
@@ -104,14 +113,8 @@ class CatadorTestCase(BaseTestCase):
         self.assertTrue(total == 0)
 
     def test_delete_catador_permission(self):
-        user = User.objects.create_user(
-            username='test_create', email='tester@dummy.com', password='top_secret')
-
-        catador = Catador.objects.create(name='Fulano', user=user)
-        catador.save()
-
         response = self.client.delete(
-            path='/api/catadores/{id}/'.format(id=catador.id),
+            path='/api/catadores/{id}/'.format(id=new_catador().id),
             content_type='application/json')
 
         self.assertEqual(response.status_code, 403)
@@ -155,18 +158,37 @@ class CatadorTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_create_catador_mobile_permission(self):
-        user = User.objects.create_user(
-            username='test_create', email='tester@dummy.com', password='top_secret')
-
-        catador = Catador.objects.create(name='Fulano', user=user)
-        catador.save()
-
         data = {"phone": "123", "mno": "V", "has_whatsapp": True,
                 "mobile_internet": True, "notes": "notes"}
 
         # Test create one
         response = self.client.post(
-            '/api/catadores/{id}/phones/'.format(id=catador.id),
+            '/api/catadores/{id}/phones/'.format(id=new_catador().id),
             data, format='json')
         self.assertEqual(response.status_code, 403)
 
+    def test_delete_catador_mobile(self):
+        m = Mobile.objects.create(
+            phone='123', mno='V', has_whatsapp=True, mobile_internet=True,
+            notes='Notes'
+        )
+        MobileCatador.objects.create(mobile=m, catador=self.catador)
+        response = self.client.delete(
+            path='/api/catadores/{id}/phones/'.format(id=self.catador.id),
+            data={'id': m.id}
+        )
+
+        self.assertTrue(response.status_code, 204)
+
+    def test_delete_catador_mobile_permission(self):
+        m = Mobile.objects.create(
+            phone='123', mno='V', has_whatsapp=True, mobile_internet=True,
+            notes='Notes'
+        )
+        MobileCatador.objects.create(mobile=m, catador=self.catador)
+        response = self.client.delete(
+            path='/api/catadores/{id}/phones/'.format(id=new_catador().id),
+            data={'id': m.id}
+        )
+
+        self.assertTrue(response.status_code, 403)
