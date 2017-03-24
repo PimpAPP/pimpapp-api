@@ -104,6 +104,7 @@ class CatadorSerializer(serializers.ModelSerializer):
     phones = MobileSerializer(required=False, many=True)
     collects = CollectSerializer(required=False, many=True)
     photos = PhotoSerializer(required=False, many=True)
+    profile_photo = serializers.ImageField()
 
 
 class MaterialSerializer(serializers.ModelSerializer):

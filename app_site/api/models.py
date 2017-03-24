@@ -204,6 +204,10 @@ class Catador(BaseMapMarker):
     def collects(self):
         return self.collect_set.filter(active=True)
 
+    @property
+    def profile_photo(self):
+        return self.user.userprofile.avatar
+
     def __str__(self):
         return str(self.id) + ' - ' + self.name
 
@@ -636,7 +640,7 @@ class Residue(models.Model):
 
     @property
     def residue_photos(self):
-        photos = self.residuephoto_set.all()
+        photos = self.photoresidue_set.all()
         return photos
 
     @property
