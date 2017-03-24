@@ -6,13 +6,16 @@ class IsObjectOwner(BasePermission):
     message = _('Você pode alterar apenas os seus registros')
 
     def has_object_permission(self, request, view, obj):
-        if obj.user:
-            return obj.user == request.user
-        elif obj.author:
-            return obj.author == request.user
-        else:
-            message = _('A permissão não pode ser determinada')
-            return False
+        if request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
+            if obj.user:
+                return obj.user == request.user
+            elif obj.author:
+                return obj.author == request.user
+            else:
+                self.message = _('A permissão não pode ser determinada')
+                return False
+        elif request.method == 'GET':
+            return True
 
 
 class IsCatadorOrCollectOwner(BasePermission):

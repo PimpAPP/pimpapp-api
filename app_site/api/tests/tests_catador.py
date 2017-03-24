@@ -69,6 +69,18 @@ class CatadorTestCase(BaseTestCase):
 
         self.assertEqual(response.data, local_expected)
 
+    def test_update_catador(self):
+        json_obj = {"name": "Maria da Silva"}
+
+        # Test update
+        response = self.client.patch('/api/catadores/1/', json_obj, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        local_expected = self.data_expected
+        local_expected['name'] = 'Maria da Silva'
+
+        self.assertEqual(response.data, local_expected)
+
     def test_update_catador_permission(self):
         user = User.objects.create_user(
             username='test_create', email='tester@dummy.com', password='top_secret')
@@ -84,18 +96,6 @@ class CatadorTestCase(BaseTestCase):
                 id=user.id), json_obj, format='json')
 
         self.assertEqual(response.status_code, 403)
-
-    def test_update_catador(self):
-        json_obj = {"name": "Maria da Silva"}
-
-        # Test update
-        response = self.client.patch('/api/catadores/1/', json_obj, format='json')
-        self.assertEqual(response.status_code, 200)
-
-        local_expected = self.data_expected
-        local_expected['name'] = 'Maria da Silva'
-
-        self.assertEqual(response.data, local_expected)
 
     def test_delete_catador(self):
         response = self.client.delete(path='/api/catadores/1/', content_type='application/json')
@@ -142,3 +142,31 @@ class CatadorTestCase(BaseTestCase):
             '/api/catadores/{id}/georef/'.format(id=catador.id),
             data, format='json')
         self.assertEqual(response.status_code, 403)
+
+    def test_create_catador_mobile(self):
+
+        data = {"phone": "123", "mno": "V", "has_whatsapp": True,
+                "mobile_internet": True, "notes": "notes"}
+
+        # Test create one
+        response = self.client.post(
+            '/api/catadores/{id}/phones/'.format(id=self.catador.id),
+            data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_catador_mobile_permission(self):
+        user = User.objects.create_user(
+            username='test_create', email='tester@dummy.com', password='top_secret')
+
+        catador = Catador.objects.create(name='Fulano', user=user)
+        catador.save()
+
+        data = {"phone": "123", "mno": "V", "has_whatsapp": True,
+                "mobile_internet": True, "notes": "notes"}
+
+        # Test create one
+        response = self.client.post(
+            '/api/catadores/{id}/phones/'.format(id=catador.id),
+            data, format='json')
+        self.assertEqual(response.status_code, 403)
+

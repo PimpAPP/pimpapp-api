@@ -72,16 +72,12 @@ class CatadorViewSet(viewsets.ModelViewSet):
         /api/catadores/
         /api/catadores/<pk>
         /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
-<<<<<<< HEAD
-        /api/catadores/<pk>/phones (GET)
         /api/catadores/<pk>/georef (GET, POST)
-=======
         /api/catadores/<pk>/phones (GET, POST, DELETE)
->>>>>>> unittests
 
     """
     serializer_class = CatadorSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
     pagination_class = PostLimitOffSetPagination
 
