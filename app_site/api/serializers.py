@@ -15,6 +15,8 @@ from .models import UserProfile
 from .models import PhotoBase
 from .models import Material
 from .models import GeorefCatador
+from .models import PhotoCollectUser
+from .models import PhotoCollectCatador
 
 
 class PhotoBaseSerializer(serializers.HyperlinkedModelSerializer):
@@ -88,11 +90,27 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = ('pk', 'created_on', 'full_photo')
 
 
+class PhotoCollectUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhotoCollectUser
+        fields = '__all__'
+
+
+class PhotoCollectCatadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhotoCollectCatador
+        fields = '__all__'
+
+
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
         fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'catador', 'geolocation', 'photo_collect_user', 'residue')
+                  'catador', 'geolocation', 'residue', 'photo_collect_user',
+                  'photo_collect_catador')
+
+    photo_collect_user = PhotoCollectUserSerializer(many=True)
+    photo_collect_catador = PhotoCollectCatadorSerializer(many=True)
 
 
 class CatadorSerializer(serializers.ModelSerializer):
@@ -105,12 +123,6 @@ class CatadorSerializer(serializers.ModelSerializer):
     collects = CollectSerializer(required=False, many=True)
     photos = PhotoSerializer(required=False, many=True)
     profile_photo = serializers.ImageField()
-
-
-class MaterialSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Material
-        fields = '__all__'
 
 
 class ResiduePhotoSerializer(serializers.ModelSerializer):
