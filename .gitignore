@@ -70,3 +70,4 @@ integration_test/.cache
 static/
 .env
 *.sqlite3
+requirements-dev.txt
