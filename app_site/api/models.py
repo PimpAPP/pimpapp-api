@@ -86,6 +86,10 @@ class BaseMapMarker(ModeratedModel):
         blank=True,
         null=True)
 
+    presentation_phrase = models.CharField(
+        max_length=140, verbose_name='Frase de apresentação',
+        null=True, blank=True)
+
     minibio = models.TextField(
         max_length=512,
         blank=True,
@@ -165,6 +169,9 @@ class Catador(BaseMapMarker):
     has_family = models.CharField(
         max_length=200,
         null=True, blank=True)
+
+    how_many_days_work_week = models.IntegerField(
+        null=True, blank=True, help_text='Quantos dias trabalha por semana')
 
     # M2M
     rating_m2m = models.ManyToManyField(
@@ -420,8 +427,8 @@ class GeorefCatador(models.Model):
         do catador mandar sua localização e criarmos um caminho por onde ele passou
         quando esse dia chegar basta mudar a chave de onetoone para foreignkey
     '''
-    catador = models.OneToOneField(Catador, blank=False)
-    georef = models.OneToOneField(LatitudeLongitude, blank=False)
+    catador = models.ForeignKey(Catador, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, blank=False)
 
     def __str__(self):
         return self.catador.name + '(' + str(self.georef.latitude) +\

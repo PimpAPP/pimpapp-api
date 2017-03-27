@@ -116,7 +116,7 @@ class CollectSerializer(serializers.ModelSerializer):
 class CatadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Catador
-        exclude = ['created_on', 'mobile_m2m', 'georef_m2m']
+        exclude = ['created_on', 'mobile_m2m', 'georef_m2m', 'rating_m2m']
 
     geolocation = LatitudeLongitudeSerializer(required=False, many=True)
     phones = MobileSerializer(required=False, many=True)

@@ -14,10 +14,9 @@ DAYS_WEEK = (
 )
 
 
-# TODO: REMOVER
-
 class DaysWeekWorkAdminForm(forms.ModelForm):
-    days_week_work = forms.MultipleChoiceField(choices=DAYS_WEEK)
+    days_week_work = forms.MultipleChoiceField(
+        choices=DAYS_WEEK, help_text='Dias na semana que coscutma trabalhar')
 
     class Meta:
         model = Catador

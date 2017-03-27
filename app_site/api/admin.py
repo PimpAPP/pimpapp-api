@@ -42,6 +42,7 @@ class CatadorAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name']
     form = DaysWeekWorkAdminForm
     list_display = ('pk', 'name', 'catador_type', 'city', 'country')
+    filter_vertical = ['materials_collected']
 
 
 class UserAdmin(BaseUserAdmin):
