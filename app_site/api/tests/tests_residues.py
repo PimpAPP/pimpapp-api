@@ -1,14 +1,12 @@
 import os
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.shortcuts import reverse
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-
-from ..models import ResiduePhoto
 from ..models import Residue
 from ..models import Material
+from ..models import PhotoResidue
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,7 +24,7 @@ class ResidueTestCase(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
-        self.material = Material.objects.create(works_since='2001-01-01', est_kg_day=1, days_week=1)
+        self.material = Material.objects.create(description='Metal')
         self.material.save()
 
         self.residue = Residue.objects.create(description='Test Residue')
@@ -40,7 +38,7 @@ class ResidueTestCase(APITestCase):
 
         except ObjectDoesNotExist:
             pass
-        ResiduePhoto.objects.all().delete()
+        PhotoResidue.objects.all().delete()
 
     def _create_test_file(self, path):
         f = open(path, 'w')

@@ -1,37 +1,56 @@
-from rest_framework import generics
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    AllowAny, IsAdminUser
-from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated, \
+    AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 from .models import ModeratedModel
+from .models import Catador
 from .models import LatitudeLongitude
-from .models import Carroceiro
+from .models import MobileCatador
 from .models import Rating
-from .models import Photo
-from .models import Phone
 from .models import Collect
 from .models import Residue
+from .models import Cooperative
+from .models import GeorefCatador
+from .models import Mobile
 
 from .serializers import RatingSerializer
-from .serializers import PhotoSerializer
-from .serializers import PhoneSerializer
-from .serializers import CarroceiroSerializer
+from .serializers import MobileSerializer
+from .serializers import CatadorSerializer
 from .serializers import MaterialSerializer
-from .serializers import LatitudeLongitudeSerializer
 from .serializers import CollectSerializer
 from .serializers import UserSerializer
 from .serializers import ResidueSerializer
-from .serializers import ResidueLocationSerializer
-from .serializers import ResiduePhotoSerializer
+from .serializers import CooperativeSerializer
+from .serializers import LatitudeLongitudeSerializer
+
+from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
+
+from .pagination import PostLimitOffSetPagination
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class PermissionBase(APIView):
+    def get_permissions(self):
+        if self.request.method in ['GET', 'OPTIONS', 'HEAD', 'POST']:
+            self.permission_classes = [IsAuthenticated]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [IsAuthenticated, IsObjectOwner]
+
+        return super(PermissionBase, self).get_permissions()
+
+
+class RecoBaseView(PermissionBase):
+    pagination_class = PostLimitOffSetPagination
+
+
+class UserViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -39,55 +58,104 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class CarroceiroViewSet(viewsets.ModelViewSet):
+def create_new_comment(data):
+    comment = Rating(comment=data['comment'], author_id=data['author'],
+                     rating=data['rating'],
+                     carroceiro_id=data['carroceiro'])
+    return comment.save()
+
+
+class CatadorViewSet(viewsets.ModelViewSet):
     """
-        CarroceiroViewSet Routes:
+        CatadorViewSet Routes:
 
-        /api/carroceiro/
-        /api/carroceiro/<pk>
-        /api/carroceiro/<pk>/comments
-        /api/carroceiro/<pk>/photos
-        /api/carroceiro/<pk>/phones
-        /api/carroceiro/<pk>/materials
+        /api/catadores/
+        /api/catadores/<pk>
+        /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
+        /api/catadores/<pk>/georef (GET, POST)
+        /api/catadores/<pk>/phones (GET, POST, DELETE)
 
     """
-    serializer_class = CarroceiroSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Carroceiro.objects.all()
+    serializer_class = CatadorSerializer
+    permission_classes = (IsObjectOwner,)
+    queryset = Catador.objects.all()
+    pagination_class = PostLimitOffSetPagination
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET', 'POST'],
+                  permission_classes=[IsObjectOwner])
+    def georef(self, request, pk=None):
+        """
+        Get all geolocation from one Catador
+        :param request:
+        :param pk:
+        :return:
+        """
+        if request.method == 'POST':
+            data = request.data
+
+            georeference = LatitudeLongitude.objects.create(
+                latitude=data.get('latitude'),
+                longitude=data.get('longitude'))
+
+            GeorefCatador.objects.create(
+                georef=georeference, catador=self.get_object())
+
+        serializer = LatitudeLongitudeSerializer(
+            self.get_object().geolocation, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                  permission_classes=[IsAuthenticated])
     def comments(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer =  RatingSerializer(carroceiro.comments, many=True)
+        catador = self.get_object()
+
+        data = request.data
+
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            defaults = {'comment': data.get('comment'),
+                        'author_id': data.get('author'),
+                        'rating': data.get('rating'),
+                        'carroceiro_id': data.get('carroceiro')
+                        }
+            catador.comments.update_or_create(defaults, id=data.get('pk'))
+
+        if request.method == 'DELETE':
+            rating = get_object_or_404(
+                Rating, pk=data.get('pk'), author_id=data.get('author'),
+                carroceiro_id=data.get('carroceiro')
+            )
+            rating.delete()
+
+        serializer = RatingSerializer(catador.comments, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
-    def photos(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = PhotoSerializer(carroceiro.photos, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'])
     def phones(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = PhoneSerializer(carroceiro.phones, many=True)
+        catador = self.get_object()
+        data = request.data
+
+        if request.method == 'POST':
+            m = Mobile.objects.create(
+                phone=data.get('phone'), mno=data.get('mno'),
+                has_whatsapp=data.get('has_whatsapp', False),
+                mobile_internet=data.get('mobile_internet', False),
+                notes=data.get('notes')
+            )
+            MobileCatador.objects.create(mobile=m, catador=catador)
+        elif request.method == 'DELETE':
+            Mobile.objects.get(id=data.get('id')).delete()
+
+        serializer = MobileSerializer(catador.phones, many=True)
+
         return Response(serializer.data)
+
 
     @detail_route(methods=['get'])
     def materials(self, request, pk=None):
-        carroceiro = self.get_object()
-        serializer = MaterialSerializer(carroceiro.materials)
+        catador = self.get_object()
+        serializer = MaterialSerializer(catador.materials)
         return Response(serializer.data)
-
-
-class LatitudeLongitudeViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = LatitudeLongitudeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = LatitudeLongitude.objects.filter(
-            moderation_status__in=public_status)
 
 
 class RatingViewSet(viewsets.ModelViewSet):
@@ -97,101 +165,43 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Rating.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
+    pagination_class = PostLimitOffSetPagination
 
 
-class PhotoViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Photo.objects.filter(
-            moderation_status__in=public_status)
-
-
-class MobileViewSet(viewsets.ModelViewSet):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhoneSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Phone.objects.filter(
-            moderation_status__in=public_status)
-
-
-class RatingByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+class RatingByCarroceiroViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
     serializer_class = RatingSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        carroceiro = self.kwargs['carroceiro']
+        catador = self.kwargs['catador']
         queryset = Rating.objects.filter(
-                moderation_status__in=public_status,
-                carroceiro__id=carroceiro)
+            moderation_status__in=public_status,
+            carroceiro__id=Catador(user=self.request.user))
 
 
-class PhotoByCarroceiroViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
-    """
-        DOCS: TODO
-    """
-    serializer_class = PhotoSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        carroceiro = self.kwargs['carroceiro']
-        queryset = Photo.objects.filter(
-                moderation_status__in=public_status,
-                carroceiro__id=carroceiro)
-
-
-class CollectViewSet(viewsets.ModelViewSet):
+class CollectViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
         DOCS: TODO
     """
     serializer_class = CollectSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsCatadorOrCollectOwner, IsAuthenticated)
     queryset = Collect.objects.filter(
-            moderation_status__in=public_status)
+        moderation_status__in=public_status)
 
 
-class ResidueListAPIView(viewsets.ViewSetMixin, generics.ListAPIView):
+class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
-    filter_backends = [SearchFilter, ]
-    search_fields = ['id']
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['id', 'description', 'user']
 
 
-class ResidueCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -H "Content-Type: application/json" -X POST -d '{"description": "Via cURL",
-        "materials": [1,2]}' http://localhost:8000/api/residues-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-
-    """
-    serializer_class = ResidueSerializer
-
-
-class ResidueLocationCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -H "Content-Type: application/json" -X POST -d
-        '{"moderation_status": "A", "mongo_hash": "Hash mongo by cURL",
-        "latitude": 123, "longitude": 999, "reverse_geocoding": "reverse cURL",
-        "residue": 4}' http://localhost:8000/api/residues-location-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-    """
-    serializer_class = ResidueLocationSerializer
-    permission_classes = [AllowAny, ]
-
-
-class ResiduePhotoCreateAPIView(viewsets.ViewSetMixin, generics.CreateAPIView):
-    """
-        curl -i -X POST -H "Content-Type: multipart/form-data" -F "full_photo=@/home/xtreme/gp.png" -F
-        "moderation_status=A" -F "mongo_hash=hash" -F "author=1" -F "residue=1"
-        http://localhost:8000/api/residues-photo-create/
-        -H 'Authorization: Token 6c77f484434be7c4512ab5ccf1458a1a4dc0a96f'
-    """
-    serializer_class = ResiduePhotoSerializer
+class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
+    serializer_class = CooperativeSerializer
+    queryset = Cooperative.objects.all()
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'email', 'id']
+    ordering_fields = ['name', 'email', 'id']

@@ -1,19 +1,17 @@
 import json
-import unittest
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from ..models import Carroceiro
+from ..models import Catador
 from ..models import Collect
+from ..models import Mobile
 from ..models import Material
-from ..models import Phone
-from ..models import MaterialType
 
 
 class BaseTestCase(APITestCase):
+    user = None
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -21,19 +19,17 @@ class BaseTestCase(APITestCase):
             email='tester@dummy.com',
             password='top_secret')
 
-        self.carroceiro = Carroceiro.objects.create(catador_type="C", name="João da Silva")
-
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
 
-class PhoneTestCase(BaseTestCase):
+class MobileTestCase(BaseTestCase):
 
     def test_mno(self):
 
-        Phone.objects.create(
-            carroceiro=self.carroceiro,
+        Mobile.objects.create(
+            catador=self.catador,
             phone='11999999999',
             mno='TIM',
             has_whatsapp=True,
@@ -44,8 +40,8 @@ class PhoneTestCase(BaseTestCase):
 
     def test_update(self):
 
-        p = Phone.objects.create(
-            carroceiro=self.carroceiro,
+        p = Mobile.objects.create(
+            catador=self.catador,
             phone='11999999999',
             mno='TIM',
             has_whatsapp=True,
@@ -68,7 +64,7 @@ class PhoneTestCase(BaseTestCase):
 
         result = json.loads(str(response.content, encoding='utf-8'))
         del result['pk']
-        del result['carroceiro']
+        del result['catador']
         del result['notes']
         result = json.dumps(result)
 
@@ -76,98 +72,6 @@ class PhoneTestCase(BaseTestCase):
             result,
             json.dumps(json_obj)
         )
-
-
-class CatadorTestCase(APITestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='tester',
-            email='tester@dummy.com',
-            password='top_secret')
-
-        token = Token.objects.get(user=self.user)
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-
-        self.material = MaterialType.objects.create(description='Material teste')
-        self.material.save()
-
-    def test_create_carroceiro(self):
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "materials_collected": [self.material.id],
-            "days_week_work": "3,4",
-        }
-
-        self.client.post('/api/carroceiro/', json_obj, format='json')
-        response = self.client.get('/api/carroceiro/1/', format='json')
-
-        expected = {
-            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
-            "mongo_hash": None, "name": "João da Silva", "slug": None,
-            "minibio": None, "catador_type": "C", "is_locked": False,
-             "address_base": None, "region": None, "city": None, "country": None,
-            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
-            "has_family": False, "life_history": None, "how_many_collect_day": None,
-            "how_many_collect_week": None, "how_years_many_collect": None,
-             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
-            "user": None, "materials_collected": [1]
-        }
-
-        result = json.loads(str(response.content, encoding='utf-8'))
-        result = json.dumps(result)
-        self.assertJSONEqual(result, expected)
-
-    @unittest.expectedFailure
-    def test_create_carroceiro_fk(self):
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "phones": [
-                {
-                    "phone": "(21) 99468-8149",
-                    "mno": "O",
-                    "has_whatsapp": False,
-                    "mobile_internet": False,
-                }
-            ],
-        }
-
-        response = self.client.post('/api/carroceiro/', json_obj, format='json')
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_carroceiro(self):
-
-        Carroceiro.objects.create(catador_type="C", name="João da Silva")
-
-        json_obj = {
-            "catador_type": "C",
-            "name": "João da Silva",
-            "materials_collected": [self.material.id],
-            "days_week_work": "3,4",
-        }
-
-        response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
-
-        expected = {
-            "id": 1, "geolocation": None, "phones": [], "moderation_status": "P",
-            "mongo_hash": None, "name": "João da Silva", "slug": None,
-            "minibio": None, "catador_type": "C", "is_locked": False,
-             "address_base": None, "region": None, "city": None, "country": None,
-            "has_motor_vehicle": False, "carroca_pimpada": False, "safety_kit": False,
-            "has_family": False, "life_history": None, "how_many_collect_day": None,
-            "how_many_collect_week": None, "how_years_many_collect": None,
-             "internet_outside": False, "days_week_work": "3,4", "works_since": None,
-            "user": None, "materials_collected": [1]
-        }
-
-        self.assertJSONEqual(
-            str(response.content, encoding='utf-8'),
-            expected)
 
 
 class GeoRefTestCase(APITestCase):
@@ -178,7 +82,7 @@ class GeoRefTestCase(APITestCase):
             email='tester@dummy.com',
             password='top_secret')
 
-        Carroceiro.objects.create(catador_type="C", name="João da Silva")
+        Catador.objects.create(catador_type="C", name="João da Silva")
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
@@ -187,7 +91,7 @@ class GeoRefTestCase(APITestCase):
     def test_create_geo(self):
 
         json_obj = {
-            "carroceiro": 1,
+            "catador": 1,
             "latitude": 23.5,
             "longitude": 46.6
         }
@@ -195,7 +99,7 @@ class GeoRefTestCase(APITestCase):
         response = self.client.post('/api/georef/', json_obj, format='json')
         self.assertEqual(response.status_code, 201)
 
-        response = self.client.patch('/api/carroceiro/1/', json_obj, format='json')
+        response = self.client.patch('/api/catador/1/', json_obj, format='json')
 
         expected = {
             'how_many_collect_week': None,
@@ -212,12 +116,11 @@ class GeoRefTestCase(APITestCase):
             'minibio': None,
             'mongo_hash': None,
             'phones': [],
-            'life_history': None,
             'slug': None, 'has_motor_vehicle': False,
             'geolocation': {
                 'longitude': 46.6, 'latitude': 23.5,
                             'reverse_geocoding': '',
-                            'carroceiro': 1
+                            'catador': 1
             },
             'catador_type': 'C',
             'how_many_collect_day': None,
@@ -248,14 +151,14 @@ class CollectTestCase(APITestCase):
             password='top_secret')
 
         self.json_obj = {"catador_confirms": True, "user_confirms": True,
-                    "active": True, "author": self.user.id, "carroceiro": 1, "moderation_status": 'P'}
+                    "active": True, "author": self.user.id, "catador": 1, "moderation_status": 'P'}
 
-        self.carroceiro = Carroceiro.objects.create(
+        self.catador = Catador.objects.create(
             catador_type="C", name="João da Silva")
 
         self.collect = Collect.objects.create(
-            catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, carroceiro=self.carroceiro)
+            catador_confirms=True, user_confirms=True,
+            active=True, catador=self.catador)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
@@ -267,8 +170,8 @@ class CollectTestCase(APITestCase):
         :return:
         """
         Collect.objects.create(
-            catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, carroceiro=self.carroceiro)
+            catador_confirms=True, user_confirms=True,
+            active=True, catador=self.catador)
 
         response = self.client.post('/api/collect/', self.json_obj, format='json')
         self.assertEqual(response.status_code, 201)
@@ -281,7 +184,7 @@ class CollectTestCase(APITestCase):
                     "user_confirms": True,
                     "active": True,
                     "author": 1,
-                    "carroceiro": 1,
+                    "catador": 1,
                     "geolocation": None,
                     "photo_collect_user": []}
 
@@ -292,17 +195,17 @@ class CollectTestCase(APITestCase):
 
         collect1 = Collect.objects.create(
             catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+            author=self.user, catador=self.catador, moderation_status='P')
 
         collect2 = Collect.objects.create(catador_confirms=True, user_confirms=True, active=True,
-                                          author=self.user, carroceiro=self.carroceiro, moderation_status='P')
+                                          author=self.user, catador=self.catador, moderation_status='P')
 
         self.assertRaises(ValidationError, collect2.clean)
 
     def test_user_must_select_at_least_one_material(self):
         '''Usuário é obrigado a marcar quais materia estão na coleta'''
 
-        material = Material(carroceiro=self.carroceiro)
+        material = Material(catador=self.catador)
 
         self.assertRaises(ValidationError, material.clean)
 
