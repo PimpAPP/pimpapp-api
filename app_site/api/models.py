@@ -186,6 +186,8 @@ class Catador(BaseMapMarker):
         'LatitudeLongitude', blank=True, related_name='catadores',
         through='GeorefCatador')
 
+    cooperative = models.ForeignKey('Cooperative', null=True, blank=True)
+
     @property
     def geolocation(self):
         obj = self.georef_m2m.all()
@@ -363,8 +365,6 @@ class Collect(ModeratedModel):
         if self.moderation_status == 'P' and self.catador:
             if Collect.objects.filter(catador=self.catador, moderation_status='P').count() > 0:
                 raise ValidationError('Usuário pode ter apenas uma coleta em aberto')
-
-
 
 
 class Material(ModeratedModel):
@@ -671,6 +671,10 @@ class Cooperative(models.Model):
     how_many_cooperators = models.IntegerField()
     image = VersatileImageField(upload_to='cooperatives')
     partners = models.ManyToManyField('Partner', blank=True)
+    how_much_collect_day = models.FloatField(null=True, blank=True)
+    how_many_days_work_week = models.IntegerField(null=True, blank=True)
+    how_many_years_work = models.IntegerField(null=True, blank=True)
+    work_since = models.DateField(null=True, blank=True)
 
     # Meterials
     materials_collected = models.ManyToManyField('Material')
@@ -690,6 +694,11 @@ class Cooperative(models.Model):
     @property
     def photos(self):
         objs = self.photocooperative.all().order_by('created_on')
+        return objs
+
+    @property
+    def phones(self):
+        objs = self.mobile_m2m.get_queryset()
         return objs
 
     def __str__(self):
