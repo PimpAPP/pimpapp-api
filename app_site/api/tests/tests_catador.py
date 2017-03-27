@@ -35,10 +35,11 @@ class CatadorTestCase(BaseTestCase):
                               'slug': None, 'nickname': 'Nickname', 'name': 'João da Silva',
                               'carroca_pimpada': False, 'user': 1, 'works_since': None,
                               'id': 1, 'country': None, 'photos': [], 'catador_type': 'C',
-                              'rating_m2m': [], 'materials_collected': [1],
-                              'mongo_hash': None, 'has_motor_vehicle': False,
+                              'materials_collected': [1], 'mongo_hash': None, 'has_motor_vehicle': False,
                               'minibio': None, 'address_base': None, 'city': None,
-                              'region': None, 'phones': [], 'is_locked': False
+                              'region': None, 'phones': [], 'is_locked': False,
+                              'profile_photo': None, 'how_many_days_work_week': None,
+                              'cooperative': None, 'presentation_phrase': None
                               }
 
     def test_get_all(self):
@@ -75,6 +76,7 @@ class CatadorTestCase(BaseTestCase):
         local_expected['user'] = user.id
         local_expected['id'] = response.data['id']
         local_expected['nickname'] = "apelido"
+        local_expected['id'] = 2
 
         self.assertEqual(response.data, local_expected)
 
