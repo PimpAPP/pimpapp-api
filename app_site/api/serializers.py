@@ -32,7 +32,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'photo', 'first_name', 'last_name')
+        fields = ('id', 'url', 'username', 'email', 'photo', 'first_name', 'last_name')
 
     def get_photo(self, obj):
         user_profile = UserProfile.objects.filter(user=obj)
@@ -125,6 +125,10 @@ class CatadorSerializer(serializers.ModelSerializer):
     collects = CollectSerializer(required=False, many=True)
     photos = PhotoSerializer(required=False, many=True)
     profile_photo = serializers.ImageField()
+    email = serializers.SerializerMethodField()
+
+    def get_email(self, obj):
+        return obj.user.email
 
 
 class ResiduePhotoSerializer(serializers.ModelSerializer):
