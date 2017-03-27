@@ -7,9 +7,9 @@ class IsObjectOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
-            if obj.user:
+            if hasattr(obj, 'user'):
                 return obj.user == request.user
-            elif obj.author:
+            elif hasattr(obj, 'author'):
                 return obj.author == request.user
             else:
                 self.message = _('A permissão não pode ser determinada')
