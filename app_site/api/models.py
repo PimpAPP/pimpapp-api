@@ -1,9 +1,7 @@
 # TODO
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
 from simple_history.models import HistoricalRecords
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
@@ -22,14 +20,9 @@ def create_auth_token(sender, instance, **kwargs):
     token, created = Token.objects.get_or_create(user=instance)
 
 
-class MaterialType(models.Model):
-    description = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = 'Tipos de materiais'
-
-    def __str__(self):
-        return self.description
+def get_upload_path(self, filename):
+    path = self._upload_to + '/' + filename
+    return path
 
 
 class ModeratedModel(models.Model):
@@ -51,7 +44,7 @@ class ModeratedModel(models.Model):
 
     history = HistoricalRecords(inherit=True)
 
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now=True)
 
     moderation_status = models.CharField(
         verbose_name=_('Status de Moderação'),
@@ -86,12 +79,16 @@ class BaseMapMarker(ModeratedModel):
 
     name = models.CharField(
         max_length=128,
-        verbose_name=_('Apelido'))
+        verbose_name=_('Nome'))
 
     slug = models.CharField(
         max_length=141,
         blank=True,
         null=True)
+
+    presentation_phrase = models.CharField(
+        max_length=140, verbose_name='Frase de apresentação',
+        null=True, blank=True)
 
     minibio = models.TextField(
         max_length=512,
@@ -101,20 +98,9 @@ class BaseMapMarker(ModeratedModel):
     catador_type = models.CharField(max_length=1, default=CATADOR,
                                     choices=TYPE_CHOICES)
 
-    # Lock feature
-    user = models.OneToOneField(
-        User,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL)
-
-    is_locked = models.BooleanField(
-        verbose_name=_('Permite edição Publica'),
-        default=False)
-
     # Location
     address_base = models.CharField(
-        max_length=128,
+        max_length=500,
         blank=True,
         null=True,
         verbose_name=_("Endereço onde costuma trabalhar."))
@@ -136,16 +122,36 @@ class BaseMapMarker(ModeratedModel):
         blank=True,
         null=True)
 
+    kg_week = models.FloatField(
+        blank=True, null=True,
+        verbose_name=_('Quantos Kg coleta por semana?'))
 
-class Carroceiro(BaseMapMarker):
+    works_since = models.DateField(blank=True, null=True)
+
+
+class Catador(BaseMapMarker):
 
     """
-    Class used for modeling a instance of Carroceiro in our DB.
-    by default, this table will be addressed as carroceiro_carroceiro
+    Class used for modeling a instance of Catador in our DB.
+    by default, this table will be addressed as catador_catador
     """
 
     class Meta:
-        verbose_name = 'Catadores'
+        verbose_name = 'Catador'
+
+    nickname = models.CharField(
+        max_length=128,
+        verbose_name=_('Apelido'))
+
+    # Lock feature
+    user = models.OneToOneField(User)
+
+    is_locked = models.BooleanField(
+        verbose_name=_('Permite edição Publica'),
+        default=False)
+
+    # Meterials
+    materials_collected = models.ManyToManyField('Material')
 
     # Pimp my Caroca
     has_motor_vehicle = models.BooleanField(
@@ -164,57 +170,57 @@ class Carroceiro(BaseMapMarker):
         max_length=200,
         null=True, blank=True)
 
-    materials_collected = models.ManyToManyField(MaterialType)
+    how_many_days_work_week = models.IntegerField(
+        null=True, blank=True, help_text='Quantos dias trabalha por semana')
 
-    life_history = models.TextField(
-        blank=True, null=True)
+    # M2M
+    rating_m2m = models.ManyToManyField(
+        'Rating', blank=True, related_name='catadores',
+        through='RatingCatador')
 
-    how_many_collect_day = models.FloatField(
-        blank=True, null=True,
-        verbose_name=_('Quanto coleta por dia?'))
+    mobile_m2m = models.ManyToManyField(
+        'Mobile', blank=True, related_name='catadores',
+        through='MobileCatador')
 
-    how_many_collect_week = models.FloatField(
-        blank=True, null=True,
-        verbose_name=_('Quanto coleta por semana?'))
-
-    how_years_many_collect = models.IntegerField(
-        blank=True, null=True,
-        verbose_name=_('A quantos anos coleta?'))
-
-    internet_outside = models.BooleanField(
-        default=False,
-        verbose_name=_('Possui internet na rua?'))
-
-    days_week_work = models.CharField(
-        max_length=13, null=True, blank=True)
-
-    works_since = models.DateField(blank=True, null=True)
+    georef_m2m = models.ManyToManyField(
+        'LatitudeLongitude', blank=True, related_name='catadores',
+        through='GeorefCatador')
 
     @property
     def geolocation(self):
-        obj = self.latitudelongitude_set.all().latest('created_on')
+        obj = self.georef_m2m.all()
         return obj
 
     @property
     def photos(self):
-        objs = self.photo_set.all().order_by('created_on')
+        # PhotoCatador
+        objs = self.photocatador_set.all().order_by('created_on')
         return objs
 
     @property
     def phones(self):
-        objs = self.phone_set.all().order_by('created_on')
+        objs = self.mobile_m2m.get_queryset()
         return objs
 
     @property
     def comments(self):
-        objs = self.rating_set.all().order_by('created_on')
+        objs = self.rating_m2m.get_queryset()
         return objs
 
+    @property
+    def collects(self):
+        return self.collect_set.filter(active=True)
+
+    @property
+    def profile_photo(self):
+        return self.user.userprofile.avatar
+
     def __str__(self):
-        return self.name
+        return str(self.id) + ' - ' + self.name
 
     # Compatibility MeteorJS version
     def load_mongo_obj(self, mongo_obj):
+        # TODO MOVER
 
         """
             Exemplo:
@@ -258,7 +264,7 @@ class Carroceiro(BaseMapMarker):
 
         """
 
-        self.name = mongo_obj.get('name', self.mongo_hash)
+        self.name = mongo_obj.get('name', self.name)
         self.catador_type = mongo_obj.get('catador_type', 'C')
         self.minibio = mongo_obj.get('miniBio', '')
         self.has_motor_vehicle = mongo_obj.get('motorizedVehicle', False)
@@ -268,37 +274,45 @@ class Carroceiro(BaseMapMarker):
         self.region = mongo_obj.get('region', '')
         self.city = mongo_obj.get('city', '')
         self.country = mongo_obj.get('country', 'Brasil')
+        self.mongo_hash = mongo_obj.get('catador_id')
 
-        # Other Objects
-        LatitudeLongitude.objects.create(
-            carroceiro=self,
-            reverse_geocoding=mongo_obj.get('base_address', ''),
-            latitude=mongo_obj.get('latitude', 0.0),
-            longitude=mongo_obj.get('longitude', 0.0)
-        )
+        catador = self.save()
 
         if mongo_obj.get('telephone1', ''):
-            Phone.objects.create(
-                carroceiro=self,
+            tel1 = Mobile.objects.create(
                 phone=mongo_obj.get('telephone1', ''),
                 mno=mongo_obj.get('operator_telephone1', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp1', ''),
                 mobile_internet=mongo_obj.get('internet1', '')
             )
+            tel1.save()
+            m1 = MobileCatador.objects.create(mobile=tel1, catador_id=self.id)
+            m1.save()
 
         if mongo_obj.get('telephone2', ''):
-            Phone.objects.create(
-                carroceiro=self,
+            tel2 = Mobile.objects.create(
                 phone=mongo_obj.get('telephone2', ''),
                 mno=mongo_obj.get('operator_telephone2', '').upper()[:1],
                 has_whatsapp=mongo_obj.get('whatsapp2', ''),
                 mobile_internet=mongo_obj.get('internet2', '')
             )
+            tel2.save()
+            m2 = MobileCatador.objects.create(mobile=tel2, catador_id=self.id)
+            m2.save()
 
-        self.save()
+        # Other Objects
+        lat = LatitudeLongitude.objects.create(
+            reverse_geocoding=mongo_obj.get('base_address', ''),
+            latitude=mongo_obj.get('latitude', 0.0),
+            longitude=mongo_obj.get('longitude', 0.0)
+        )
+
+        georef = GeorefCatador.objects.create(georef=lat, catador_id=self.id)
+        georef.save()
 
 
 class Collect(ModeratedModel):
+    _upload_to = 'collectfolder'
     # TODO: Colocar os campos
 
     """
@@ -312,8 +326,18 @@ class Collect(ModeratedModel):
     catador_confirms = models.BooleanField()
     user_confirms = models.BooleanField()
     active = models.BooleanField(default=True)
-    author = models.ForeignKey(User, blank=False)
-    carroceiro = models.ForeignKey(Carroceiro, blank=False)
+
+    residue = models.ForeignKey(
+        'Residue',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE)
+
+    catador = models.ForeignKey(
+        Catador,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL)
 
     @property
     def geolocation(self):
@@ -331,19 +355,21 @@ class Collect(ModeratedModel):
         return objs
 
     def __str__(self):
-        return str(self.id)
+        return 'Cat: ' + str(self.catador)
 
     def clean(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
 
-        if self.moderation_status == 'P':
-            if Collect.objects.filter(author=self.author, moderation_status='P').count() > 0:
+        if self.moderation_status == 'P' and self.catador:
+            if Collect.objects.filter(catador=self.catador, moderation_status='P').count() > 0:
                 raise ValidationError('Usuário pode ter apenas uma coleta em aberto')
 
 
-class MaterialBase(ModeratedModel):
+
+
+class Material(ModeratedModel):
     """
-        Tipical Carroceiro's services:
+        Tipical Catador's services:
             * Serviço de Frete e Carreto
             * Reciclável (papel, vidro, latas, embalagens, vidro,
                       embalagem longa vida, etc.)
@@ -367,112 +393,46 @@ class MaterialBase(ModeratedModel):
     """
 
     class Meta:
-        abstract = True
         verbose_name = 'Serviços e Meteriais'
         verbose_name_plural = 'Serviços e Meteriais'
 
-    # Metadata about recycling
-    works_since = models.DateTimeField(blank=True)
-    est_kg_day = models.PositiveIntegerField(blank=True)
-    days_week = models.PositiveIntegerField(blank=True)
-
-    # fields:
-    freight = models.BooleanField(
-        verbose_name=_("Serviço de Frete e Carreto"),
-        default=False)
-    large_objects = models.BooleanField(
-        verbose_name=_('Volumosos'),
-        help_text=_('Exemplo: sofá, geladeira, fogão, etc...'),
-        default=False)
-    demolition_waste = models.BooleanField(
-        verbose_name=_('Resíduo de Construção Civil'),
-        help_text=_('entulho, tintas, madeira, etc...'),
-        default=False)
-    e_waste = models.BooleanField(
-        verbose_name=_('Eletroeletrônicos'),
-        help_text=_('Exemplo: computadores, pilhas, baterias, etc...'),
-        default=False)
-    paper = models.BooleanField(
-        verbose_name=_('Papel'),
-        help_text=('Exemplo: jornal, revista, papel branco, papelão, etc...'),
-        default=False)
-    glass = models.BooleanField(
-        verbose_name=_('Vidro'),
-        help_text=_('Exemplo: garrafas, embalagens, etc...'),
-        default=False)
-    plastic = models.BooleanField(
-        verbose_name=_('Plástico'),
-        help_text=_('Exemplo: embalagens, canos, etc..'),
-        default=False)
-    metal = models.BooleanField(
-        verbose_name=_('Metais'),
-        help_text=_('Exemplo: ferro, cobre, alumínio, etc..)'),
-        default=False)
-    wood = models.BooleanField(
-        verbose_name=_('Madeira'),
-        help_text=_('Exemplo: tábuas, ripas, etc...'),
-        default=False)
-    cooking_oil = models.BooleanField(
-        verbose_name=_('Óleo de cozinha'),
-        default=False)
-
-
-class Material(MaterialBase):
-    ''' Usuário é obrigado a marcar quais materia estão na coleta '''
-
-    # control:
-    carroceiro = models.OneToOneField(
-        Carroceiro,
-        related_name='materials',
-        blank=False,
-        null=True,
-        on_delete=models.SET_NULL)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
 
     def __str__(self):
-        return str(self.carroceiro)
-
-    def clean(self):
-        if self.freight or self.large_objects or self.demolition_waste or \
-                self.e_waste or self.paper or self.glass or self.plastic or \
-                self.metal or self.wood or self.cooking_oil:
-            return
-        else:
-            raise ValidationError('Pelo menos um tipo de material deve ser informado')
+        return '%s - %s' % (self.name, self.description)
 
 
-class MaterialColeta(MaterialBase):
-    # control:
-    coleta = models.OneToOneField(
-        Collect,
-        related_name='materials',
-        blank=False,
-        null=True,
-        on_delete=models.SET_NULL)
-
-
-class LatitudeLongitudeBase(ModeratedModel):
+class LatitudeLongitude(ModeratedModel):
     """
         DOCS: TODO
     """
 
     class Meta:
-        abstract = True
+        verbose_name = 'GeoReferencia'
 
     # fields:
     latitude = models.FloatField(blank=False)
     longitude = models.FloatField(blank=False)
     # Reference point
-    reverse_geocoding = models.CharField(max_length=128, default='', null=True, blank=True)
+    reverse_geocoding = models.CharField(max_length=500, default='', null=True, blank=True)
+
+    def __str__(self):
+        return '(' + str(self.latitude) + ', ' + str(self.longitude) + ')'
 
 
-class LatitudeLongitude(LatitudeLongitudeBase):
-    # control:
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+class GeorefCatador(models.Model):
+    '''
+        Esta classe esta sendo mantida pois futuramente existe a possibilidade
+        do catador mandar sua localização e criarmos um caminho por onde ele passou
+        quando esse dia chegar basta mudar a chave de onetoone para foreignkey
+    '''
+    catador = models.ForeignKey(Catador, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, blank=False)
 
-
-class LatitudeLongitudeColeta(LatitudeLongitudeBase):
-    # control:
-    coleta = models.ForeignKey(Collect, unique=False, blank=False)
+    def __str__(self):
+        return self.catador.name + '(' + str(self.georef.latitude) +\
+               ', ' + str(self.georef.longitude) + ')'
 
 
 class Rating(ModeratedModel):
@@ -494,9 +454,11 @@ class Rating(ModeratedModel):
         verbose_name = _('Comentário e Avaliação')
         verbose_name_plural = _('Comentários e Avaliações')
 
+    def __str__(self):
+        return self.author.username + ' - ' + self.comment
+
     # control:
     author = models.ForeignKey(User, unique=False, blank=False)
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
 
     # fields:
     rating = models.CharField(
@@ -513,25 +475,53 @@ class Rating(ModeratedModel):
             raise ValidationError(_('Rating or comment required.'))
 
 
+class RatingCatador(ModeratedModel):
+    # control:
+    catador = models.ForeignKey('Catador', unique=False, blank=False)
+    rating = models.OneToOneField(Rating, blank=False)
+
+    def __str__(self):
+        return str(self.catador) + ' - ' + str(self.rating)
+
+
+class RatingCooperative(ModeratedModel):
+    # control:
+    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+    rating = models.OneToOneField('Rating', blank=False)
+
+    def __str__(self):
+        return str(self.cooperative) + ' - ' + str(self.rating)
+
+
 class PhotoBase(ModeratedModel):
     """
         DOCS: TODO
     """
+    _upload_to = 'users'
 
     # control:
     author = models.ForeignKey(User, unique=False, blank=False)
 
     # fields:
     # file will be uploaded to MEDIA_ROOT/full_photo
-    full_photo = VersatileImageField(upload_to='full_photo')
     ppoi = PPOIField(verbose_name=_('Primary Point of Interest (PPOI)'))
+    full_photo = VersatileImageField(upload_to=get_upload_path)
+
+    def __str__(self):
+        return self.author.username + ' - ' + str(self.full_photo)
+
+    class Meta:
+        verbose_name = 'Fotos de usuários'
+        verbose_name_plural = 'Fotos de usuários'
 
 
-class Photo(PhotoBase):
-    carroceiro = models.ForeignKey(Carroceiro, unique=False, blank=False)
+class PhotoCatador(PhotoBase):
+    _upload_to = 'catador'
+    catador = models.ForeignKey(Catador, unique=False, blank=False)
 
 
 class PhotoCollectUser(PhotoBase):
+    _upload_to = 'collects'
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
     def __str__(self):
@@ -539,13 +529,30 @@ class PhotoCollectUser(PhotoBase):
 
 
 class PhotoCollectCatador(PhotoBase):
+    _upload_to = 'collect_catador'
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
     def __str__(self):
         return self.author.username + ' - ' + str(self.full_photo)
 
 
-class Phone(ModeratedModel):
+class PhotoCooperative(PhotoBase):
+    _upload_to = 'cooperatives'
+    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+
+    def __str__(self):
+        return self.cooperative.name + ' - ' + self.full_photo.name
+
+
+class PhotoResidue(PhotoBase):
+    _upload_to = 'residue'
+    residue = models.ForeignKey('Residue', unique=False, blank=False)
+
+    def __str__(self):
+        return str(self.residue) + ' - ' + str(self.full_photo)
+
+
+class Mobile(ModeratedModel):
     """
         DOCS: TODO
     """
@@ -569,16 +576,11 @@ class Phone(ModeratedModel):
         (PORTO, 'Porto Conecta'),
     )
 
-    # control:
-    carroceiro = models.ForeignKey(Carroceiro,
-                                   # related_name='phones',
-                                   unique=False, blank=False)
-
     # fields:
     phone = models.CharField(
         max_length=20,
         #validators=[RegexValidator(regex=r'^\d{8,15}$',
-        #                           message='Phone number must have at least 8 digits and/or up to 15 digits.')],
+        #                           message='Mobile number must have at least 8 digits and/or up to 15 digits.')],
         verbose_name=_('Telefone Móvel'))
 
     mno = models.CharField(
@@ -600,17 +602,52 @@ class Phone(ModeratedModel):
         verbose_name=_('Comentário'),
         max_length=140, blank=True, null=True)
 
+    def __str__(self):
+        return self.phone
+
+
+class MobileCatador(models.Model):
+    # control:
+    catador = models.ForeignKey(
+        Catador, unique=False, blank=False)
+    mobile = models.OneToOneField(Mobile, blank=False)
+
+    def __str__(self):
+        return str(self.catador) + ' - ' + self.mobile.phone
+
+
+class MobileCooperative(models.Model):
+    # control:
+    cooperative = models.OneToOneField(
+        'Cooperative', blank=False)
+    mobile = models.OneToOneField(Mobile, blank=False)
+
+
+    def __str__(self):
+        return str(self.cooperative.name) + ' - ' + self.mobile.phone
+
 
 class Residue(models.Model):
     description = models.CharField(max_length=200)
+    user = models.ForeignKey(User)
+    how_many_kilos = models.FloatField(
+        verbose_name=_('Quantos kilos aproximadamente?'),
+        default=0
+    )
     materials = models.ManyToManyField(Material)
+
+    user = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.description)
 
     @property
     def residue_photos(self):
-        photos = self.residuephoto_set.all()
+        photos = self.photoresidue_set.all()
         return photos
 
     @property
@@ -619,53 +656,36 @@ class Residue(models.Model):
         return location
 
 
-class ResiduePhoto(PhotoBase):
-    residue = models.ForeignKey(Residue, unique=False, blank=False)
-
-    def __str__(self):
-        return str(self.residue) + ' - ' + str(self.full_photo)
-
-
-class ResidueLocation(LatitudeLongitudeBase):
-    residue = models.OneToOneField(
-        Residue)
-
-    def __str__(self):
-        return self.residue.description + ': Lat: ' + str(self.latitude) +\
-               ' - Long: ' + str(self.longitude)
-
-
-class PhoneNumbers(models.Model):
-    MNO_CHOICES = (
-        ('V', 'Vivo'),
-        ('T', 'TIM'),
-        ('C', 'Claro'),
-        ('O', 'Oi'),
-        ('N', 'Nextel'),
-        ('P', 'Porto Conecta'),
-    )
-    number = models.CharField(max_length=15)
-    mobile_operator = models.CharField(max_length=1, choices=MNO_CHOICES)
-
-    def __str__(self):
-        return self.number + ' - ' + self.mobile_operator
+class GeorefResidue(models.Model):
+    residue = models.OneToOneField(Residue, blank=False)
+    georef = models.ForeignKey(LatitudeLongitude, blank=False)
 
 
 class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phrase = models.CharField(max_length=200)
-    history = models.TextField(max_length=500, null=True, blank=True)
-    phones = models.ManyToManyField(PhoneNumbers)
     user = models.OneToOneField(User)
     address = models.CharField(max_length=200)
     region_where_operates = models.CharField(max_length=200)
     how_many_cooperators = models.IntegerField()
-    how_many_collect_day = models.FloatField()
-    how_many_collect_week = models.FloatField()
-    how_many_years_collecting = models.IntegerField()
-    how_many_material_collected = models.FloatField()
     image = VersatileImageField(upload_to='cooperatives')
+    partners = models.ManyToManyField('Partner', blank=True)
+
+    # Meterials
+    materials_collected = models.ManyToManyField('Material')
+
+    # M2M
+    rating_m2m = models.ManyToManyField(
+        'Rating', blank=True, related_name='cooperatives',
+        through='RatingCooperative')
+
+    mobile_m2m = models.ManyToManyField(
+        'Mobile', blank=True, related_name='cooperatives',
+        through='MobileCooperative')
+
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     @property
     def photos(self):
@@ -675,17 +695,18 @@ class Cooperative(models.Model):
     def __str__(self):
         return self.name
 
-class PhotoCooperative(PhotoBase):
-    cooperative = models.ForeignKey(Cooperative, unique=False, blank=False)
-
-
-    def __str__(self):
-        return self.cooperative.name + ' - ' + self.full_photo.name
-
 
 class Partner(ModeratedModel):
     name = models.CharField(max_length=100)
     image = VersatileImageField(upload_to='cooperatives/partners')
 
     def __str__(self):
-        return self.name
+        return self.name + ' - ' + self.image.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    avatar = models.ImageField()
+
+    def __str__(self):
+        return self.user.username
