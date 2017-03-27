@@ -131,7 +131,7 @@ class CatadorSerializer(serializers.ModelSerializer):
         return obj.user.email
 
 
-class ResiduePhotoSerializer(serializers.ModelSerializer):
+class PhotoResidueSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoResidue
         fields = '__all__'
@@ -154,7 +154,7 @@ class ResidueSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_photos(self, obj):
-        return ResiduePhotoSerializer(obj.residue_photos, many=True).data
+        return PhotoResidueSerializer(obj.residue_photos, many=True).data
 
     def get_latitude(self, obj):
         try:

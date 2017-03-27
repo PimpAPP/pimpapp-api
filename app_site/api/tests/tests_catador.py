@@ -39,7 +39,7 @@ class CatadorTestCase(BaseTestCase):
                               'minibio': None, 'address_base': None, 'city': None,
                               'region': None, 'phones': [], 'is_locked': False,
                               'profile_photo': None, 'how_many_days_work_week': None,
-                              'cooperative': None, 'presentation_phrase': None
+                              'cooperative': None, 'presentation_phrase': None, 'email': 'tester@dummy.com'
                               }
 
     def test_get_all(self):
@@ -89,7 +89,6 @@ class CatadorTestCase(BaseTestCase):
 
         local_expected = self.data_expected
         local_expected['name'] = 'Maria da Silva'
-
         self.assertEqual(response.data, local_expected)
 
     def test_update_catador_permission(self):

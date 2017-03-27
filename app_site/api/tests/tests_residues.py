@@ -46,21 +46,25 @@ class ResidueTestCase(APITestCase):
         f = open(path, 'rb')
         return {'datafile': f}
 
-    # def test_upload_file(self):
-    #     """
-    #     Certify that the API is able to receive file Upload
-    #     :return: 201 when a file is successful uploaded
-    #     """
-    #     url = '/api/residues-photo-create/'
-    #
-    #     path_to_image = os.path.join(BASE_DIR, 'tests/file-for-tests.png')
-    #     data = {'full_photo': open(path_to_image, 'rb'),
-    #             'moderation_status': 'A', 'mongo_hash': 'Mongo Hash', 'author': '1',
-    #             'residue': self.residue.id}
-    #
-    #     response = self.client.post(url, data, format='multipart')
-    #
-    #     self.assertEquals(response.status_code, 201)
+    def test_upload_file(self):
+        """
+        Certify that the API is able to receive file Upload
+        :return: 201 when a file is successful uploaded
+        curl exemple: curl -i -X POST -H "Content-Type: multipart/form-data"
+        -F "full_photo=@/home/xtreme/gp.png"  -F "author=1" -F
+        "residue=1" http://localhost:8000/api/residues/1/photos/
+        -H 'Authorization: Token 3d6f97ff0e934f040dd798f20c90f187d98730a4'
+        """
+        url = '/api/residues/1/photos/'
+
+        path_to_image = os.path.join(BASE_DIR, 'tests/file-for-tests.png')
+
+        data = {'full_photo': open(path_to_image, 'rb'), 'author': '1',
+                'residue': self.residue.id}
+
+        response = self.client.post(url, data, format='multipart')
+
+        self.assertEquals(response.status_code, 200)
 
     def test_residues_create(self):
         json_obj = {
@@ -89,50 +93,6 @@ class ResidueTestCase(APITestCase):
         )
 
     def test_residue_get(self):
-        response = self.client.get(path='/api/residues/1', format='json')
-        import pdb;pdb.set_trace()
-        expected = {'description': 'Test Residue',
-                    'id': 1, 'latitude': None, 'longitude': None,
-                    'materials': [1], 'photos': [], 'how_many_kilos': 2
-                    }
+        response = self.client.get(path='/api/residues/1/', format='json')
+        self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.data, expected)
-
-    def test_residue_location_get(self):
-        json_obj = {
-            "moderation_status": "A",
-            "mongo_hash": "Hash",
-            "latitude": 123,
-            "longitude": 456,
-            "reverse_geocoding": "Reverse",
-            "residue": self.residue.id
-        }
-
-        response = self.client.post('/api/residues-location-create/', json_obj, format='json')
-
-        self.assertEqual(response.status_code, 201)
-
-    def test_residue_location_json_validation(self):
-        json_obj = {
-            "moderation_status": "A",
-            "mongo_hash": "Hash",
-            "latitude": 123,
-            "longitude": 456,
-            "reverse_geocoding": "Reverse",
-            "residue": self.residue.id
-        }
-
-        response = self.client.post('/api/residues-location-create/', json_obj, format='json')
-
-        expected = {'id': 1, "moderation_status": "A", "mongo_hash": "Hash", "latitude": 123.0,
-                    "longitude": 456.0,
-                    "reverse_geocoding": "Reverse",
-                    "residue": self.residue.id
-                    }
-
-        import json
-
-        json = json.loads(response.content.decode('utf-8'))
-        del json['created_on']
-
-        self.assertEqual(response.status_code, 201)

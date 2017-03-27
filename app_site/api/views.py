@@ -18,6 +18,7 @@ from .models import Residue
 from .models import Cooperative
 from .models import GeorefCatador
 from .models import Mobile
+from .models import PhotoResidue
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -28,6 +29,7 @@ from .serializers import UserSerializer
 from .serializers import ResidueSerializer
 from .serializers import CooperativeSerializer
 from .serializers import LatitudeLongitudeSerializer
+from .serializers import PhotoResidueSerializer
 
 from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
@@ -150,7 +152,6 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-
     @detail_route(methods=['get'])
     def materials(self, request, pk=None):
         catador = self.get_object()
@@ -197,6 +198,29 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
     queryset = Residue.objects.filter()
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['id', 'description', 'user']
+
+    @detail_route(methods=['GET', 'POST'],
+                  permission_classes=[IsObjectOwner])
+    def photos(self, request, pk=None):
+        """
+        Get all geolocation from one Catador
+        :param request:
+        :param pk:
+        :return:
+        """
+
+        residue = self.get_object()
+
+        if request.method == 'POST':
+            data = request.data
+            photo = request.FILES['full_photo']
+
+            PhotoResidue.objects.create(
+                author=request.user, residue=residue, full_photo=photo)
+
+        serializer = PhotoResidueSerializer(residue.residue_photos, many=True)
+
+        return Response(serializer.data)
 
 
 class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
