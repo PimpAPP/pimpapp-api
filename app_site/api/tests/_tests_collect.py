@@ -1,8 +1,12 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APITestCase
-
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 from ..models import Catador
 from ..models import Collect
 from ..models import Material
+from ..models import Residue
+from rest_framework.authtoken.models import Token
 
 
 class CollectTestCase(APITestCase):
@@ -21,6 +25,9 @@ class CollectTestCase(APITestCase):
         self.collect = Collect.objects.create(
             catador_confirms=True, user_confirms=True,
             active=True, catador=self.catador)
+
+        self.residue = Residue.objects.create(
+            description='Local residue', how_many_kilos=10, user=user.id)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()
@@ -55,12 +62,16 @@ class CollectTestCase(APITestCase):
     def test_user_can_have_just_one_collect_oppened(self):
         '''Usuario pode ter apenas uma coleta em aberto'''
 
+        import pdb;pdb.set_trace()
         collect1 = Collect.objects.create(
-            catador_confirms=True, user_confirms=True, active=True,
-            author=self.user, catador=self.catador, moderation_status='P')
+            residue=self.residue, catador=self.catador, moderation_status='P',
+            user=self.user
+        )
 
-        collect2 = Collect.objects.create(catador_confirms=True, user_confirms=True, active=True,
-                                          author=self.user, catador=self.catador, moderation_status='P')
+        collect2 = Collect.objects.create(
+            residue=self.residue, catador=self.catador, moderation_status='P',
+            user=self.user
+        )
 
         self.assertRaises(ValidationError, collect2.clean)
 

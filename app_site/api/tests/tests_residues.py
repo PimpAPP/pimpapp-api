@@ -26,7 +26,7 @@ class ResidueTestCase(APITestCase):
         self.material = Material.objects.create(description='Metal')
         self.material.save()
 
-        self.residue = Residue.objects.create(description='Test Residue')
+        self.residue = Residue.objects.create(description='Test Residue', user=self.u)
         self.residue.materials.add(self.material)
         self.residue.save()
 
@@ -75,6 +75,18 @@ class ResidueTestCase(APITestCase):
         response = self.client.post('/api/residues/', json_obj, format='json')
 
         self.assertEqual(response.status_code, 201)
+
+    def test_residues_update(self):
+        json_obj = {
+            "description": "Via tests alterado",
+            "materials": [self.material.id, ],
+            'how_many_kilos': 4}
+
+        response = self.client.patch('/api/residues/{id}/'.format(
+            id=self.residue.id), json_obj, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEquals(response.data['description'], 'Via tests alterado')
 
     def test_residues_json_format(self):
         json_obj = {

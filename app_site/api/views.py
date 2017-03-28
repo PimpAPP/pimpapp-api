@@ -19,6 +19,7 @@ from .models import Cooperative
 from .models import GeorefCatador
 from .models import Mobile
 from .models import PhotoResidue
+from .models import Material
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -53,11 +54,13 @@ class RecoBaseView(PermissionBase):
 
 
 class UserViewSet(RecoBaseView, viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
+    '''
+        Endpoint used to create, update and retrieve users
+        Allow: GET, POST, UPDATE, OPTIONS
+    '''
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+    http_method_names = ['get', 'post', 'update', 'options']
 
 
 def create_new_comment(data):
@@ -82,6 +85,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
     pagination_class = PostLimitOffSetPagination
+    http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
     @detail_route(methods=['GET', 'POST'],
                   permission_classes=[IsObjectOwner])
@@ -159,6 +163,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+# Analise and see if we have to keep this view
 class RatingViewSet(viewsets.ModelViewSet):
     """
         DOCS: TODO
@@ -170,6 +175,7 @@ class RatingViewSet(viewsets.ModelViewSet):
     pagination_class = PostLimitOffSetPagination
 
 
+# Analise and see if we have to keep this view
 class RatingByCarroceiroViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
         DOCS: TODO
@@ -191,22 +197,30 @@ class CollectViewSet(RecoBaseView, viewsets.ModelViewSet):
     permission_classes = (IsCatadorOrCollectOwner, IsAuthenticated)
     queryset = Collect.objects.filter(
         moderation_status__in=public_status)
+    http_method_names = ['get', 'post', 'update', 'delete', 'patch', 'options']
 
 
 class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
+    """
+        Endpoint used to create, update and retrieve residues
+        Allow: GET, POST, UPDATE, OPTIONS
+
+        /api/residues/
+        /api/residues/<pk>/
+        /api/residues/<pk>/photos/
+    """
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['id', 'description', 'user']
+    http_method_names = ['get', 'post', 'update', 'options', 'patch']
 
     @detail_route(methods=['GET', 'POST'],
                   permission_classes=[IsObjectOwner])
     def photos(self, request, pk=None):
         """
-        Get all geolocation from one Catador
-        :param request:
-        :param pk:
-        :return:
+        Get all PHOTOS from one Residue, and enables to upload photos
+        to the residue in question
         """
 
         residue = self.get_object()
@@ -229,3 +243,13 @@ class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['name', 'email', 'id']
     ordering_fields = ['name', 'email', 'id']
+    http_method_names = ['get', 'post', 'update', 'patch', 'options']
+
+
+class MaterialsViewSet(RecoBaseView, viewsets.ModelViewSet):
+    serializer_class = MaterialSerializer
+    queryset = Material.objects.all()
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'id']
+    ordering_fields = ['name', 'id']
+    http_method_names = ['get', 'options']

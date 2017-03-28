@@ -55,10 +55,7 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
-        fields = ('catador', 'created_on',
-                  'freight', 'large_objects', 'demolition_waste',
-                  'e_waste', 'paper', 'glass', 'plastic', 'metal',
-                  'wood', 'cooking_oil')
+        fields = ('id', 'name', 'description')
 
 
 class LatitudeLongitudeSerializer(serializers.ModelSerializer):
