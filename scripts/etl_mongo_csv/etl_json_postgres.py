@@ -1,5 +1,4 @@
 import requests
-from django.db import transaction
 import os, django
 
 # PYTHONPATH should the on env
