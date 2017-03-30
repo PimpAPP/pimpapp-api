@@ -96,8 +96,10 @@ class ResidueTestCase(APITestCase):
 
         response = self.client.post('/api/residues/', json_obj, format='json')
 
-        expected = {'active': True, 'description': 'Via tests', 'id': 2, 'latitude': None, 'longitude': None,
-                    'materials': [], 'photos': [], "how_many_kilos": 2.0, "user": None}
+        expected = {'active': True, 'description': 'Via tests', 'id': 2,
+                    'latitude': None, 'longitude': None, 'materials': [],
+                    'photos': [], "user": None,
+                    'reverse_geocoding': None}
 
         self.assertJSONEqual(
             str(response.content, encoding='utf-8'),

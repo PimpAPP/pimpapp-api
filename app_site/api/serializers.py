@@ -143,15 +143,22 @@ class MaterialTypeSerializer(serializers.ModelSerializer):
 class ResidueSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
+    reverse_geocoding = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
-    materials = MaterialTypeSerializer(read_only=True, many=True)
+    materials = MaterialSerializer(read_only=True, many=True)
 
     class Meta:
         model = Residue
-        fields = '__all__'
+        exclude = ['how_many_kilos',]
 
     def get_photos(self, obj):
         return PhotoResidueSerializer(obj.residue_photos, many=True).data
+
+    def get_reverse_geocoding(self, obj):
+        try:
+            return obj.residue_location.reverse_geocoding
+        except:
+            return None
 
     def get_latitude(self, obj):
         try:
