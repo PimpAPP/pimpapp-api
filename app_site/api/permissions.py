@@ -22,5 +22,5 @@ class IsCatadorOrCollectOwner(BasePermission):
     message = _('Você precisa ser o catador ou usuário da coleta')
 
     def has_object_permission(self, request, view, obj):
-        return (obj.author == request.user) or (obj.carroceiro.user == request.user)
+        return (obj.residue.user == request.user) or (obj.catador.user == request.user)
 

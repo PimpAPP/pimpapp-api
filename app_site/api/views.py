@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, \
@@ -6,7 +7,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, HttpResponse
 
 from .models import ModeratedModel
 from .models import Catador
@@ -20,6 +21,9 @@ from .models import GeorefCatador
 from .models import Mobile
 from .models import PhotoResidue
 from .models import Material
+from .models import GeorefResidue
+from .models import PhotoCollectCatador
+from .models import PhotoCollectUser
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -31,6 +35,8 @@ from .serializers import ResidueSerializer
 from .serializers import CooperativeSerializer
 from .serializers import LatitudeLongitudeSerializer
 from .serializers import PhotoResidueSerializer
+from .serializers import PhotoCollectCatadorSerializer
+from .serializers import PhotoCollectUserSerializer
 
 from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
 
@@ -189,15 +195,93 @@ class RatingByCarroceiroViewSet(RecoBaseView, viewsets.ModelViewSet):
             carroceiro__id=Catador(user=self.request.user))
 
 
-class CollectViewSet(RecoBaseView, viewsets.ModelViewSet):
+class CollectViewSet(viewsets.ModelViewSet):
     """
         DOCS: TODO
+        api/accept_collet/ (POST, GET)
+        api/photo_catador/ (POST, GET)
+        api/photo_user/ (POST, GET)
     """
     serializer_class = CollectSerializer
-    permission_classes = (IsCatadorOrCollectOwner, IsAuthenticated)
-    queryset = Collect.objects.filter(
-        moderation_status__in=public_status)
-    http_method_names = ['get', 'post', 'update', 'delete', 'patch', 'options']
+    permission_classes = (IsAuthenticated,)
+    queryset = Collect.objects.filter()
+    http_method_names = ['get', 'options', 'post']
+
+    @detail_route(methods=['POST'])
+    def accept_collect(self, request, pk):
+        collect = self.get_object()
+        catador = Catador.objects.get(user=request.user)
+        collect.catador = catador
+        collect.save()
+        return HttpResponse()
+
+    @detail_route(methods=['POST'])
+    def catador_confirms(self, request, pk):
+        collect = self.get_object()
+
+        'TODO: MOVER REGRA DE NEGOCIO PARA O MODEL'
+        if collect.catador.user != request.user:
+            raise serializers.ValidationError(
+                'Apenas o catador da coleta pode confirmar.')
+
+        collect.catador_confirms = True
+        collect.save()
+        return HttpResponse()
+
+    @detail_route(methods=['POST'])
+    def user_confirms(self, request, pk):
+        collect = self.get_object()
+
+        'TODO: MOVER REGRA DE NEGOCIO PARA O MODEL'
+        if collect.residue.user != request.user:
+            raise serializers.ValidationError(
+                'Apenas o usuário que abriu a coleta pode confirmar.')
+
+        collect.user_confirms = True
+        collect.save()
+        return HttpResponse()
+
+    @detail_route(methods=['GET', 'POST'])
+    def photos_catador(self, request, pk=None):
+        """
+        Get all PHOTOS from one Collect, and enables the catador
+        to upload photos to the collect in question
+        """
+
+        collect = self.get_object()
+
+        if request.method == 'POST':
+            data = request.data
+            photo = request.FILES['full_photo']
+
+            PhotoCollectCatador.objects.create(
+                author=request.user, coleta=collect, full_photo=photo)
+
+        serializer = PhotoCollectCatadorSerializer(collect.photo_collect_catador, many=True)
+
+        return Response(serializer.data)
+
+
+    @detail_route(methods=['GET', 'POST'])
+    def photos_user(self, request, pk=None):
+        """
+        Get all PHOTOS from one Collect, and enables the user to upload photos
+        to the collect in question
+        """
+
+        collect = self.get_object()
+
+        if request.method == 'POST':
+            data = request.data
+            photo = request.FILES['full_photo']
+
+            PhotoCollectUser.objects.create(
+                author=request.user, coleta=collect, full_photo=photo)
+
+        serializer = PhotoCollectUserSerializer(collect.photo_collect_catador, many=True)
+
+        return Response(serializer.data)
+
 
 
 class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
@@ -208,6 +292,7 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
         /api/residues/
         /api/residues/<pk>/
         /api/residues/<pk>/photos/
+        /api/residues/<pk>/georef/
     """
     serializer_class = ResidueSerializer
     queryset = Residue.objects.filter()
@@ -233,6 +318,24 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
                 author=request.user, residue=residue, full_photo=photo)
 
         serializer = PhotoResidueSerializer(residue.residue_photos, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['GET', 'POST', 'UPDATE'],
+                  permission_classes=[IsObjectOwner])
+    def georef(self, request, pk):
+        if request.method == 'POST':
+            data = request.data
+
+            georeference = LatitudeLongitude.objects.create(
+                latitude=data.get('latitude'),
+                longitude=data.get('longitude'))
+
+            GeorefResidue.objects.create(
+                georef=georeference, residue=self.get_object())
+
+        serializer = LatitudeLongitudeSerializer(
+            self.get_object().residue_location)
 
         return Response(serializer.data)
 
