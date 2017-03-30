@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
+from .calc_distance import nearest_catadores
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -656,6 +657,18 @@ class Residue(models.Model):
     def residue_location(self):
         if GeorefResidue.objects.filter(residue=self).count() > 0:
             return GeorefResidue.objects.filter(residue=self)[0].georef
+
+    @property
+    def nearest_catadores(self):
+        if not self.residue_location:
+            return []
+
+        coord_residue = (self.residue_location.latitude, self.residue_location.longitude)
+        coord_catadores = GeorefCatador.objects.all().only(
+            'catador__id', 'georef__latitude', 'georef__longitude')
+
+        lista_final = nearest_catadores(coord_residue, coord_catadores)
+        return lista_final
 
 
 def collect_create(sender, instance, created, **kwargs):

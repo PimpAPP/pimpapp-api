@@ -146,10 +146,14 @@ class ResidueSerializer(serializers.ModelSerializer):
     reverse_geocoding = serializers.SerializerMethodField()
     photos = serializers.SerializerMethodField()
     materials = MaterialSerializer(read_only=True, many=True)
+    nearest_catadores = serializers.SerializerMethodField()
 
     class Meta:
         model = Residue
         exclude = ['how_many_kilos',]
+
+    def get_nearest_catadores(self, obj):
+        return obj.nearest_catadores
 
     def get_photos(self, obj):
         return PhotoResidueSerializer(obj.residue_photos, many=True).data
