@@ -714,6 +714,11 @@ class Cooperative(models.Model):
         objs = self.mobile_m2m.get_queryset()
         return objs
 
+    @property
+    def comments(self):
+        objs = self.rating_m2m.get_queryset()
+        return objs
+
     def __str__(self):
         return self.name
 

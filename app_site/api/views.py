@@ -24,6 +24,8 @@ from .models import Material
 from .models import GeorefResidue
 from .models import PhotoCollectCatador
 from .models import PhotoCollectUser
+from .models import RatingCatador
+from .models import RatingCooperative
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -117,26 +119,23 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'],
                   permission_classes=[IsAuthenticated])
     def comments(self, request, pk=None):
         catador = self.get_object()
 
         data = request.data
 
-        if request.method in ['POST', 'PUT', 'PATCH']:
-            defaults = {'comment': data.get('comment'),
-                        'author_id': data.get('author'),
-                        'rating': data.get('rating'),
-                        'carroceiro_id': data.get('carroceiro')
-                        }
-            catador.comments.update_or_create(defaults, id=data.get('pk'))
+        if request.method in ['POST']:
+            rating = Rating.objects.create(
+                comment=data.get('comment'), author=request.user,
+                rating=data.get('rating'))
+
+            RatingCatador.objects.create(catador=catador, rating=rating)
 
         if request.method == 'DELETE':
             rating = get_object_or_404(
-                Rating, pk=data.get('pk'), author_id=data.get('author'),
-                carroceiro_id=data.get('carroceiro')
-            )
+                Rating, pk=data.get('pk'), author_id=request.user)
             rating.delete()
 
         serializer = RatingSerializer(catador.comments, many=True)
@@ -346,7 +345,29 @@ class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['name', 'email', 'id']
     ordering_fields = ['name', 'email', 'id']
-    http_method_names = ['get', 'post', 'update', 'patch', 'options']
+    http_method_names = ['get', 'post', 'update', 'patch', 'options', 'delete']
+
+    @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'],
+                  permission_classes=[IsAuthenticated])
+    def comments(self, request, pk=None):
+        cooperative = self.get_object()
+
+        data = request.data
+
+        if request.method in ['POST']:
+            rating = Rating.objects.create(
+                comment=data.get('comment'), author=request.user,
+                rating=data.get('rating'))
+
+            RatingCooperative.objects.create(catador=cooperative, rating=rating)
+
+        if request.method == 'DELETE':
+            rating = get_object_or_404(
+                Rating, pk=data.get('pk'), author_id=request.user)
+            rating.delete()
+
+        serializer = RatingSerializer(cooperative.comments, many=True)
+        return Response(serializer.data)
 
 
 class MaterialsViewSet(RecoBaseView, viewsets.ModelViewSet):
