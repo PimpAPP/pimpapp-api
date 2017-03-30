@@ -325,8 +325,8 @@ class Collect(ModeratedModel):
         - Usuário é obrigado a marcar quais materia estão na coleta
     """
 
-    catador_confirms = models.BooleanField()
-    user_confirms = models.BooleanField()
+    catador_confirms = models.NullBooleanField(null=True, blank=True)
+    user_confirms = models.NullBooleanField(null=True, blank=True)
     active = models.BooleanField(default=True)
 
     residue = models.ForeignKey(
@@ -521,7 +521,7 @@ class PhotoCatador(PhotoBase):
 
 
 class PhotoCollectUser(PhotoBase):
-    _upload_to = 'collects'
+    _upload_to = 'collects_user'
     coleta = models.ForeignKey(Collect, unique=False, blank=False)
 
     def __str__(self):
@@ -636,6 +636,8 @@ class Residue(models.Model):
     )
     materials = models.ManyToManyField(Material)
 
+    active = models.BooleanField(default=True)
+
     user = models.ForeignKey(
         User,
         blank=True,
@@ -652,8 +654,19 @@ class Residue(models.Model):
 
     @property
     def residue_location(self):
-        location = self.residuelocation_set.all()
-        return location
+        if GeorefResidue.objects.filter(residue=self).count() > 0:
+            return GeorefResidue.objects.filter(residue=self)[0].georef
+
+
+def collect_create(sender, instance, created, **kwargs):
+
+    if kwargs.get('raw', False):
+        return
+
+    if created:
+        Collect.objects.create(residue=instance)
+
+post_save.connect(collect_create, sender=Residue)
 
 
 class GeorefResidue(models.Model):

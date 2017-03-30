@@ -155,13 +155,13 @@ class ResidueSerializer(serializers.ModelSerializer):
 
     def get_latitude(self, obj):
         try:
-            return obj.residuelocation.latitude
+            return obj.residue_location.latitude
         except:
             return None
 
     def get_longitude(self, obj):
         try:
-            return obj.residuelocation.longitude
+            return obj.residue_location.longitude
         except:
             return None
 
