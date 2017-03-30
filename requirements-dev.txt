@@ -2,3 +2,6 @@ django-extensions
 pyparsing
 pydot
 pygraphviz
+scipy
+geopy
+scipy
