@@ -98,7 +98,7 @@ class ResidueTestCase(APITestCase):
 
         expected = {'active': True, 'description': 'Via tests', 'id': 2,
                     'latitude': None, 'longitude': None, 'materials': [],
-                    'photos': [], "user": None,
+                    'photos': [], "user": None, 'nearest_catadores': [],
                     'reverse_geocoding': None}
 
         self.assertJSONEqual(
