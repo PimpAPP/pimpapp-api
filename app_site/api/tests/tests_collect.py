@@ -26,7 +26,7 @@ class CollectTestCase(APITestCase):
             active=True, catador=self.catador)
 
         self.residue = Residue.objects.create(
-            description='Local residue', how_many_kilos=10, user=self.user)
+            description='Local residue', quantity='S', user=self.user)
 
         token = Token.objects.get(user=self.user)
         self.client = APIClient()

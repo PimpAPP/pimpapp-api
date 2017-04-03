@@ -26,7 +26,8 @@ class ResidueTestCase(APITestCase):
         self.material = Material.objects.create(description='Metal')
         self.material.save()
 
-        self.residue = Residue.objects.create(description='Test Residue', user=self.u)
+        self.residue = Residue.objects.create(description='Test Residue',
+                                              user=self.u, quantity='S')
         self.residue.materials.add(self.material)
         self.residue.save()
 
@@ -70,7 +71,7 @@ class ResidueTestCase(APITestCase):
         json_obj = {
             "description": "Via tests",
             "materials": [self.material.id, ],
-            'how_many_kilos': 2}
+            'quantity': 'S'}
 
         response = self.client.post('/api/residues/', json_obj, format='json')
 
@@ -80,7 +81,7 @@ class ResidueTestCase(APITestCase):
         json_obj = {
             "description": "Via tests alterado",
             "materials": [self.material.id, ],
-            'how_many_kilos': 4}
+            'quantitu': 'CS'}
 
         response = self.client.patch('/api/residues/{id}/'.format(
             id=self.residue.id), json_obj, format='json')
@@ -92,14 +93,14 @@ class ResidueTestCase(APITestCase):
         json_obj = {
             "description": "Via tests",
             "materials": [self.material.id, ],
-            'how_many_kilos': 2}
+            'quantity': 'CR'}
 
         response = self.client.post('/api/residues/', json_obj, format='json')
 
         expected = {'active': True, 'description': 'Via tests', 'id': 2,
                     'latitude': None, 'longitude': None, 'materials': [],
                     'photos': [], "user": None, 'nearest_catadores': [],
-                    'reverse_geocoding': None}
+                    'reverse_geocoding': None, 'quantity': 'CR'}
 
         self.assertJSONEqual(
             str(response.content, encoding='utf-8'),

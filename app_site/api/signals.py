@@ -11,6 +11,6 @@ from rest_framework.authtoken.models import Token
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance, **kwargs):
     token, created = Token.objects.get_or_create(user=instance)
-    print instance.username, created
+    # print instance.username, created
 
 # TODO NAO FUNFA.... foi movido para models

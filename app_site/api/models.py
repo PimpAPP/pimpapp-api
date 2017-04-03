@@ -1,4 +1,3 @@
-# TODO
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -12,6 +11,14 @@ from rest_framework.authtoken.models import Token
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+
+RESIDUE_QUANTITY = (
+    ('S', 'SACOLA'),
+    ('CS', 'CARRINHO DE SUPERMERCADO'),
+    ('CR', 'CARROÇA'),
+    ('CM', 'CAMINHÃO'),
+)
 
 
 # This code is triggered whenever a new user has been created and saved to the database
@@ -394,8 +401,8 @@ class Material(ModeratedModel):
     """
 
     class Meta:
-        verbose_name = 'Serviços e Meteriais'
-        verbose_name_plural = 'Serviços e Meteriais'
+        verbose_name = 'Serviços e Materiais'
+        verbose_name_plural = 'Serviços e Materiais'
 
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
@@ -623,7 +630,6 @@ class MobileCooperative(models.Model):
         'Cooperative', blank=False)
     mobile = models.OneToOneField(Mobile, blank=False)
 
-
     def __str__(self):
         return str(self.cooperative.name) + ' - ' + self.mobile.phone
 
@@ -631,10 +637,12 @@ class MobileCooperative(models.Model):
 class Residue(models.Model):
     description = models.CharField(max_length=200)
     user = models.ForeignKey(User)
-    how_many_kilos = models.FloatField(
-        verbose_name=_('Quantos kilos aproximadamente?'),
-        default=0
+
+    quantity = models.CharField(
+        max_length=2, choices=RESIDUE_QUANTITY,
+        verbose_name='Quantidade', help_text='Informe a quantidade aproximada',
     )
+
     materials = models.ManyToManyField(Material)
 
     active = models.BooleanField(default=True)

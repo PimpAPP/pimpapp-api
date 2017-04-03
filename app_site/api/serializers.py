@@ -150,7 +150,7 @@ class ResidueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Residue
-        exclude = ['how_many_kilos',]
+        fields = '__all__'
 
     def get_nearest_catadores(self, obj):
         return obj.nearest_catadores
