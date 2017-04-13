@@ -61,7 +61,7 @@ class RecoBaseView(PermissionBase):
     pagination_class = PostLimitOffSetPagination
 
 
-class UserViewSet(RecoBaseView, viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     '''
         Endpoint used to create, update and retrieve users
         Allow: GET, POST, UPDATE, OPTIONS
