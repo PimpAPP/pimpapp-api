@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, \
-    AllowAny, IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -39,8 +39,9 @@ from .serializers import LatitudeLongitudeSerializer
 from .serializers import PhotoResidueSerializer
 from .serializers import PhotoCollectCatadorSerializer
 from .serializers import PhotoCollectUserSerializer
+from .serializers import CatadorsPositionsSerializer
 
-from .permissions import IsObjectOwner, IsCatadorOrCollectOwner
+from .permissions import IsObjectOwner
 
 from .pagination import PostLimitOffSetPagination
 
@@ -84,7 +85,8 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
         /api/catadores/
         /api/catadores/<pk>
-        /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass pk parameter
+        /api/catadores/<pk>/comments (GET, POST, PUT, PATCH, DELETE) pass
+        pk parameter
         /api/catadores/<pk>/georef (GET, POST)
         /api/catadores/<pk>/phones (GET, POST, DELETE)
 
@@ -256,10 +258,10 @@ class CollectViewSet(viewsets.ModelViewSet):
             PhotoCollectCatador.objects.create(
                 author=request.user, coleta=collect, full_photo=photo)
 
-        serializer = PhotoCollectCatadorSerializer(collect.photo_collect_catador, many=True)
+        serializer = PhotoCollectCatadorSerializer(
+            collect.photo_collect_catador, many=True)
 
         return Response(serializer.data)
-
 
     @detail_route(methods=['GET', 'POST'])
     def photos_user(self, request, pk=None):
@@ -277,10 +279,10 @@ class CollectViewSet(viewsets.ModelViewSet):
             PhotoCollectUser.objects.create(
                 author=request.user, coleta=collect, full_photo=photo)
 
-        serializer = PhotoCollectUserSerializer(collect.photo_collect_catador, many=True)
+        serializer = PhotoCollectUserSerializer(collect.photo_collect_catador,
+                                                many=True)
 
         return Response(serializer.data)
-
 
 
 class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
@@ -377,3 +379,8 @@ class MaterialsViewSet(RecoBaseView, viewsets.ModelViewSet):
     search_fields = ['name', 'id']
     ordering_fields = ['name', 'id']
     http_method_names = ['get', 'options']
+
+
+class NearestCatadoresViewSet(viewsets.ModelViewSet):
+    serializer_class = CatadorsPositionsSerializer
+    queryset = Catador.objects.all()

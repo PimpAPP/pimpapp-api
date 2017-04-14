@@ -9,9 +9,11 @@ from .views import UserViewSet
 from .views import CooperativeViewSet
 from .views import ResidueViewSet
 from .views import MaterialsViewSet
+from .views import NearestCatadoresViewSet
 
 router = routers.DefaultRouter()
 
+router.register(r'nearest-catadores', NearestCatadoresViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'residues', ResidueViewSet, base_name='residue')
 router.register(r'catadores', CatadorViewSet)

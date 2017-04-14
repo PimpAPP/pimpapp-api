@@ -61,7 +61,7 @@ class MaterialSerializer(serializers.ModelSerializer):
 class LatitudeLongitudeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LatitudeLongitude
-        fields = ('created_on', 'latitude', 'longitude', 'reverse_geocoding')
+        fields = ('latitude', 'longitude', 'reverse_geocoding')
 
 
 class MobileSerializer(serializers.ModelSerializer):
@@ -73,7 +73,8 @@ class MobileSerializer(serializers.ModelSerializer):
 class MobileCatadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = MobileCatador
-        fields = ('pk', 'catador', 'mobile', 'mno', 'has_whatsapp', 'mobile_internet', 'notes')
+        fields = ('pk', 'catador', 'mobile', 'mno', 'has_whatsapp',
+                  'mobile_internet', 'notes')
 
 
 class RatingSerializer(serializers.ModelSerializer):
@@ -110,6 +111,13 @@ class CollectSerializer(serializers.ModelSerializer):
 
     photo_collect_user = PhotoCollectUserSerializer(many=True)
     photo_collect_catador = PhotoCollectCatadorSerializer(many=True)
+
+
+class CatadorsPositionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Catador
+        fields = ['id', 'geolocation']
+    geolocation = LatitudeLongitudeSerializer(required=False, many=True)
 
 
 class CatadorSerializer(serializers.ModelSerializer):

@@ -431,9 +431,12 @@ class LatitudeLongitude(ModeratedModel):
 
 class GeorefCatador(models.Model):
     '''
-        Esta classe esta sendo mantida pois futuramente existe a possibilidade
-        do catador mandar sua localização e criarmos um caminho por onde ele passou
-        quando esse dia chegar basta mudar a chave de onetoone para foreignkey
+        Esta classe esta sendo mantida pois futuramente
+        existe a possibilidade
+        do catador mandar sua localização e criarmos um
+        caminho por onde ele passou
+        quando esse dia chegar basta mudar a chave de
+        onetoone para foreignkey
     '''
     catador = models.ForeignKey(Catador, blank=False)
     georef = models.ForeignKey(LatitudeLongitude, blank=False)
