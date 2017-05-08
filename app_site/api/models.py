@@ -383,7 +383,7 @@ class Collect(ModeratedModel):
 
         if self.status==self.ACEITA:
             if not self.user_confirms is None:
-                if not self.user_confirms:
+                if self.user_confirms:
                     self.status = self.SUCESSO
                 else:
                     self.status = self.FALHA
