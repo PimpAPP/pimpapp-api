@@ -48,7 +48,7 @@ class CollectTestCase(APITestCase):
                     "catador": 1,
                     'photo_collect_catador': [],
                     'residue': None,
-                    'status': 'Sucesso'
+                    'status': 'Sucesso',
                     "photo_collect_user": []}
 
         self.assertJSONEqual(str(response.content, encoding='utf-8'), expected)
