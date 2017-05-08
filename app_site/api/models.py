@@ -333,8 +333,33 @@ class Collect(ModeratedModel):
         - Usuário é obrigado a marcar quais materia estão na coleta
     """
 
+    ABERTA = 'Aberta'
+    ACEITA = 'Aceita'
+    SUCESSO = 'Sucesso'
+    FALHA = 'Falha'
+    CANCELADA = 'Cancelada'
+
+    STATUS_CHOICES = (
+        (ABERTA, 'Aberta'),
+        (ACEITA, 'Aceita'),
+        (SUCESSO, 'Sucesso'),
+        (FALHA, 'Falha'),
+        (CANCELADA, 'Cancelada'),
+    )
+
+    status = models.CharField(
+        max_length=16,
+        verbose_name=_('Estado da Coleta'),
+        choices=STATUS_CHOICES,
+        default=ABERTA)
+
     catador_confirms = models.NullBooleanField(null=True, blank=True)
     user_confirms = models.NullBooleanField(null=True, blank=True)
+    motivo = models.CharField(
+        max_length=140,
+        verbose_name=_('Motivo Cancelamento'),
+        null=True, blank=True)
+
     active = models.BooleanField(default=True)
 
     residue = models.ForeignKey(
@@ -348,6 +373,22 @@ class Collect(ModeratedModel):
         blank=True,
         null=True,
         on_delete=models.SET_NULL)
+
+    def save(self, *args, **kwargs):
+
+        # Autoupdate when updating catador
+        if self.status==self.ABERTA:
+            if not self.catador is None:
+                self.status = self.ACEITA
+
+        if self.status==self.ACEITA:
+            if not self.user_confirms is None:
+                if not self.user_confirms:
+                    self.status = self.SUCESSO
+                else:
+                    self.status = self.FALHA
+
+        super(Collect, self).save(*args, **kwargs)
 
     @property
     def geolocation(self):

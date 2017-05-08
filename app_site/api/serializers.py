@@ -105,9 +105,9 @@ class PhotoCollectCatadorSerializer(serializers.ModelSerializer):
 class CollectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collect
-        fields = ('pk', 'catador_confirms', 'user_confirms', 'active',
-                  'catador', 'geolocation', 'residue', 'photo_collect_user',
-                  'photo_collect_catador')
+        fields = ('pk', 'status', 'motivo', 'catador_confirms',
+                    'user_confirms', 'active', 'catador', 'geolocation',
+                    'residue', 'photo_collect_user', 'photo_collect_catador')
 
     photo_collect_user = PhotoCollectUserSerializer(many=True)
     photo_collect_catador = PhotoCollectCatadorSerializer(many=True)

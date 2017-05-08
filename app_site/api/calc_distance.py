@@ -1,5 +1,4 @@
 import geopy.distance
-from scipy.spatial.distance import cdist
 # your data
 
 list = [
@@ -16,6 +15,7 @@ coord = (11.6723698, 78.114523)
 
 
 def closest_node_test(node, nodes):
+    from scipy.spatial.distance import cdist
     return nodes[cdist([node], nodes).argmin()]
 
 
