@@ -61,11 +61,18 @@ class UsersTestCase(APITestCase):
         response = self.client.post('/api/users/', self.json_obj, format='json')
         self.assertEqual(response.status_code, 201)
 
-    def test_user_was_created(self):
-        """
-        Assert that a user was correct created by count the users occurrences
-        on data base
-        :return: 2 as a user counting
-        """
-        self.client.post('/api/users/', self.json_obj, format='json')
-        self.assertTrue(User.objects.get(email='joao_teste_create@pimp.com'))
+        u = User.objects.get(pk=2)
+        self.assertEqual(u.email, 'joao_teste_create@pimp.com')
+
+    def test_user_update(self):
+
+        json_obj = {
+            'pk': 1,
+            'email': 'joao2@pimp.com',
+        }
+
+        response = self.client.patch('/api/users/1', json_obj, format='json', follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        u = User.objects.get(pk=1)
+        self.assertEqual(u.email, 'joao2@pimp.com')
