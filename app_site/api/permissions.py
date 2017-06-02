@@ -23,4 +23,3 @@ class IsCatadorOrCollectOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (obj.residue.user == request.user) or (obj.catador.user == request.user)
-

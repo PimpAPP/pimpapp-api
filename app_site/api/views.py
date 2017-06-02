@@ -8,6 +8,10 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
+from base64 import b64decode
+from django.core.files.base import ContentFile
+import uuid
+
 
 from .models import ModeratedModel
 from .models import Catador
@@ -91,6 +95,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
         /api/catadores/<pk>/phones (GET, POST, DELETE)
 
     """
+
     serializer_class = CatadorSerializer
     permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
@@ -308,12 +313,15 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
         Get all PHOTOS from one Residue, and enables to upload photos
         to the residue in question
         """
-
         residue = self.get_object()
 
         if request.method == 'POST':
-            data = request.data
-            photo = request.FILES['full_photo']
+            if request.FILES.get('full_photo'):
+                photo = request.FILES['full_photo']
+            else:
+                photo = b64decode(request.data['full_photo'])
+                name = str(uuid.uuid4()) + '.jpg'
+                photo = ContentFile(photo, name)
 
             PhotoResidue.objects.create(
                 author=request.user, residue=residue, full_photo=photo)

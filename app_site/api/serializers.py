@@ -156,6 +156,12 @@ class ResidueSerializer(serializers.ModelSerializer):
     materials = MaterialSerializer(read_only=True, many=True)
     nearest_catadores = serializers.SerializerMethodField()
 
+    def create(self, validated_data):
+        r = Residue.objects.create(**validated_data)
+        r.user = self.context['request'].user
+        r.save()
+        return r
+
     class Meta:
         model = Residue
         fields = '__all__'
