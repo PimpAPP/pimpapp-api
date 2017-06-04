@@ -32,13 +32,35 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'url', 'username', 'email', 'photo', 'first_name', 'last_name')
+        fields = ('id', 'url', 'username', 'email', 'photo', 'first_name',
+                  'last_name', 'password')
+        extra_kwargs = {'password': {'write_only': True, 'required': False}}
 
     def get_photo(self, obj):
         user_profile = UserProfile.objects.filter(user=obj)
         if user_profile:
             return user_profile[0].avatar.url
         return ''
+
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+
+        if validated_data.get('password'):
+            user.set_password(validated_data['password'])
+        else:
+            raise Exception('Password is required')
+
+        user.save()
+        return user
+
+
+class PasswordSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(max_length=20)
+
+    class Meta:
+        app_label = 'nectar_admin'
+        model = User
+        fields = ('password', 'old_password')
 
 
 class UserProfileSerializer(serializers.HyperlinkedModelSerializer):

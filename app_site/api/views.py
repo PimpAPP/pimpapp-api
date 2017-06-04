@@ -12,6 +12,7 @@ from base64 import b64decode
 from django.core.files.base import ContentFile
 import uuid
 
+from rest_framework import status
 
 from .models import ModeratedModel
 from .models import Catador
@@ -44,6 +45,7 @@ from .serializers import PhotoResidueSerializer
 from .serializers import PhotoCollectCatadorSerializer
 from .serializers import PhotoCollectUserSerializer
 from .serializers import CatadorsPositionsSerializer
+from .serializers import PasswordSerializer
 
 from .permissions import IsObjectOwner
 
@@ -74,6 +76,31 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     http_method_names = ['get', 'post', 'update', 'options']
+
+
+@detail_route(methods=['post'])
+def set_password(self, request, pk=None):
+    """
+    Set a users password via thew api
+    :param request:
+    :param pk:
+    :return:
+    """
+
+    user = self.get_object()
+    serializer = PasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        if user.check_password(serializer.data['old_password']):
+            user.set_password(serializer.data['password'])
+            user.save()
+            return Response({'content_type': 'Password set'},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'content_type': 'Current password incorrect'},
+                            status=status.HTTP_403_FORBIDDEN)
+    else:
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 def create_new_comment(data):
