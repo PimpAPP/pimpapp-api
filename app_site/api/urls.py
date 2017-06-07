@@ -10,6 +10,7 @@ from .views import CooperativeViewSet
 from .views import ResidueViewSet
 from .views import MaterialsViewSet
 from .views import NearestCatadoresViewSet
+from .views import CustomObtainAuthToken
 
 router = routers.DefaultRouter()
 
@@ -23,6 +24,6 @@ router.register(r'cooperatives', CooperativeViewSet, base_name='cooperative')
 
 
 urlpatterns = [
-    url(r'^api-token-auth/', views.obtain_auth_token),
+    url(r'^api-token-auth/', CustomObtainAuthToken.as_view()),
     url(r'^', include(router.urls)),
 ]

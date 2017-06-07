@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
@@ -13,6 +12,9 @@ from django.core.files.base import ContentFile
 import uuid
 
 from rest_framework import status
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 
 from .models import ModeratedModel
 from .models import Catador
@@ -419,3 +421,11 @@ class MaterialsViewSet(RecoBaseView, viewsets.ModelViewSet):
 class NearestCatadoresViewSet(viewsets.ModelViewSet):
     serializer_class = CatadorsPositionsSerializer
     queryset = Catador.objects.all()
+
+
+class CustomObtainAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        response = super(CustomObtainAuthToken, self).post(
+            request, *args, **kwargs)
+        token = Token.objects.get(key=response.data['token'])
+        return Response({'token': token.key, 'id': token.user_id})
