@@ -129,7 +129,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Django-url based file serving for Media and Static
-SERVE_STATIC_FILES = False
+SERVE_STATIC_FILES = True
 
 AUTH_PROFILE_MODULE = 'api.models.UserProfile'
 
