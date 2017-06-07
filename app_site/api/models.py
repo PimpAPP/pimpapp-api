@@ -223,7 +223,7 @@ class Catador(BaseMapMarker):
 
     @property
     def profile_photo(self):
-        return self.user.userprofile.avatar
+        return self.user.userprofile.avatar.url
 
     def __str__(self):
         return str(self.id) + ' - ' + self.name
