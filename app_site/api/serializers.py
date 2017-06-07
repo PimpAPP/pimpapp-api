@@ -151,7 +151,7 @@ class CatadorSerializer(serializers.ModelSerializer):
     phones = MobileSerializer(required=False, many=True)
     collects = CollectSerializer(required=False, many=True)
     photos = PhotoSerializer(required=False, many=True)
-    profile_photo = serializers.ImageField(required=False)
+    profile_photo = serializers.CharField()
     email = serializers.SerializerMethodField()
 
     def get_email(self, obj):
