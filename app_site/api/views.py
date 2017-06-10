@@ -318,6 +318,22 @@ class CollectViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    @detail_route(methods=['POST'])
+    def change_status(self, request, pk=None):
+        """
+        Update status
+        """
+
+        collect = self.get_object()
+
+        if request.method == 'POST':
+            data = request.data
+            status = data.get('status')
+            collect.status = status
+            collect.save()
+
+        return HttpResponse()
+
 
 class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
     """
