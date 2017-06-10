@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^', include(admin.site.urls)),
     url(r'^api/', include('api.urls')),
     url(r'^accounts/', include('registration.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),

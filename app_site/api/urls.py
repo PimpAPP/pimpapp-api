@@ -14,7 +14,8 @@ from .views import CustomObtainAuthToken
 
 router = routers.DefaultRouter()
 
-router.register(r'nearest-catadores', NearestCatadoresViewSet)
+router.register(r'nearest-catadores', NearestCatadoresViewSet,
+                'nearest-catadores')
 router.register(r'users', UserViewSet)
 router.register(r'residues', ResidueViewSet, base_name='residue')
 router.register(r'catadores', CatadorViewSet)
