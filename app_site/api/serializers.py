@@ -55,16 +55,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         user.save()
 
-        if self.context['request'].FILES.get('avatar'):
-            photo = self.context['request'].FILES['avatar']
-        elif self.context['request'].data['avatar']:
-            photo = b64decode(self.context['request'].data['avatar'])
-            name = str(uuid.uuid4()) + '.jpg'
-            photo = ContentFile(photo, name)
-
-        if photo:
-            UserProfile.objects.create(user=user, avatar=photo)
-
         return user
 
 

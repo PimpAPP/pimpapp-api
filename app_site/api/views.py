@@ -33,6 +33,7 @@ from .models import PhotoCollectCatador
 from .models import PhotoCollectUser
 from .models import RatingCatador
 from .models import RatingCooperative
+from .models import UserProfile
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -78,6 +79,25 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     http_method_names = ['get', 'post', 'update', 'options']
+
+    @detail_route(methods=['POST'])
+    def photos(self, request, pk=None):
+        """
+        Get all PHOTOS from one Residue, and enables to upload photos
+        to the residue in question
+        """
+        user = self.get_object()
+
+        if request.method == 'POST':
+            if request.FILES.get('avatar'):
+                avatar = request.FILES['avatar']
+            elif request.data['avatar']:
+                data = request.data['avatar']
+                avatar = base64ToFile(data)
+
+            UserProfile.objects.create(user=user, avatar=avatar)
+
+        return HttpResponse()
 
 
 @detail_route(methods=['post'])
@@ -364,9 +384,7 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
             if request.FILES.get('full_photo'):
                 photo = request.FILES['full_photo']
             else:
-                photo = b64decode(request.data['full_photo'])
-                name = str(uuid.uuid4()) + '.jpg'
-                photo = ContentFile(photo, name)
+                photo = base64ToFile(request.data['full_photo'])
 
             PhotoResidue.objects.create(
                 author=request.user, residue=residue, full_photo=photo)
@@ -445,3 +463,11 @@ class CustomObtainAuthToken(ObtainAuthToken):
             request, *args, **kwargs)
         token = Token.objects.get(key=response.data['token'])
         return Response({'token': token.key, 'id': token.user_id})
+
+
+def base64ToFile(data):
+    format, imgstr = data.split(';base64,')
+    ext = format.split('/')[-1]
+    name = str(uuid.uuid4()) + '.' + ext
+    avatar = ContentFile(b64decode(imgstr), name=name)
+    return avatar

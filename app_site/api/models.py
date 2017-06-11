@@ -159,7 +159,7 @@ class Catador(BaseMapMarker):
         default=False)
 
     # Meterials
-    materials_collected = models.ManyToManyField('Material', blank=True)
+    materials_collected = models.ManyToManyField('Material', blank=True) # Amanhã
 
     # Pimp my Caroca
     has_motor_vehicle = models.BooleanField(
