@@ -470,4 +470,5 @@ def base64ToFile(data):
     ext = format.split('/')[-1]
     name = str(uuid.uuid4()) + '.' + ext
     avatar = ContentFile(b64decode(imgstr), name=name)
+
     return avatar
