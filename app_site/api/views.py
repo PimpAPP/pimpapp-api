@@ -99,6 +99,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return HttpResponse()
 
+    @detail_route(methods=['POST'])
+    def profile(self, request, pk=None):
+        user = self.get_object()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = UserSerializer(user, context=serializer_context)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @detail_route(methods=['post'])
 def set_password(self, request, pk=None):
@@ -462,6 +471,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
         response = super(CustomObtainAuthToken, self).post(
             request, *args, **kwargs)
         token = Token.objects.get(key=response.data['token'])
+
         return Response({'token': token.key, 'id': token.user_id})
 
 
