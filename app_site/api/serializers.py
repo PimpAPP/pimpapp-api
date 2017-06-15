@@ -151,11 +151,11 @@ class CatadorSerializer(serializers.ModelSerializer):
         model = Catador
         exclude = ['created_on', 'mobile_m2m', 'georef_m2m', 'rating_m2m']
 
-    geolocation = LatitudeLongitudeSerializer(required=False, many=True)
-    phones = MobileSerializer(required=False, many=True)
-    collects = CollectSerializer(required=False, many=True)
-    photos = PhotoSerializer(required=False, many=True)
-    profile_photo = serializers.CharField(read_only=True)
+    geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
+    phones = MobileSerializer(read_only=True, many=True)
+    collects = CollectSerializer(read_only=True, many=True)
+    photos = PhotoSerializer(read_only=True, many=True)
+    profile_photo = serializers.CharField(read_only=True, required=False)
     email = serializers.SerializerMethodField()
 
     def get_email(self, obj):
