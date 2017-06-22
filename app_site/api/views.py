@@ -180,7 +180,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'])
     def phones(self, request, pk=None):
         catador = self.get_object()
-        data = request.data
+        data = request.query_params
 
         if request.method == 'POST':
             m = Mobile.objects.create(
