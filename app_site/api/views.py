@@ -128,7 +128,6 @@ class CatadorViewSet(viewsets.ModelViewSet):
     serializer_class = CatadorSerializer
     permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
-    pagination_class = PostLimitOffSetPagination
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
     @detail_route(methods=['GET', 'POST'],
