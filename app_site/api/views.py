@@ -157,7 +157,6 @@ class CatadorViewSet(viewsets.ModelViewSet):
     serializer_class = CatadorSerializer
     permission_classes = (IsObjectOwner,)
     queryset = Catador.objects.all()
-    pagination_class = PostLimitOffSetPagination
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
     @detail_route(methods=['GET', 'POST'],
@@ -209,7 +208,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'])
     def phones(self, request, pk=None):
         catador = self.get_object()
-        data = request.data
+        data = request.query_params
 
         if request.method == 'POST':
             m = Mobile.objects.create(
