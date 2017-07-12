@@ -481,3 +481,104 @@ def base64ToFile(data):
     avatar = ContentFile(b64decode(imgstr), name=name)
 
     return avatar
+
+
+def importCsv():
+    import csv
+    import os.path
+    file_directory = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'api/catadores.csv')
+
+    with open(file_directory, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            print('Importando a linha com o ID: ' + str(row['catador_id']))
+
+            try:
+                if row['nickname']:
+                    row['nickname'] = row['nickname']\
+                        .translate({ord(c): "_" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+ "})
+                else:
+                    row['nickname'] = row['name'] \
+                        .translate({ord(c): "_" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+ "})
+
+                user = User.objects.create_user(username=row['nickname'],
+                                                email=row['email'],
+                                                password=row['senha'],
+                                                first_name=row['name'])
+
+                # Alguns campos existem no mobile mas não existem na API
+                catador = Catador.objects.create(
+                    user=user,
+                    name=row['name'],
+                    nickname=row['nickname'],
+                    minibio=row['apresentacao'],#historia e/ou apresentacao no csv
+                    address_base=row['endereco'],
+                    region=row['regiao'],
+                    kg_week=int(row['quilos_dia_coleta']) * 6,
+                    #how_many_years_work=int(row['anos_coleta']), # Esse campo não existe
+                    #cooperative_name=row['cooperativa'], # Esse campo não existe
+                    safety_kit=bool(int(row['carroca_seguranca'])),
+                    has_motor_vehicle=bool(int(row['carroca_motor'])))
+                    #has_smartphone_with_internet=bool(int(row['carroca_internet'])) # Esse campo não existe
+
+                catador.save()
+
+                if row['materiais_coleta']:
+                    materials = row['materiais_coleta'][1:][:-1].replace('"', '').split(',')
+                    for material in materials:
+                        material_id = get_material_id(material)
+                        catador.materials_collected.add(material_id)
+                    catador.save()
+
+                if row['foto']:
+                    UserProfile.objects.create(user=user, avatar=row['foto'])
+
+                if row['telefone1']:
+                    mobile = Mobile.objects.create(
+                        phone=row['telefone1'],
+                        mno=get_operadora(row['operadora1']),
+                        has_whatsapp=bool(int(row['whatsapp'])))
+
+                    mobile_catador = MobileCatador.objects.create(catador=catador, mobile=mobile)
+                    mobile_catador.save()
+
+                if row['telefone2']:
+                    mobile2 = Mobile.objects.create(
+                        phone=row['telefone2'],
+                        mno=get_operadora(row['operadora2']),
+                        has_whatsapp=bool(int(row['whatsapp2'])))
+
+                    mobile_catador2 = MobileCatador.objects.create(catador=catador, mobile=mobile2)
+                    mobile_catador2.save()
+
+            except:
+                print('Erro ao importar a linha com o ID: ' + str(row['catador_id']))
+
+
+def get_operadora(operadora):
+    return {
+        'tim': 'T',
+        'vivo': 'V',
+        'claro': 'C',
+        'oi': 'O',
+        'nextel': 'N',
+        'porto': 'P'
+    }[operadora.lower()]
+
+
+def get_material_id(material):
+    # Definindo "outros" como default
+    return {
+        'outros': 12,
+        'entulho': 11,
+        'mu00f3veis': 10,
+        'bateria': 9,
+        'eletru00f4nicos': 8,
+        'u00f3leos': 7,
+        'metais': 6,
+        'plu00e1stico': 5,
+        'papel': 4,
+        'misturado': 3,
+        'latas': 2,
+        'vidro': 1
+    }.get(material.lower(), 12)
