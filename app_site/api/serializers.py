@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from base64 import b64decode
+import uuid
 
+from django.core.files.base import ContentFile
 from .models import Catador
 from .models import Rating
 from .models import Mobile
@@ -51,6 +54,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             raise Exception('Password is required')
 
         user.save()
+
         return user
 
 

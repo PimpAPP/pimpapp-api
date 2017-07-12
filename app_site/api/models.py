@@ -797,8 +797,9 @@ class Partner(ModeratedModel):
 
 
 class UserProfile(models.Model):
+    _upload_to = 'users'
     user = models.OneToOneField(User)
-    avatar = models.ImageField()
+    avatar = VersatileImageField(upload_to=get_upload_path)
 
     def __str__(self):
         return self.user.username
