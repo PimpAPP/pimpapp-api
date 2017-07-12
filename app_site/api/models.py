@@ -166,6 +166,10 @@ class Catador(BaseMapMarker):
         default=False,
         verbose_name=_("Tem veículo motorizado."))
 
+    has_smartphone_with_internet = models.BooleanField(
+        default=False,
+        verbose_name=_("Tem smartphone com internet móvel."))
+
     carroca_pimpada = models.BooleanField(
         default=False,
         verbose_name=_("Teve a Carroça Pimpada?"))
@@ -174,12 +178,25 @@ class Catador(BaseMapMarker):
         default=False,
         verbose_name=_("Recebeu o Kit de Segurança?"))
 
+    cooperative_name = models.CharField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name=_("Participa de cooperativa? Qual?"))
+
+    iron_work = models.CharField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name=_("Trabalha com qual ferro velho"))
+
     has_family = models.CharField(
         max_length=200,
         null=True, blank=True)
 
     how_many_days_work_week = models.IntegerField(
         null=True, blank=True, help_text='Quantos dias trabalha por semana')
+
+    how_many_years_work = models.IntegerField(
+        null=True, blank=True, help_text='HÁ QUANTOS ANOS COLETA')
 
     # M2M
     rating_m2m = models.ManyToManyField(
