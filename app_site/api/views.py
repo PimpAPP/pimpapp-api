@@ -212,10 +212,9 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
         if request.method == 'POST':
             m = Mobile.objects.create(
-                phone=data.get('phone'), mno=data.get('mno'),
-                has_whatsapp=data.get('has_whatsapp', False),
-                mobile_internet=data.get('mobile_internet', False),
-                notes=data.get('notes')
+                phone=data.get('phone'),
+                mno=data.get('mno'),
+                has_whatsapp=data.get('whatsapp', False)
             )
             MobileCatador.objects.create(mobile=m, catador=catador)
         elif request.method == 'DELETE':
@@ -224,6 +223,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
         serializer = MobileSerializer(catador.phones, many=True)
 
         return Response(serializer.data)
+
 
     @detail_route(methods=['get'])
     def materials(self, request, pk=None):
