@@ -205,25 +205,25 @@ class CatadorViewSet(viewsets.ModelViewSet):
         serializer = RatingSerializer(catador.comments, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'])
+    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'], permission_classes=[])
     def phones(self, request, pk=None):
         catador = self.get_object()
-        data = request.query_params
 
-        if request.method == 'POST':
-            m = Mobile.objects.create(
-                phone=data.get('phone'),
-                mno=data.get('mno'),
-                has_whatsapp=data.get('whatsapp', False)
-            )
-            MobileCatador.objects.create(mobile=m, catador=catador)
-        elif request.method == 'DELETE':
-            Mobile.objects.get(id=data.get('id')).delete()
+        if request.method == 'POST' and request.data:
+            for phone in request.data:
+                if phone.get('phone') and phone.get('mno'):
+                    m = Mobile.objects.create(
+                        phone=phone.get('phone'),
+                        mno=phone.get('mno'),
+                        has_whatsapp=bool(phone.get('whatsapp', False))
+                    )
+                    MobileCatador.objects.create(mobile=m, catador=catador)
+        elif request.method == 'DELETE' and request.data:
+            for phone in request.data:
+                Mobile.objects.get(id=phone.get('id')).delete()
 
         serializer = MobileSerializer(catador.phones, many=True)
-
         return Response(serializer.data)
-
 
     @detail_route(methods=['get'])
     def materials(self, request, pk=None):
