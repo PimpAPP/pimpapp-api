@@ -113,6 +113,12 @@ class BaseMapMarker(ModeratedModel):
         null=True,
         verbose_name=_("Endereço onde costuma trabalhar."))
 
+    number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name=_("Número"))
+
     region = models.CharField(
         max_length=128,
         blank=True,
@@ -124,6 +130,12 @@ class BaseMapMarker(ModeratedModel):
         blank=True,
         null=True,
         verbose_name=_("Cidade em que trabalha"))
+
+    state = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Estado"))
 
     country = models.CharField(
         max_length=64,

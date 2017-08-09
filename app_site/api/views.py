@@ -159,8 +159,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     queryset = Catador.objects.all()
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
-    @detail_route(methods=['GET', 'POST'],
-                  permission_classes=[IsObjectOwner])
+    @detail_route(methods=['GET', 'POST'],permission_classes=[])
     def georef(self, request, pk=None):
         """
         Get all geolocation from one Catador
@@ -170,6 +169,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
         """
         if request.method == 'POST':
             data = request.data
+
 
             georeference = LatitudeLongitude.objects.create(
                 latitude=data.get('latitude'),
@@ -208,7 +208,6 @@ class CatadorViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'], permission_classes=[])
     def phones(self, request, pk=None):
         catador = self.get_object()
-
         if request.method == 'POST' and request.data:
             for phone in request.data:
                 if phone.get('phone') and phone.get('mno'):
