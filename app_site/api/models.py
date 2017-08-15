@@ -119,6 +119,12 @@ class BaseMapMarker(ModeratedModel):
         null=True,
         verbose_name=_("Número"))
 
+    address_region = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Bairro."))
+
     region = models.CharField(
         max_length=128,
         blank=True,
@@ -159,6 +165,19 @@ class Catador(BaseMapMarker):
     class Meta:
         verbose_name = 'Catador'
 
+
+    # BOTA = 'B'
+    # LUVA = 'L'
+    # FREIOS = 'F'
+    # FITAS_ADESIVAS = 'FA'
+    # RETROVISOR = 'R'
+    #
+    # TYPE_CHOICES = (
+    #     (BOTA, _('Bota')),
+    #     (COOPERATIVA, _('Cooperativa')),
+    #     (ECOPONTO, _('Ecoponto')),
+    # )
+
     nickname = models.CharField(
         max_length=128,
         verbose_name=_('Apelido'))
@@ -189,6 +208,26 @@ class Catador(BaseMapMarker):
     safety_kit = models.BooleanField(
         default=False,
         verbose_name=_("Recebeu o Kit de Segurança?"))
+
+    safety_kit_boot = models.BooleanField(
+        default=False,
+        verbose_name=_("Kit de Segurança: Bota"))
+
+    safety_kit_gloves = models.BooleanField(
+        default=False,
+        verbose_name=_("Kit de Segurança: Luva"))
+
+    safety_kit_brakes = models.BooleanField(
+        default=False,
+        verbose_name=_("Kit de Segurança: Freios"))
+
+    safety_kit_reflective_tapes = models.BooleanField(
+        default=False,
+        verbose_name=_("Kit de Segurança: Fitas refletivas"))
+
+    safety_kit_rearview = models.BooleanField(
+        default=False,
+        verbose_name=_("Kit de Segurança: Retrovisor"))
 
     cooperative_name = models.CharField(
         max_length=200,
@@ -224,6 +263,30 @@ class Catador(BaseMapMarker):
         through='GeorefCatador')
 
     cooperative = models.ForeignKey('Cooperative', null=True, blank=True)
+
+    registered_by_another_user = models.BooleanField(
+        default=False,
+        verbose_name=_("Cadastrado por outro usuário"))
+
+    another_user_name = models.CharField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name=_('Outro usuário - Nome'))
+
+    another_user_email = models.CharField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name=_('Outro usuário - Email'))
+
+    another_user_whatsapp = models.CharField(
+        max_length=20,
+        null=True, blank=True,
+        verbose_name=_('Outro usuário - Whatsapp'))
+
+    kg_day = models.FloatField(
+        blank=True, null=True,
+        verbose_name=_('Quantos Kg coleta por dia?'))
+
 
     @property
     def geolocation(self):

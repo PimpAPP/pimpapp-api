@@ -169,8 +169,6 @@ class CatadorViewSet(viewsets.ModelViewSet):
         """
         if request.method == 'POST':
             data = request.data
-
-
             georeference = LatitudeLongitude.objects.create(
                 latitude=data.get('latitude'),
                 longitude=data.get('longitude'))
