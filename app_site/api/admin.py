@@ -3,6 +3,7 @@ from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.db import models
 
 from .models import UserProfile
 
@@ -28,6 +29,7 @@ from .models import PhotoCatador
 from .models import GeorefCatador
 from .models import Rating
 
+
 from .forms import DaysWeekWorkAdminForm
 
 
@@ -47,6 +49,15 @@ class CatadorAdmin(admin.ModelAdmin):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline, )
+    list_display = ('pk', 'username', 'email', 'first_name', 'last_name', 'get_avatar')
+
+    def get_avatar(self, x):
+        up = UserProfile.objects.get(user=x)
+        return True if up.avatar else False
+
+    get_avatar.short_description = 'Possui foto?'
+    get_avatar.boolean = True
+    get_avatar.admin_order_field = 'userprofile__avatar'
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
