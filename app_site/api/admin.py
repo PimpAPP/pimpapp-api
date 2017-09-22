@@ -43,12 +43,13 @@ class CatadorAdmin(admin.ModelAdmin):
     list_filter = ('id', 'name')
     search_fields = ['id', 'name']
     form = DaysWeekWorkAdminForm
-    list_display = ('pk', 'name', 'catador_type', 'city', 'country')
+    list_display = ('pk', 'name', 'catador_type', 'city', 'country', 'modified_date')
     filter_vertical = ['materials_collected']
 
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline, )
+    list_filter = ('is_active', 'is_staff', 'is_superuser', 'id')
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name', 'get_avatar')
 
     def get_avatar(self, x):
@@ -58,6 +59,7 @@ class UserAdmin(BaseUserAdmin):
     get_avatar.short_description = 'Possui foto?'
     get_avatar.boolean = True
     get_avatar.admin_order_field = 'userprofile__avatar'
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

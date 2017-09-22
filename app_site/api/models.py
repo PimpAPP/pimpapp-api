@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
+from datetime import datetime
 from versatileimagefield.fields import VersatileImageField
 from versatileimagefield.fields import PPOIField
 from .calc_distance import nearest_catadores
@@ -52,7 +53,8 @@ class ModeratedModel(models.Model):
 
     history = HistoricalRecords(inherit=True)
 
-    created_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     moderation_status = models.CharField(
         verbose_name=_('Status de Moderação'),
