@@ -319,6 +319,11 @@ class Catador(BaseMapMarker):
     def profile_photo(self):
         return self.user.userprofile.avatar.url
 
+    @property
+    def materials(self):
+        objs = self.materials_collected.get_queryset()
+        return objs
+
     def __str__(self):
         return str(self.id) + ' - ' + self.name
 

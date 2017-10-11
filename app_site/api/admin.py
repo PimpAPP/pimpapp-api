@@ -40,11 +40,33 @@ class UserProfileInline(admin.StackedInline):
 
 
 class CatadorAdmin(admin.ModelAdmin):
-    list_filter = ('id', 'name')
-    search_fields = ['id', 'name']
+    list_filter = ('country', 'city', 'registered_by_another_user')
+    search_fields = ['id', 'name', 'nickname']
     form = DaysWeekWorkAdminForm
-    list_display = ('pk', 'name', 'catador_type', 'city', 'country', 'modified_date')
+    list_display = ('pk', 'name', 'nickname', 'get_avatar', 'get_phones', 'address_base', 'number', 'address_region',
+                    'city', 'country', 'region', 'kg_week', 'works_since', 'cooperative_name', 'iron_work',
+                    'kg_day', 'how_many_days_work_week', 'how_many_years_work', 'has_motor_vehicle',
+                    'has_smartphone_with_internet', 'carroca_pimpada', 'region', 'registered_by_another_user',
+                    'another_user_name', 'another_user_email', 'another_user_whatsapp', 'get_materials',
+                    'modified_date')
     filter_vertical = ['materials_collected']
+
+    def get_avatar(self, obj):
+        return True if obj.user.userprofile.avatar else False
+
+    get_avatar.short_description = 'Possui foto?'
+    get_avatar.boolean = True
+    get_avatar.admin_order_field = 'userprofile__avatar'
+
+    def get_phones(self, obj):
+        return ', '.join([p.phone for p in obj.phones])
+
+    get_phones.short_description = 'Telefone(s)'
+
+    def get_materials(self, obj):
+        return ', '.join([m.name for m in obj.materials])
+
+    get_materials.short_description = 'Materiais que coleta'
 
 
 class UserAdmin(BaseUserAdmin):
@@ -52,9 +74,8 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'id')
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name', 'get_avatar')
 
-    def get_avatar(self, x):
-        up = UserProfile.objects.get(user=x)
-        return True if up.avatar else False
+    def get_avatar(self, obj):
+        return True if obj.userprofile.avatar else False
 
     get_avatar.short_description = 'Possui foto?'
     get_avatar.boolean = True
