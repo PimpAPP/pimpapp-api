@@ -33,10 +33,34 @@ from .models import Rating
 from .forms import DaysWeekWorkAdminForm
 
 
-class UserProfileInline(admin.StackedInline):
-    model = UserProfile
+# CATADOR
+
+class PhoneInline(admin.StackedInline):
+    model = MobileCatador
     can_delete = True
-    verbose_name_plural = 'Profiles'
+    verbose_name_plural = 'Telefones'
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return 2
+
+
+class GeoRefInline(admin.StackedInline):
+    model = GeorefCatador
+    can_delete = True
+    verbose_name_plural = 'Geo Ref. (Posição no mapa)'
+    exclude = ['short_description']
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return 1
+
+
+class MaterialInline(admin.StackedInline):
+    model = Catador.materials_collected.through
+    can_delete = False
+    verbose_name_plural = 'Materiais'
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return 12
 
 
 class CatadorAdmin(admin.ModelAdmin):
@@ -46,10 +70,15 @@ class CatadorAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'nickname', 'get_avatar', 'get_phones', 'address_base', 'number', 'address_region',
                     'city', 'country', 'region', 'kg_week', 'works_since', 'cooperative_name', 'iron_work',
                     'kg_day', 'how_many_days_work_week', 'how_many_years_work', 'has_motor_vehicle',
-                    'has_smartphone_with_internet', 'carroca_pimpada', 'region', 'registered_by_another_user',
-                    'another_user_name', 'another_user_email', 'another_user_whatsapp', 'get_materials',
-                    'modified_date')
+                    'has_smartphone_with_internet', 'carroca_pimpada', 'region', 'presentation_phrase',
+                    'registered_by_another_user', 'another_user_name', 'another_user_email', 'another_user_whatsapp',
+                    'get_materials', 'get_georef', 'modified_date')
     filter_vertical = ['materials_collected']
+    exclude = ['mongo_hash', 'slug', 'days_week_work']
+    inlines = (PhoneInline, GeoRefInline, MaterialInline)
+
+    class Media:
+        js = ('scripts/main.js',)
 
     def get_avatar(self, obj):
         return True if obj.user.userprofile.avatar else False
@@ -68,6 +97,24 @@ class CatadorAdmin(admin.ModelAdmin):
 
     get_materials.short_description = 'Materiais que coleta'
 
+    def get_georef(self, obj):
+        geo = GeorefCatador.objects.get(catador_id=obj.id)
+        res = ''
+        if geo:
+            res = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
+
+        return res
+
+    get_georef.short_description = 'Lat/Long'
+
+
+# USER
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'Profiles'
+
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline, )
@@ -81,6 +128,12 @@ class UserAdmin(BaseUserAdmin):
     get_avatar.boolean = True
     get_avatar.admin_order_field = 'userprofile__avatar'
 
+
+class MobileAdmin(admin.ModelAdmin):
+    model = Mobile
+
+    class Media:
+        js = ('scripts/main.js',)
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
@@ -103,6 +156,6 @@ admin.site.register(MobileCatador)
 admin.site.register(MobileCooperative)
 admin.site.register(PhotoBase)
 admin.site.register(PhotoCatador)
-admin.site.register(Mobile)
+admin.site.register(Mobile, MobileAdmin)
 admin.site.register(GeorefCatador)
 admin.site.register(Rating)

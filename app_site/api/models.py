@@ -166,6 +166,7 @@ class Catador(BaseMapMarker):
 
     class Meta:
         verbose_name = 'Catador'
+        verbose_name_plural = _('Catadores')
 
 
     # BOTA = 'B'
