@@ -113,12 +113,15 @@ class UserViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'], permission_classes=[])
     def add_error(self, request, pk=None):
         if request.method == 'POST':
-            serializer = GeneralErrosSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            GeneralErros.objects.create(
+                detail=str(request.data.get('detail')),
+                object=str(request.data.get('object'))
+            )
+            # serializer = GeneralErrosSerializer(data=request.data)
+            # if serializer.is_valid():
+            # serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
 
-        return Response(serializer.data)
 
 @detail_route(methods=['post'])
 def set_password(self, request, pk=None):

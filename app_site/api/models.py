@@ -906,6 +906,7 @@ class UserProfile(models.Model):
 
 class GeneralErros(models.Model):
     detail = models.TextField(blank=True, null=True)
+    object = models.TextField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
