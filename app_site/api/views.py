@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, \
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import detail_route
 from rest_framework.views import APIView
@@ -438,6 +438,13 @@ class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
     search_fields = ['name', 'email', 'id']
     ordering_fields = ['name', 'email', 'id']
     http_method_names = ['get', 'post', 'update', 'patch', 'options', 'delete']
+    permission_classes = []
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            self.permission_classes = [AllowAny]
+
+        return super(PermissionBase, self).get_permissions()
 
     @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'],
                   permission_classes=[IsAuthenticated])

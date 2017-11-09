@@ -289,6 +289,8 @@ class Catador(BaseMapMarker):
         blank=True, null=True,
         verbose_name=_('Quantos Kg coleta por dia?'))
 
+    year_of_birth = models.DateField(auto_now=False, null=True, blank=True)
+
 
     @property
     def geolocation(self):
@@ -852,6 +854,7 @@ class Cooperative(models.Model):
     how_many_days_work_week = models.IntegerField(null=True, blank=True)
     how_many_years_work = models.IntegerField(null=True, blank=True)
     work_since = models.DateField(null=True, blank=True)
+    founded_in = models.DateField(auto_now=False, null=True, blank=True)
 
     # Meterials
     materials_collected = models.ManyToManyField('Material')
