@@ -4,9 +4,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db import models
-
 from .models import UserProfile
-
 from .models import Catador
 from .models import Material
 from .models import MobileCatador
@@ -28,8 +26,7 @@ from .models import PhotoBase
 from .models import PhotoCatador
 from .models import GeorefCatador
 from .models import Rating
-
-
+from .models import GeneralErros
 from .forms import DaysWeekWorkAdminForm
 
 
@@ -76,9 +73,6 @@ class CatadorAdmin(admin.ModelAdmin):
     filter_vertical = ['materials_collected']
     exclude = ['mongo_hash', 'slug', 'days_week_work']
     inlines = (PhoneInline, GeoRefInline, MaterialInline)
-
-    class Media:
-        js = ('scripts/main.js',)
 
     def get_avatar(self, obj):
         return True if obj.user.userprofile.avatar else False
@@ -135,6 +129,13 @@ class MobileAdmin(admin.ModelAdmin):
     class Media:
         js = ('scripts/main.js',)
 
+
+class ErroAdmin(admin.ModelAdmin):
+    list_filter = ('date', )
+    search_fields = ['id', 'detail', 'date']
+    list_display = ('date', )
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
@@ -159,3 +160,4 @@ admin.site.register(PhotoCatador)
 admin.site.register(Mobile, MobileAdmin)
 admin.site.register(GeorefCatador)
 admin.site.register(Rating)
+admin.site.register(GeneralErros, ErroAdmin)

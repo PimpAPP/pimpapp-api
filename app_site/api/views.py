@@ -34,6 +34,7 @@ from .models import PhotoCollectUser
 from .models import RatingCatador
 from .models import RatingCooperative
 from .models import UserProfile
+from .models import GeneralErros
 
 from .serializers import RatingSerializer
 from .serializers import MobileSerializer
@@ -49,6 +50,7 @@ from .serializers import PhotoCollectCatadorSerializer
 from .serializers import PhotoCollectUserSerializer
 from .serializers import CatadorsPositionsSerializer
 from .serializers import PasswordSerializer
+from .serializers import GeneralErrosSerializer
 
 from .permissions import IsObjectOwner
 
@@ -108,6 +110,15 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(user, context=serializer_context)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'], permission_classes=[])
+    def add_error(self, request, pk=None):
+        if request.method == 'POST':
+            serializer = GeneralErrosSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.data)
 
 @detail_route(methods=['post'])
 def set_password(self, request, pk=None):

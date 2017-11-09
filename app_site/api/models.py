@@ -101,7 +101,6 @@ class BaseMapMarker(ModeratedModel):
         null=True, blank=True)
 
     minibio = models.TextField(
-        max_length=512,
         blank=True,
         null=True)
 
@@ -903,3 +902,12 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class GeneralErros(models.Model):
+    detail = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Erros no sistema'
+        verbose_name_plural = _('Erros no sistema')

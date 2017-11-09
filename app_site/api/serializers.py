@@ -22,6 +22,7 @@ from .models import PhotoCollectUser
 from .models import PhotoCollectCatador
 from .models import PhotoCooperative
 from .models import Partner
+from .models import GeneralErros
 
 
 class PhotoBaseSerializer(serializers.HyperlinkedModelSerializer):
@@ -253,3 +254,9 @@ class GeorefCatadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeorefCatador
         fields = '__all__'
+
+
+class GeneralErrosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GeneralErros
+        fields = ('pk', 'detail', 'date')
