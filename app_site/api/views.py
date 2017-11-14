@@ -36,7 +36,7 @@ from .models import RatingCooperative
 from .models import UserProfile
 from .models import GeneralErros
 
-from .serializers import RatingSerializer
+from .serializers import RatingSerializer, PartnerSerializer
 from .serializers import MobileSerializer
 from .serializers import CatadorSerializer
 from .serializers import MaterialSerializer
@@ -466,6 +466,12 @@ class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
             rating.delete()
 
         serializer = RatingSerializer(cooperative.comments, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['GET', 'OPTIONS'], permission_classes=[AllowAny])
+    def partners(self, request, pk=None):
+        cooperative = self.get_object()
+        serializer = PartnerSerializer(cooperative.partners, many=True)
         return Response(serializer.data)
 
 
