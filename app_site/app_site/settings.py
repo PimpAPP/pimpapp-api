@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'versatileimagefield',
     'django_filters',
     'api',
+    'braces'
 )
 
 SITE_ID = 1

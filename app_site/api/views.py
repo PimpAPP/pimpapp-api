@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework import viewsets
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -9,6 +10,8 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
 from django.core.files.base import ContentFile
+from braces.views import CsrfExemptMixin
+
 import uuid
 
 from rest_framework import status
@@ -35,6 +38,7 @@ from .models import RatingCatador
 from .models import RatingCooperative
 from .models import UserProfile
 from .models import GeneralErros
+from .models import MobileCooperative
 
 from .serializers import RatingSerializer, PartnerSerializer
 from .serializers import MobileSerializer
@@ -50,7 +54,6 @@ from .serializers import PhotoCollectCatadorSerializer
 from .serializers import PhotoCollectUserSerializer
 from .serializers import CatadorsPositionsSerializer
 from .serializers import PasswordSerializer
-from .serializers import GeneralErrosSerializer
 
 from .permissions import IsObjectOwner
 
@@ -173,7 +176,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     queryset = Catador.objects.all()
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
-    @detail_route(methods=['GET', 'POST'],permission_classes=[])
+    @detail_route(methods=['GET', 'POST'], permission_classes=[])
     def georef(self, request, pk=None):
         """
         Get all geolocation from one Catador
@@ -431,20 +434,31 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
+class CooperativeViewSet(viewsets.ModelViewSet):
+    # pagination_class = PostLimitOffSetPagination
     serializer_class = CooperativeSerializer
     queryset = Cooperative.objects.all()
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['name', 'email', 'id']
     ordering_fields = ['name', 'email', 'id']
     http_method_names = ['get', 'post', 'update', 'patch', 'options', 'delete']
-    permission_classes = []
+    permission_classes = (AllowAny,)
+    authentication_classes = []
 
-    def get_permissions(self):
-        if self.request.method in ['GET']:
-            self.permission_classes = [AllowAny]
+    # def get_permissions(self):
+    #     if self.request.method in ['GET', 'POST']:
+    #         self.permission_classes = [AllowAny]
+    #
+    #     return super(self).get_permissions()
 
-        return super(PermissionBase, self).get_permissions()
+    @csrf_exempt
+    @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'], permission_classes=[])
+    def add(self, request, pk=None):
+        serializer = CooperativeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'],
                   permission_classes=[IsAuthenticated])
@@ -472,6 +486,31 @@ class CooperativeViewSet(RecoBaseView, viewsets.ModelViewSet):
     def partners(self, request, pk=None):
         cooperative = self.get_object()
         serializer = PartnerSerializer(cooperative.partners, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['GET', 'POST', 'PUT', 'DELETE'], permission_classes=[])
+    def phones(self, request, pk=None):
+        cooperative = self.get_object()
+        if request.method == 'POST' and request.data:
+            for phone in request.data:
+                if phone.get('phone') and phone.get('mno'):
+                    m = Mobile.objects.create(
+                        phone=phone.get('phone'),
+                        mno=phone.get('mno'),
+                        has_whatsapp=bool(phone.get('whatsapp', False))
+                    )
+                    MobileCooperative.objects.create(mobile=m, cooperative=cooperative)
+        elif request.method == 'DELETE' and request.data:
+            for phone in request.data:
+                Mobile.objects.get(id=phone.get('id')).delete()
+
+        serializer = MobileSerializer(cooperative.phones, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def materials(self, request, pk=None):
+        cooperative = self.get_object()
+        serializer = MaterialSerializer(cooperative.materials)
         return Response(serializer.data)
 
 
@@ -606,3 +645,4 @@ def get_material_id(material):
         'latas': 2,
         'vidro': 1
     }.get(material.lower(), 12)
+
