@@ -238,7 +238,7 @@ class PartnerSerializer(serializers.ModelSerializer):
 
 class CooperativeSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField()
-    partners = PartnerSerializer(many=True)
+    # partners = PartnerSerializer(many=True)
 
     class Meta:
         model = Cooperative

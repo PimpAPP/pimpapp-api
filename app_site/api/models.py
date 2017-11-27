@@ -845,19 +845,48 @@ class Cooperative(models.Model):
     email = models.EmailField()
     phrase = models.CharField(max_length=200)
     user = models.OneToOneField(User)
-    address = models.CharField(max_length=200)
-    region_where_operates = models.CharField(max_length=200)
-    how_many_cooperators = models.IntegerField()
-    image = VersatileImageField(upload_to='cooperatives')
-    partners = models.ManyToManyField('Partner', blank=True)
-    how_much_collect_day = models.FloatField(null=True, blank=True)
-    how_many_days_work_week = models.IntegerField(null=True, blank=True)
-    how_many_years_work = models.IntegerField(null=True, blank=True)
+    how_many_cooperators = models.IntegerField(blank=True, null=True)
     work_since = models.DateField(null=True, blank=True)
     founded_in = models.DateField(auto_now=False, null=True, blank=True)
 
+    # Location
+    address_base = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_("Rua"))
+
+    number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name=_("Número"))
+
+    address_region = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Bairro"))
+
+    city = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_("Cidade"))
+
+    state = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Estado"))
+
+    country = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True)
+
     # Meterials
-    materials_collected = models.ManyToManyField('Material')
+    materials_collected = models.ManyToManyField('Material', blank=True)
 
     # M2M
     rating_m2m = models.ManyToManyField(
@@ -867,6 +896,8 @@ class Cooperative(models.Model):
     mobile_m2m = models.ManyToManyField(
         'Mobile', blank=True, related_name='cooperatives',
         through='MobileCooperative')
+
+    partners = models.ManyToManyField('Partner', blank=True)
 
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
