@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
 from django.core.files.base import ContentFile
-from braces.views import CsrfExemptMixin
+# from braces.views import CsrfExemptMixin
 
 import uuid
 
@@ -172,9 +172,16 @@ class CatadorViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = CatadorSerializer
-    permission_classes = (IsObjectOwner,)
+    permission_classes = (AllowAny,)
     queryset = Catador.objects.all()
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
+
+    @detail_route(methods=['POST', 'OPTIONS'], permission_classes=[AllowAny])
+    def add(self, request):
+        print(request.data)
+        if request.method == 'POST' and request.data:
+            pass
+        pass
 
     @detail_route(methods=['GET', 'POST'], permission_classes=[])
     def georef(self, request, pk=None):

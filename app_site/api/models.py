@@ -842,7 +842,7 @@ class GeorefResidue(models.Model):
 
 class Cooperative(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField()
+    email = models.EmailField(max_length=100)
     phrase = models.CharField(max_length=200)
     user = models.OneToOneField(User)
     how_many_cooperators = models.IntegerField(blank=True, null=True)
