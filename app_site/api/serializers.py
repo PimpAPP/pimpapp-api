@@ -148,16 +148,16 @@ class CatadorsPositionsSerializer(serializers.ModelSerializer):
 
 
 class CatadorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Catador
-        exclude = ['created_on', 'mobile_m2m', 'georef_m2m', 'rating_m2m']
-
     geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
     phones = MobileSerializer(read_only=True, many=True)
     collects = CollectSerializer(read_only=True, many=True)
     photos = PhotoSerializer(read_only=True, many=True)
     profile_photo = serializers.CharField(read_only=True, required=False)
     email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Catador
+        exclude = ['created_on', 'mobile_m2m', 'georef_m2m', 'rating_m2m']
 
     def get_email(self, obj):
         return obj.user.email
@@ -237,14 +237,15 @@ class PartnerSerializer(serializers.ModelSerializer):
 
 
 class CooperativeSerializer(serializers.ModelSerializer):
+    phones = MobileSerializer(required=False, many=True)
     photos = serializers.SerializerMethodField()
-    # partners = PartnerSerializer(many=True)
+    geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
+    phones = MobileSerializer(read_only=True, many=True)
 
+    # partners = PartnerSerializer(many=True)
     class Meta:
         model = Cooperative
         exclude = ['mobile_m2m', 'rating_m2m']
-
-    phones = MobileSerializer(required=False, many=True)
 
     def get_photos(self, obj):
         return PhotoCooperativeSerializer(obj.photocooperative_set, many=True).data
