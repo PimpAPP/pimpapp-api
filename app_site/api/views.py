@@ -348,7 +348,7 @@ def cadastro_catador(request):
 @api_view(['POST'])
 def cadastro_cooperativa(request):
     """
-        Save cooperative in a one olnly method
+        Save cooperative in a one only method
     """
 
     if not request.data['user'] or not request.data['cooperativa']:
@@ -375,6 +375,7 @@ def cadastro_cooperativa(request):
         # register cooperativa
         cooperativa_request = request.data['cooperativa']
         cooperativa_request['user'] = user.pk
+
         cooperativa_serializer = CooperativeSerializer(data=cooperativa_request)
         cooperativa_serializer.is_valid(raise_exception=True)
         cooperativa = cooperativa_serializer.save()

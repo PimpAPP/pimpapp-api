@@ -713,6 +713,7 @@ class Cooperative(models.Model):
     how_many_cooperators = models.IntegerField(blank=True, null=True)
     work_since = models.DateField(null=True, blank=True)
     founded_in = models.DateField(auto_now=False, null=True, blank=True)
+    history = models.TextField(blank=True, null=True)
 
     # Location
     address_base = models.CharField(
@@ -746,7 +747,7 @@ class Cooperative(models.Model):
         verbose_name=_("Estado"))
 
     country = models.CharField(
-    max_length=64,
+        max_length=64,
         blank=True,
         null=True)
 
@@ -766,6 +767,7 @@ class Cooperative(models.Model):
 
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
+
 
     @property
     def photos(self):
