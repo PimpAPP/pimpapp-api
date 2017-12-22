@@ -147,6 +147,11 @@ class CatadorsPositionsSerializer(serializers.ModelSerializer):
     geolocation = LatitudeLongitudeSerializer(required=False, many=True)
 
 
+# class UserBasicSerializer(serializers.RelatedField):
+#     def to_representation(self, value):
+#         return '{id: %d, first_name: %s, last_name: %s, email: %s}' % (value.id, value.first_name, value.last_name, value.email)
+
+
 class CatadorSerializer(serializers.ModelSerializer):
     geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
     phones = MobileSerializer(read_only=True, many=True)
@@ -241,7 +246,6 @@ class CooperativeSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField()
     geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
     phones = MobileSerializer(read_only=True, many=True)
-    # user = UserSerializer(read_only=False)
 
     # partners = PartnerSerializer(many=True)
     class Meta:
