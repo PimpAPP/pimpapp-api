@@ -237,14 +237,14 @@ class PartnerSerializer(serializers.ModelSerializer):
 
 
 class CooperativeSerializer(serializers.ModelSerializer):
-    photos = serializers.SerializerMethodField()
-    partners = PartnerSerializer(many=True)
 
     class Meta:
         model = Cooperative
-        exclude = ['mobile_m2m', 'rating_m2m']
+        exclude = []
 
-    phones = MobileSerializer(required=False, many=True)
+    def create(self, validated_data):
+        return Cooperative(**validated_data)
+
 
     def get_photos(self, obj):
         return PhotoCooperativeSerializer(obj.photocooperative_set, many=True).data

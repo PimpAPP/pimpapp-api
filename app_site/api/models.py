@@ -844,32 +844,7 @@ class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phrase = models.CharField(max_length=200)
-    user = models.OneToOneField(User)
-    address = models.CharField(max_length=200)
-    region_where_operates = models.CharField(max_length=200)
-    how_many_cooperators = models.IntegerField()
-    image = VersatileImageField(upload_to='cooperatives')
-    partners = models.ManyToManyField('Partner', blank=True)
-    how_much_collect_day = models.FloatField(null=True, blank=True)
-    how_many_days_work_week = models.IntegerField(null=True, blank=True)
-    how_many_years_work = models.IntegerField(null=True, blank=True)
-    work_since = models.DateField(null=True, blank=True)
-    founded_in = models.DateField(auto_now=False, null=True, blank=True)
 
-    # Meterials
-    materials_collected = models.ManyToManyField('Material')
-
-    # M2M
-    rating_m2m = models.ManyToManyField(
-        'Rating', blank=True, related_name='cooperatives',
-        through='RatingCooperative')
-
-    mobile_m2m = models.ManyToManyField(
-        'Mobile', blank=True, related_name='cooperatives',
-        through='MobileCooperative')
-
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
 
     @property
     def photos(self):
