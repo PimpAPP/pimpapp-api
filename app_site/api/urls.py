@@ -11,6 +11,8 @@ from .views import ResidueViewSet
 from .views import MaterialsViewSet
 from .views import NearestCatadoresViewSet
 from .views import CustomObtainAuthToken
+from .views import cadastro_catador
+from .views import cadastro_cooperativa
 
 router = routers.DefaultRouter()
 
@@ -27,4 +29,6 @@ router.register(r'cooperatives', CooperativeViewSet, base_name='cooperative')
 urlpatterns = [
     url(r'^api-token-auth/', CustomObtainAuthToken.as_view()),
     url(r'^', include(router.urls)),
+    url(r'cadastro_catador/$', cadastro_catador),
+    url(r'cadastro_cooperativa/$', cadastro_cooperativa),
 ]

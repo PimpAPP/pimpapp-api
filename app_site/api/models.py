@@ -705,6 +705,89 @@ class PhotoResidue(PhotoBase):
         return str(self.residue) + ' - ' + str(self.full_photo)
 
 
+class Cooperative(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100)
+    phrase = models.CharField(max_length=200)
+    user = models.OneToOneField(User)
+    how_many_cooperators = models.IntegerField(blank=True, null=True)
+    work_since = models.DateField(null=True, blank=True)
+    founded_in = models.DateField(auto_now=False, null=True, blank=True)
+    history = models.TextField(blank=True, null=True)
+
+    # Location
+    address_base = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_("Rua"))
+
+    number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name=_("Número"))
+
+    address_region = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Bairro"))
+
+    city = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_("Cidade"))
+
+    state = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True,
+        verbose_name=_("Estado"))
+
+    country = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True)
+
+    # Meterials
+    materials_collected = models.ManyToManyField('Material', blank=True)
+
+    # M2M
+    rating_m2m = models.ManyToManyField(
+        'Rating', blank=True, related_name='cooperatives',
+        through='RatingCooperative')
+
+    mobile_m2m = models.ManyToManyField(
+        'Mobile', blank=True, related_name='cooperatives',
+        through='MobileCooperative')
+
+    partners = models.ManyToManyField('Partner', blank=True)
+
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+
+
+    @property
+    def photos(self):
+        objs = self.photocooperative.all().order_by('created_on')
+        return objs
+
+    @property
+    def phones(self):
+        objs = self.mobile_m2m.get_queryset()
+        return objs
+
+    @property
+    def comments(self):
+        objs = self.rating_m2m.get_queryset()
+        return objs
+
+    def __str__(self):
+        return self.name
+
+
 class Mobile(ModeratedModel):
     """
         DOCS: TODO
@@ -771,8 +854,11 @@ class MobileCatador(models.Model):
 
 class MobileCooperative(models.Model):
     # control:
-    cooperative = models.OneToOneField(
-        'Cooperative', blank=False)
+    # cooperative = models.OneToOneField(
+    #     'Cooperative', blank=False)
+    cooperative = models.ForeignKey(
+        Cooperative, unique=False, blank=False)
+
     mobile = models.OneToOneField(Mobile, blank=False)
 
     def __str__(self):
@@ -844,7 +930,6 @@ class Cooperative(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phrase = models.CharField(max_length=200)
-
 
     @property
     def photos(self):

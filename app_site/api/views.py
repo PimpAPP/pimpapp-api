@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from rest_framework import viewsets
 from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -10,9 +12,10 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
 from django.core.files.base import ContentFile
-from braces.views import CsrfExemptMixin
+# from braces.views import CsrfExemptMixin
 
 import uuid
+import logging
 
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -60,6 +63,7 @@ from .permissions import IsObjectOwner
 from .pagination import PostLimitOffSetPagination
 
 public_status = (ModeratedModel.APPROVED, ModeratedModel.PENDING)
+logger = logging.getLogger(__name__)
 
 
 class PermissionBase(APIView):
@@ -172,9 +176,16 @@ class CatadorViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = CatadorSerializer
-    permission_classes = (IsObjectOwner,)
+    permission_classes = (AllowAny,)
     queryset = Catador.objects.all()
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
+
+    @detail_route(methods=['POST', 'OPTIONS'], permission_classes=[AllowAny])
+    def add(self, request):
+        print(request.data)
+        if request.method == 'POST' and request.data:
+            pass
+        pass
 
     @detail_route(methods=['GET', 'POST'], permission_classes=[])
     def georef(self, request, pk=None):
@@ -244,6 +255,174 @@ class CatadorViewSet(viewsets.ModelViewSet):
         catador = self.get_object()
         serializer = MaterialSerializer(catador.materials)
         return Response(serializer.data)
+
+
+@api_view(['POST'])
+def cadastro_catador(request):
+    """
+        Save catador in a one olnly method
+    """
+
+    if not request.data['user'] or not request.data['catador']:
+        return Response('Usuario and Catador is required', status=status.HTTP_400_BAD_REQUEST)
+
+    user = None
+    user_serializer = None
+    catador = None
+    catador_serializer = None
+
+    try:
+        # register user
+        user_request = request.data['user']
+
+        if user_request['username']:
+            exist = User.objects.filter(username=user_request['username'])
+            if exist:
+                return Response('Usuário já existente', status=status.HTTP_400_BAD_REQUEST)
+
+        user_serializer = UserSerializer(data=user_request)
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
+
+        # register catador
+        catador_request = request.data['catador']
+        catador_request['user'] = user.pk
+        catador_serializer = CatadorSerializer(data=catador_request)
+        catador_serializer.is_valid(raise_exception=True)
+        catador = catador_serializer.save()
+
+        # register phones
+        if request.data['phones']:
+            phones_request = request.data['phones']
+            for phone in phones_request:
+                if phone.get('phone') and phone.get('mno'):
+                    m = Mobile.objects.create(
+                        phone=phone.get('phone'),
+                        mno=phone.get('mno'),
+                        has_whatsapp=bool(phone.get('whatsapp', False))
+                    )
+                    MobileCatador.objects.create(mobile=m, catador=catador)
+
+        # register location
+        if request.data['location']:
+            location = request.data['location']
+            georeference = LatitudeLongitude.objects.create(
+                latitude=location.get('latitude'),
+                longitude=location.get('longitude'))
+
+            GeorefCatador.objects.create(georef=georeference, catador=catador)
+
+        # register avatar
+        try:
+            if request.FILES.get('avatar'):
+                avatar = request.FILES['avatar']
+            elif request.data['avatar']:
+                data = request.data['avatar']
+                avatar = base64ToFile(data)
+
+            UserProfile.objects.create(user=user, avatar=avatar)
+        except Exception:
+            pass
+
+    except Exception as error:
+        logger.error(error)
+
+        if user:
+            user.delete()
+
+        if catador:
+            catador.delete()
+
+        err = {}
+
+        if (user_serializer and user_serializer.errors) or (catador_serializer and catador_serializer.errors):
+            err['user'] = user_serializer.errors
+            err['catador'] = catador_serializer.errors
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+        raise
+
+    return Response('ok', status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def cadastro_cooperativa(request):
+    """
+        Save cooperative in a one only method
+    """
+
+    if not request.data['user'] or not request.data['cooperativa']:
+        return Response('Usuario and Cooperativa is required', status=status.HTTP_400_BAD_REQUEST)
+
+    user = None
+    user_serializer = None
+    cooperativa = None
+    cooperativa_serializer = None
+
+    try:
+        # register user
+        user_request = request.data['user']
+
+        if user_request['username']:
+            exist = User.objects.filter(username=user_request['username'])
+            if exist:
+                return Response('Usuário já existente', status=status.HTTP_400_BAD_REQUEST)
+
+        user_serializer = UserSerializer(data=user_request)
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
+
+        # register cooperativa
+        cooperativa_request = request.data['cooperativa']
+        cooperativa_request['user'] = user.pk
+
+        cooperativa_serializer = CooperativeSerializer(data=cooperativa_request)
+        cooperativa_serializer.is_valid(raise_exception=True)
+        cooperativa = cooperativa_serializer.save()
+
+        # register phones
+        if request.data['phones']:
+            phones_request = request.data['phones']
+            for phone in phones_request:
+                if phone.get('phone') and phone.get('mno'):
+                    m = Mobile.objects.create(
+                        phone=phone.get('phone'),
+                        mno=phone.get('mno'),
+                        has_whatsapp=bool(phone.get('whatsapp', False))
+                    )
+                    MobileCooperative.objects.create(mobile=m, cooperative=cooperativa)
+
+        # register avatar
+        try:
+            if request.FILES.get('avatar'):
+                avatar = request.FILES['avatar']
+            elif request.data['avatar']:
+                data = request.data['avatar']
+                avatar = base64ToFile(data)
+
+            UserProfile.objects.create(user=user, avatar=avatar)
+        except Exception:
+            pass
+
+    except Exception as error:
+        logger.error(error)
+
+        if user:
+            user.delete()
+
+        if cooperativa:
+            cooperativa.delete()
+
+        err = {}
+
+        if (user_serializer and user_serializer.errors) or (cooperativa_serializer and cooperativa_serializer.errors):
+            err['user'] = user_serializer.errors
+            err['cooperativa'] = cooperativa_serializer.errors
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+        raise
+
+    return Response('ok', status=status.HTTP_200_OK)
 
 
 # Analise and see if we have to keep this view

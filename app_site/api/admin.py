@@ -64,7 +64,7 @@ class CatadorAdmin(admin.ModelAdmin):
     list_filter = ('country', 'city', 'registered_by_another_user')
     search_fields = ['id', 'name', 'nickname']
     form = DaysWeekWorkAdminForm
-    list_display = ('pk', 'name', 'nickname', 'get_avatar', 'get_phones', 'address_base', 'number', 'address_region',
+    list_display = ('pk', 'name', 'nickname', 'year_of_birth', 'get_avatar', 'get_phones', 'address_base', 'number', 'address_region',
                     'city', 'country', 'region', 'kg_week', 'works_since', 'cooperative_name', 'iron_work',
                     'kg_day', 'how_many_days_work_week', 'how_many_years_work', 'has_motor_vehicle',
                     'has_smartphone_with_internet', 'carroca_pimpada', 'region', 'presentation_phrase',
