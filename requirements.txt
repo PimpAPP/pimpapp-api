@@ -14,7 +14,6 @@ geopy==1.11.0
 oauthlib==1.0.3
 olefile==0.44
 packaging==16.8
-psycopg2==2.6.2
 py==1.4.30
 pymongo==3.4.0
 pyparsing==2.1.10

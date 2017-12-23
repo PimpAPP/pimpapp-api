@@ -925,6 +925,31 @@ class GeorefResidue(models.Model):
     residue = models.OneToOneField(Residue, blank=False)
     georef = models.ForeignKey(LatitudeLongitude, blank=False)
 
+
+class Cooperative(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phrase = models.CharField(max_length=200)
+
+    @property
+    def photos(self):
+        objs = self.photocooperative.all().order_by('created_on')
+        return objs
+
+    @property
+    def phones(self):
+        objs = self.mobile_m2m.get_queryset()
+        return objs
+
+    @property
+    def comments(self):
+        objs = self.rating_m2m.get_queryset()
+        return objs
+
+    def __str__(self):
+        return self.name
+
+
 class Partner(ModeratedModel):
     name = models.CharField(max_length=100)
     image = VersatileImageField(upload_to='cooperatives/partners')
