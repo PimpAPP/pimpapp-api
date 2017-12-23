@@ -264,7 +264,7 @@ class Catador(BaseMapMarker):
         'LatitudeLongitude', blank=True, related_name='catadores',
         through='GeorefCatador')
 
-    cooperative = models.ForeignKey('Cooperative', null=True, blank=True)
+    cooperative = models.ForeignKey('api.Cooperative', null=True, blank=True)
 
     registered_by_another_user = models.BooleanField(
         default=False,
@@ -639,7 +639,7 @@ class RatingCatador(ModeratedModel):
 
 class RatingCooperative(ModeratedModel):
     # control:
-    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+    cooperative = models.ForeignKey('api.Cooperative', unique=False, blank=False)
     rating = models.OneToOneField('Rating', blank=False)
 
     def __str__(self):
@@ -691,7 +691,7 @@ class PhotoCollectCatador(PhotoBase):
 
 class PhotoCooperative(PhotoBase):
     _upload_to = 'cooperatives'
-    cooperative = models.ForeignKey('Cooperative', unique=False, blank=False)
+    cooperative = models.ForeignKey('api.Cooperative', unique=False, blank=False)
 
     def __str__(self):
         return self.cooperative.name + ' - ' + self.full_photo.name
@@ -857,7 +857,7 @@ class MobileCooperative(models.Model):
     # cooperative = models.OneToOneField(
     #     'Cooperative', blank=False)
     cooperative = models.ForeignKey(
-        Cooperative, unique=False, blank=False)
+        'api.Cooperative', unique=False, blank=False)
 
     mobile = models.OneToOneField(Mobile, blank=False)
 
