@@ -360,6 +360,15 @@ def cadastro_cooperativa(request):
     cooperativa_serializer = None
 
     try:
+        cooperativa_request = request.data['cooperativa']
+
+        # check by phone (only one cooperative by phone is required)
+        phones = request.data['phones']
+        if  phones and phones[0] and phones[0]['phone']:
+            phone = phones[0]['phone']
+            if Mobile.objects.filter(phone=phone).exists():
+                return Response('Já existe uma cooperativa com esse telefone.', status=status.HTTP_400_BAD_REQUEST)
+
         # register user
         user_request = request.data['user']
 
@@ -373,13 +382,12 @@ def cadastro_cooperativa(request):
         user = user_serializer.save()
 
         # register cooperativa
-        cooperativa_request = request.data['cooperativa']
         cooperativa_request['user'] = user.pk
-
         cooperativa_serializer = CooperativeSerializer(data=cooperativa_request)
         cooperativa_serializer.is_valid(raise_exception=True)
         cooperativa = cooperativa_serializer.save()
-
+        cooperativa.save()
+        
         # register phones
         if request.data['phones']:
             phones_request = request.data['phones']
@@ -390,7 +398,14 @@ def cadastro_cooperativa(request):
                         mno=phone.get('mno'),
                         has_whatsapp=bool(phone.get('whatsapp', False))
                     )
+                    m.save()
                     MobileCooperative.objects.create(mobile=m, cooperative=cooperativa)
+
+        # register materials
+        if request.data['materials']:
+            materials_request = request.data['materials']
+            for material in materials_request:
+                cooperativa.materials_collected.add(material)
 
         # register avatar
         try:
@@ -410,7 +425,7 @@ def cadastro_cooperativa(request):
         if user:
             user.delete()
 
-        if cooperativa:
+        if cooperativa and cooperativa.pk:
             cooperativa.delete()
 
         err = {}
