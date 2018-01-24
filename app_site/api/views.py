@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
 from django.core.files.base import ContentFile
 # from braces.views import CsrfExemptMixin
+import xlwt
 
 import uuid
 import logging
@@ -364,7 +365,7 @@ def cadastro_cooperativa(request):
 
         # check by phone (only one cooperative by phone is required)
         phones = request.data['phones']
-        if  phones and phones[0] and phones[0]['phone']:
+        if phones and phones[0] and phones[0]['phone']:
             phone = phones[0]['phone']
             if Mobile.objects.filter(phone=phone).exists():
                 return Response('Já existe uma cooperativa com esse telefone.', status=status.HTTP_400_BAD_REQUEST)
@@ -387,7 +388,7 @@ def cadastro_cooperativa(request):
         cooperativa_serializer.is_valid(raise_exception=True)
         cooperativa = cooperativa_serializer.save()
         cooperativa.save()
-        
+
         # register phones
         if request.data['phones']:
             phones_request = request.data['phones']
@@ -752,7 +753,7 @@ def importCsv():
 
             try:
                 if row['nickname']:
-                    row['nickname'] = row['nickname']\
+                    row['nickname'] = row['nickname'] \
                         .translate({ord(c): "_" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+ "})
                 else:
                     row['nickname'] = row['name'] \
@@ -768,15 +769,15 @@ def importCsv():
                     user=user,
                     name=row['name'],
                     nickname=row['nickname'],
-                    minibio=row['apresentacao'],#historia e/ou apresentacao no csv
+                    minibio=row['apresentacao'],  # historia e/ou apresentacao no csv
                     address_base=row['endereco'],
                     region=row['regiao'],
                     kg_week=int(row['quilos_dia_coleta']) * 6,
-                    #how_many_years_work=int(row['anos_coleta']), # Esse campo não existe
-                    #cooperative_name=row['cooperativa'], # Esse campo não existe
+                    # how_many_years_work=int(row['anos_coleta']), # Esse campo não existe
+                    # cooperative_name=row['cooperativa'], # Esse campo não existe
                     safety_kit=bool(int(row['carroca_seguranca'])),
                     has_motor_vehicle=bool(int(row['carroca_motor'])))
-                    #has_smartphone_with_internet=bool(int(row['carroca_internet'])) # Esse campo não existe
+                # has_smartphone_with_internet=bool(int(row['carroca_internet'])) # Esse campo não existe
 
                 catador.save()
 
@@ -840,3 +841,74 @@ def get_material_id(material):
         'vidro': 1
     }.get(material.lower(), 12)
 
+
+def export_catadores_xls(request):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="catadores.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Catadores')
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['pk', 'Nome', 'Apelido', 'Telefone(s)',
+               'Possui foto?', 'Lat/Long', 'Cidade',
+               'Endereço onde costuma trabalhar',
+               'Número', 'Bairro', 'Frase de apresentação',
+               'Cadastrado por']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    # rows = Catador.objects.all().values_list('pk', 'name', 'nickname','city', 'address_base',
+    #                                          'number', 'address_region', 'presentation_phrase',
+    #                                          'registered_by_another_user')
+
+    db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
+                  'city', 'address_base', 'number', 'address_region',
+                  'presentation_phrase', 'registered_by_another_user']
+
+    rows = Catador.objects.all()
+
+    for row in rows:
+        row_num += 1
+        # for col_num in range(len(columns)):
+        #     ws.write(row_num, col_num, row[col_num], font_style)
+
+        count = 0
+        for col in db_columns:
+            if col in ['pk', 'name', 'nickname', 'city', 'address_base',
+                       'number', 'address_region', 'presentation_phrase']:
+                ws.write(row_num, count, row.__getattribute__(col), font_style)
+            else:
+                value = ''
+                if col == 'phones':
+                    value = ', '.join([p.phone for p in row.phones])
+
+                if col == 'avatar':
+                    try:
+                        value = 'Sim' if row.user.userprofile.avatar else 'Não'
+                    except:
+                        value = 'Não'
+
+                if col == 'georef':
+                    geo = GeorefCatador.objects.get(catador_id=row.id)
+                    if geo:
+                        value = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
+
+                if col == 'registered_by_another_user':
+                    value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
+
+                ws.write(row_num, count, value, font_style)
+
+            count += 1
+
+    wb.save(response)
+    return response

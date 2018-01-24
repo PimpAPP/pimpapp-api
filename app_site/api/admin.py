@@ -4,6 +4,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db import models
+from django import forms
 from .models import UserProfile
 from .models import Catador
 from .models import Material
@@ -61,18 +62,23 @@ class MaterialInline(admin.StackedInline):
 
 
 class CatadorAdmin(admin.ModelAdmin):
+    #form
+    exclude = ['mongo_hash', 'slug', 'days_week_work']
+    fields = ('name', 'nickname', 'presentation_phrase', 'minibio', 'city',
+              'region', 'country', 'address_base', 'number', 'address_region',
+              'has_motor_vehicle', 'has_smartphone_with_internet', 'year_of_birth',
+              'works_since', 'registered_by_another_user', 'another_user_name',
+              'another_user_email', 'another_user_whatsapp')
+    inlines = (PhoneInline, GeoRefInline, MaterialInline)
+
+    #list
     list_filter = ('country', 'city', 'registered_by_another_user')
     search_fields = ['id', 'name', 'nickname']
     form = DaysWeekWorkAdminForm
-    list_display = ('pk', 'name', 'nickname', 'year_of_birth', 'get_avatar', 'get_phones', 'address_base', 'number', 'address_region',
-                    'city', 'country', 'region', 'kg_week', 'works_since', 'cooperative_name', 'iron_work',
-                    'kg_day', 'how_many_days_work_week', 'how_many_years_work', 'has_motor_vehicle',
-                    'has_smartphone_with_internet', 'carroca_pimpada', 'region', 'presentation_phrase',
-                    'registered_by_another_user', 'another_user_name', 'another_user_email', 'another_user_whatsapp',
-                    'get_materials', 'get_georef', 'modified_date')
+    list_display = ('pk', 'name', 'nickname', 'get_phones', 'get_avatar', 'get_georef',
+                    'city', 'region', 'address_base', 'number', 'address_region',
+                    'presentation_phrase', 'get_registered_by_another_user', 'modified_date')
     filter_vertical = ['materials_collected']
-    exclude = ['mongo_hash', 'slug', 'days_week_work']
-    inlines = (PhoneInline, GeoRefInline, MaterialInline)
 
     def get_avatar(self, obj):
         return True if obj.user.userprofile.avatar else False
@@ -101,6 +107,13 @@ class CatadorAdmin(admin.ModelAdmin):
 
     get_georef.short_description = 'Lat/Long'
 
+    def get_registered_by_another_user(selfs, obj):
+        if obj.registered_by_another_user:
+            return obj.another_user_name
+        else:
+            return 'Próprio catador'
+
+    get_registered_by_another_user.short_description = 'Cadastrado por'
 
 # USER
 

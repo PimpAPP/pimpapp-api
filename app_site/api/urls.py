@@ -13,6 +13,7 @@ from .views import NearestCatadoresViewSet
 from .views import CustomObtainAuthToken
 from .views import cadastro_catador
 from .views import cadastro_cooperativa
+from .views import export_catadores_xls
 
 router = routers.DefaultRouter()
 
@@ -28,6 +29,7 @@ router.register(r'cooperatives', CooperativeViewSet, base_name='cooperative')
 
 urlpatterns = [
     url(r'^api-token-auth/', CustomObtainAuthToken.as_view()),
+    url(r'^export/xls/$', export_catadores_xls, name='export_catadores_csv'),
     url(r'^', include(router.urls)),
     url(r'cadastro_catador/$', cadastro_catador),
     url(r'cadastro_cooperativa/$', cadastro_cooperativa),
