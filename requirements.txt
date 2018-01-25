@@ -22,3 +22,4 @@ requests==2.8.1
 six==1.10.0
 django-filters
 scipy
+xlwt==1.3.0
