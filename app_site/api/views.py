@@ -867,10 +867,6 @@ def export_catadores_xls(request):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
 
-    # rows = Catador.objects.all().values_list('pk', 'name', 'nickname','city', 'address_base',
-    #                                          'number', 'address_region', 'presentation_phrase',
-    #                                          'registered_by_another_user')
-
     db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
                   'city', 'address_base', 'number', 'address_region',
                   'presentation_phrase', 'registered_by_another_user']
@@ -879,9 +875,6 @@ def export_catadores_xls(request):
 
     for row in rows:
         row_num += 1
-        # for col_num in range(len(columns)):
-        #     ws.write(row_num, col_num, row[col_num], font_style)
-
         count = 0
         for col in db_columns:
             if col in ['pk', 'name', 'nickname', 'city', 'address_base',
@@ -890,7 +883,10 @@ def export_catadores_xls(request):
             else:
                 value = ''
                 if col == 'phones':
-                    value = ', '.join([p.phone for p in row.phones])
+                    try:
+                        value = ', '.join([p.phone for p in row.phones])
+                    except:
+                        value = 'Não informado'
 
                 if col == 'avatar':
                     try:
@@ -899,9 +895,12 @@ def export_catadores_xls(request):
                         value = 'Não'
 
                 if col == 'georef':
-                    geo = GeorefCatador.objects.get(catador_id=row.id)
-                    if geo:
-                        value = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
+                    try:
+                        geo = GeorefCatador.objects.get(catador_id=row.id)
+                        if geo:
+                            value = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
+                    except:
+                        value = 'Não informado'
 
                 if col == 'registered_by_another_user':
                     value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
