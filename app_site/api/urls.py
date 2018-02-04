@@ -14,6 +14,7 @@ from .views import CustomObtainAuthToken
 from .views import cadastro_catador
 from .views import cadastro_cooperativa
 from .views import export_catadores_xls
+from .views import edit_catador
 
 router = routers.DefaultRouter()
 
@@ -32,5 +33,6 @@ urlpatterns = [
     url(r'^export/xls/$', export_catadores_xls, name='export_catadores_csv'),
     url(r'^', include(router.urls)),
     url(r'cadastro_catador/$', cadastro_catador),
+    url(r'edit_catador/$', edit_catador),
     url(r'cadastro_cooperativa/$', cadastro_cooperativa),
 ]

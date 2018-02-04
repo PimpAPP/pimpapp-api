@@ -347,6 +347,105 @@ def cadastro_catador(request):
 
 
 @api_view(['POST'])
+def edit_catador(request):
+    """
+        Edit catador in a one olnly method
+    """
+
+    if not request.data['user'] or not request.data['catador']:
+        return Response('Usuario and Catador is required', status=status.HTTP_400_BAD_REQUEST)
+
+    catador = None
+    catador_serializer = None
+
+    try:
+        # register user
+        user_request = request.data['user']
+        if user_request['id']:
+            user = User.objects.get(id=user_request['id'])
+            if user:
+                user.first_name = user_request['first_name']
+                user.last_name = user_request['last_name']
+                user.save()
+
+        # register catador
+        catador_request = request.data['catador']
+        catador = Catador.objects.get(pk=catador_request['id'])
+        catador_serializer = CatadorSerializer(catador, data=catador_request)
+        catador_serializer.is_valid(raise_exception=True)
+        catador = catador_serializer.save()
+
+        # register phones
+
+        if request.data['phones']:
+            phones_request = request.data['phones']
+            for phone in phones_request:
+                if phone.get('phone') and phone.get('mno'):
+                    phone_id = phone.get('id')
+                    p = phone.get('phone')
+                    mno = phone.get('mno')
+
+                    if phone_id:
+                        m = Mobile.objects.get(pk=phone_id)
+                        m.phone = p
+                        m.mno = mno
+                        m.has_whatsapp = int(phone.get('whatsapp'))
+                        m.save()
+                    else:
+                        m = Mobile.objects.create(
+                            phone=p,
+                            mno=mno,
+                            has_whatsapp=bool(phone.get('whatsapp', False))
+                        )
+                        MobileCatador.objects.create(mobile=m, catador=catador)
+
+        # register location
+        if request.data['location']:
+            location = request.data['location']
+            gc = GeorefCatador.objects.get(catador=catador)
+            if gc:
+                gc.latitude = location.get('latitude'),
+                gc.longitude = location.get('longitude')
+                gc.save()
+            else:
+                georeference = LatitudeLongitude.objects.create(
+                    latitude=location.get('latitude'),
+                    longitude=location.get('longitude'))
+
+                GeorefCatador.objects.create(georef=georeference, catador=catador)
+
+        # register avatar
+        try:
+            if request.FILES.get('avatar'):
+                avatar = request.FILES['avatar']
+            elif request.data['avatar']:
+                data = request.data['avatar']
+                avatar = base64ToFile(data)
+
+            up = UserProfile.objects.get(user=user)
+            if up:
+                up.avatar = avatar
+                up.save()
+            else:
+                UserProfile.objects.create(user=user, avatar=avatar)
+
+        except Exception:
+            pass
+
+    except Exception as error:
+        logger.error(error)
+        err = {}
+
+        if (user_serializer and user_serializer.errors) or (catador_serializer and catador_serializer.errors):
+            err['catador'] = catador_serializer.errors
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+        raise
+
+    return Response('ok', status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
 def cadastro_cooperativa(request):
     """
         Save cooperative in a one only method
