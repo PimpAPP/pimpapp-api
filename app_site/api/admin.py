@@ -68,7 +68,7 @@ class CatadorAdmin(admin.ModelAdmin):
               'region', 'country', 'address_base', 'number', 'address_region',
               'has_motor_vehicle', 'has_smartphone_with_internet', 'year_of_birth',
               'works_since', 'registered_by_another_user', 'another_user_name',
-              'another_user_email', 'another_user_whatsapp')
+              'another_user_email', 'another_user_whatsapp', 'carroca_pimpada')
     inlines = (PhoneInline, GeoRefInline, MaterialInline)
 
     #list
