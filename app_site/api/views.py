@@ -293,10 +293,12 @@ def cadastro_catador(request):
         catador = catador_serializer.save()
 
         # register phones
+        import pdb
+        pdb.set_trace()
         if request.data['phones']:
             phones_request = request.data['phones']
             for phone in phones_request:
-                if phone.get('phone') and phone.get('mno'):
+                if phone.get('phone'):
                     m = Mobile.objects.create(
                         phone=phone.get('phone'),
                         mno=phone.get('mno'),
@@ -380,7 +382,7 @@ def edit_catador(request):
         if request.data['phones']:
             phones_request = request.data['phones']
             for phone in phones_request:
-                if phone.get('phone') and phone.get('mno'):
+                if phone.get('phone'):
                     phone_id = phone.get('id')
                     p = phone.get('phone')
                     mno = phone.get('mno')
@@ -436,7 +438,7 @@ def edit_catador(request):
         logger.error(error)
         err = {}
 
-        if (user_serializer and user_serializer.errors) or (catador_serializer and catador_serializer.errors):
+        if catador_serializer and catador_serializer.errors:
             err['catador'] = catador_serializer.errors
             return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
@@ -492,7 +494,7 @@ def cadastro_cooperativa(request):
         if request.data['phones']:
             phones_request = request.data['phones']
             for phone in phones_request:
-                if phone.get('phone') and phone.get('mno'):
+                if phone.get('phone'):
                     m = Mobile.objects.create(
                         phone=phone.get('phone'),
                         mno=phone.get('mno'),
