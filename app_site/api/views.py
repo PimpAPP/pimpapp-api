@@ -293,8 +293,6 @@ def cadastro_catador(request):
         catador = catador_serializer.save()
 
         # register phones
-        import pdb
-        pdb.set_trace()
         if request.data['phones']:
             phones_request = request.data['phones']
             for phone in phones_request:
