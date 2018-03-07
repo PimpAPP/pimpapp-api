@@ -60,8 +60,9 @@ class MaterialInline(admin.StackedInline):
     def get_max_num(self, request, obj=None, **kwargs):
         return 12
 
+import pdb
 
-class CatadorAdmin(admin.ModelAdmin):
+class CatadorAdmin(SimpleHistoryAdmin):
     #form
     exclude = ['mongo_hash', 'slug', 'days_week_work']
     fields = ('name', 'nickname', 'presentation_phrase', 'minibio', 'city',
@@ -70,6 +71,8 @@ class CatadorAdmin(admin.ModelAdmin):
               'works_since', 'registered_by_another_user', 'another_user_name',
               'another_user_email', 'another_user_whatsapp', 'carroca_pimpada')
     inlines = (PhoneInline, GeoRefInline, MaterialInline)
+    history_list_display = ['name', 'nickname', 'city', 'region', 'address_base',
+                            'number', 'address_region', 'presentation_phrase']
 
     #list
     list_filter = ('country', 'city', 'registered_by_another_user')
@@ -136,7 +139,7 @@ class UserAdmin(BaseUserAdmin):
     get_avatar.admin_order_field = 'userprofile__avatar'
 
 
-class MobileAdmin(admin.ModelAdmin):
+class MobileAdmin(SimpleHistoryAdmin):
     model = Mobile
 
     class Media:

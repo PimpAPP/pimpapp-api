@@ -51,7 +51,7 @@ class ModeratedModel(models.Model):
     class Meta:
         abstract = True
 
-    history = HistoricalRecords(inherit=True)
+    # history = HistoricalRecords(inherit=True)
 
     created_on = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -290,6 +290,8 @@ class Catador(BaseMapMarker):
         verbose_name=_('Quantos Kg coleta por dia?'))
 
     year_of_birth = models.DateField(auto_now=False, null=True, blank=True)
+
+    history = HistoricalRecords()
 
 
     @property
@@ -542,6 +544,8 @@ class Material(ModeratedModel):
             * Outros (embalagem longa vida, etc.)
     """
 
+    history = HistoricalRecords()
+
     class Meta:
         verbose_name = 'Serviços e Materiais'
         verbose_name_plural = 'Serviços e Materiais'
@@ -557,6 +561,8 @@ class LatitudeLongitude(ModeratedModel):
     """
         DOCS: TODO
     """
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'GeoReferencia'
@@ -838,6 +844,8 @@ class Mobile(ModeratedModel):
         verbose_name=_('Comentário'),
         max_length=140, blank=True, null=True)
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.phone
 
@@ -951,3 +959,4 @@ class GeneralErros(models.Model):
     class Meta:
         verbose_name = 'Erros no sistema'
         verbose_name_plural = _('Erros no sistema')
+
