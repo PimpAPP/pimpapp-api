@@ -178,7 +178,8 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
     serializer_class = CatadorSerializer
     permission_classes = (AllowAny,)
-    queryset = Catador.objects.all()
+    # queryset = Catador.objects.all()
+    queryset = Catador.objects.filter(active=True)
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
     @detail_route(methods=['POST', 'OPTIONS'], permission_classes=[AllowAny])

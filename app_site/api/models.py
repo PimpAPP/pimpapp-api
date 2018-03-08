@@ -70,6 +70,10 @@ class ModeratedModel(models.Model):
         null=True
     )
 
+    active = models.BooleanField(
+        verbose_name=_('Ativo'),
+        default=True)
+
 
 class BaseMapMarker(ModeratedModel):
 

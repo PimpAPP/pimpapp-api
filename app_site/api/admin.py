@@ -60,7 +60,6 @@ class MaterialInline(admin.StackedInline):
     def get_max_num(self, request, obj=None, **kwargs):
         return 12
 
-import pdb
 
 class CatadorAdmin(SimpleHistoryAdmin):
     #form
@@ -69,7 +68,7 @@ class CatadorAdmin(SimpleHistoryAdmin):
               'region', 'country', 'address_base', 'number', 'address_region',
               'has_motor_vehicle', 'has_smartphone_with_internet', 'year_of_birth',
               'works_since', 'registered_by_another_user', 'another_user_name',
-              'another_user_email', 'another_user_whatsapp', 'carroca_pimpada')
+              'another_user_email', 'another_user_whatsapp', 'carroca_pimpada', 'active')
     inlines = (PhoneInline, GeoRefInline, MaterialInline)
     history_list_display = ['name', 'nickname', 'city', 'region', 'address_base',
                             'number', 'address_region', 'presentation_phrase']
@@ -80,7 +79,8 @@ class CatadorAdmin(SimpleHistoryAdmin):
     # form = DaysWeekWorkAdminForm
     list_display = ('pk', 'name', 'nickname', 'get_phones', 'get_avatar', 'get_georef',
                     'city', 'region', 'address_base', 'number', 'address_region',
-                    'presentation_phrase', 'get_registered_by_another_user', 'modified_date')
+                    'presentation_phrase', 'get_registered_by_another_user',
+                    'modified_date', 'active')
     filter_vertical = ['materials_collected']
 
     def get_avatar(self, obj):
