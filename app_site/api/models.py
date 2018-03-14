@@ -427,6 +427,25 @@ class Catador(BaseMapMarker):
         georef = GeorefCatador.objects.create(georef=lat, catador_id=self.id)
         georef.save()
 
+    modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+
+@receiver(post_save, sender=Catador)
+def save_catador_notification(sender, instance, **kwargs):
+    cn = ChangeNotificaion.objects.create(model_type='Catador', model_pk=instance.pk)
+    cn.save()
+
+
+class ChangeNotificaion(models.Model):
+
+    class Meta:
+        verbose_name = 'Alterações'
+        verbose_name_plural = _('Alterações')
+
+    date = models.DateTimeField(auto_now=True, blank=False, null=False)
+    model_type = models.CharField(max_length=50, verbose_name=_('Tipo'))
+    model_pk = models.IntegerField(null=False, blank=False, help_text='Pk do objeto')
+
 
 class Collect(ModeratedModel):
     _upload_to = 'collectfolder'

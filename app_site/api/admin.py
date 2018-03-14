@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db import models
 from django import forms
+
 from .models import UserProfile
 from .models import Catador
 from .models import Material
@@ -28,8 +29,9 @@ from .models import PhotoCatador
 from .models import GeorefCatador
 from .models import Rating
 from .models import GeneralErros
+from .models import ChangeNotificaion
 from .forms import DaysWeekWorkAdminForm
-
+from simple_history import models
 
 # CATADOR
 
@@ -110,7 +112,7 @@ class CatadorAdmin(SimpleHistoryAdmin):
 
     get_georef.short_description = 'Lat/Long'
 
-    def get_registered_by_another_user(selfs, obj):
+    def get_registered_by_another_user(self, obj):
         if obj.registered_by_another_user:
             return obj.another_user_name
         else:
@@ -152,9 +154,25 @@ class ErroAdmin(admin.ModelAdmin):
     list_display = ('date', )
 
 
+class ChangeNotificaionAdmin(admin.ModelAdmin):
+    list_display = ('model_type', 'model_pk', 'get_link', 'date')
+    ordering = ('-date',)
+    actions = None
+    list_display_links = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def get_link(self, obj):
+        url = u'/api/' + str(obj.model_type).lower() + u'/' + str(obj.model_pk) + u'/history/'
+        return u'<a href="' + url + u'" target="_blank">Clique aqui</a>'
+
+    get_link.allow_tags = True
+    get_link.short_description = 'Link'
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-
 admin.site.register(Catador, CatadorAdmin)
 admin.site.register(Material, SimpleHistoryAdmin)
 admin.site.register(LatitudeLongitude, SimpleHistoryAdmin)
@@ -177,3 +195,4 @@ admin.site.register(Mobile, MobileAdmin)
 admin.site.register(GeorefCatador)
 admin.site.register(Rating)
 admin.site.register(GeneralErros, ErroAdmin)
+admin.site.register(ChangeNotificaion, ChangeNotificaionAdmin)
