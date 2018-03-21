@@ -12,6 +12,8 @@ Ele fornece a API utilizada pelo [projeto mobile](https://github.com/PimpAPP/pim
 
 ## Configuração do Projeto
 
+Obs: O manual a seguir irá mencionar o arquivo `manage.py` várias. Ele encontra-se dentro da pasta `app_site`, então certifique-se de estar nessa pasta antes de rodar os comandos que envolvem o `manage.py`.
+
 ### Pré-Requisitos
 
 Você deve ter os seguintes pacotes instalados em seu computador:
@@ -61,13 +63,17 @@ apt-get install libjpeg-dev zlib1g-dev
 
 #### Migrações
 
-Você deve rodar as migrações para que as tabelas sejam criadas no seu banco de dados local.
+Você deve criar e rodar as migrações para que as tabelas sejam criadas no seu banco de dados local.
 
 ```sh
+python manage.py makemigrations
+pythos manage.py makemigrations api
 python manage.py migrate
 ```
 
 #### Dados
+
+*-- DEPRECATED --* Não temos no momento uma dump de dados atualizado para uso em desenvolvimento
 
 Carregar dados iniciais no db atraves do script `load_catadores.sh`.
 
@@ -78,25 +84,32 @@ cd scripts
 sh load_catadores.sh
 ```
 
--> Inicializar o server
-
-python manage.py runserver
-
-
 [//]: # (TODO Escrever sobre o local_settings.py)
 
 ## Desenvolvendo
 
-### Banco de Dados
+Para rodar o servidor local:
+
+```sh
+python manage.py runserver
+```
 
 #### Criando migrações
 
 Sempre que houver alterações nos models que devam ser refletidas no banco de dados, deve-se rodar o comando `makemigrations` para criar as migrações necessárias.
 
-Caso necessario visualizar o sql gerado pelo django, basta rodar o comando `python manage.py sqlall carroceiro`
+```sh
+python manage.py makemigrations
+```
+
+Caso seja necessário visualizar o sql gerado pelo django para uma determinada migração:
+
+```sh
+python manage.py sqlmigrate api <migration_name>
+ ```
 
 #### Resetando o Banco
-Caso você precise resetar o banco e recriar as tabelas do zero, rode o seguinte comando:
+Caso você precise resetar o banco e recriar as tabelas do zero, rode o seguinte comando (isso irá deletar todos os dados no banco):
 
 ```sh
 python manage.py reset_db
@@ -107,9 +120,6 @@ Depois rode novamente as migrações:
 ```sh
 python manage.py migrate
 ```
-
-E execute novamente o script load_catadores.sh para inicializar data no db.
-
 
 ### Testes
 
@@ -127,8 +137,8 @@ Veja a sessão de autenticação antes de rodar os testes!
 
 Todos os metodos de escrita, e.g, PUT/DELETE/POST estão protegidos por Token Authentication.
 
-Existe uma database que o django cria automaticamente (apos um manage.py migrate) e devido ao arquivo signals.py cada usuário criado atraves
-do manage.py createsuperuser ira associar um token para este usuário.
+Existe uma database que o django cria automaticamente (após um manage.py migrate) e devido ao arquivo signals.py cada usuário criado através
+do manage.py createsuperuser irá associar um token para este usuário.
 
 Então para autenticar basta enviar qualquer token de qualquer usuário que existe nesta database. No caso deste app, partimos do pressuposto que irá
 existir somente um admin (pode existir mais se necessário sem problemas), então é necessário criar somente um usuário com nome qualquer (pimpapp por ex) e este irá ter um token.
@@ -136,15 +146,13 @@ Posteriormente, qualquer requisição de REST PUT/DELETE/POST somente irá ser a
 
 ***Importante***
 
-Como os testes fazem utilizacao da autenticacao, é necessario que o token utilizado nos metodos seja correto, ou em outras palavras exista na nossa database.
-Entao, antes de executar os testes, faca o set da variavel global token com o mesmo valor do token que existe no database que foi gerado apos a criacao do usuario no arquivo tests.py
-{ara saber qual o token do usuario criado, basta entrar em "127.0.0.1:8000/admin" e visualizar a tabela AuthToken/Tokens. Ou fazer um select nesta tabela atraves do CLI usando o slqlite por exemplo.
+Como os testes fazem utilização da autenticação, é necessário que o token utilizado nos métodos seja correto, ou em outras palavras exista na nossa database.
+Então, antes de executar os testes, faça o set da variável global token com o mesmo valor do token que existe no database que foi gerado após a criação do usuário no arquivo tests.py
+Para saber qual o token do usuário criado, basta entrar em "127.0.0.1:8000/admin" e visualizar a tabela AuthToken/Tokens. Ou fazer um select nesta tabela através do CLI usando o slqlite por exemplo.
 
-No arquivo README.md existe um exemplo com curl e token authentication, para fazer um teste manual, se necessario.
+No arquivo README.md existe um exemplo com curl e token authentication, para fazer um teste manual, se necessário.
 
 ### Observações de um iniciante em django e sqlite após seguir o procedimento:
-
-Ir para o diretório app_site antes do comando migrate
 
 Instalar sqlite3 para rodar script load_carroceiros.sh
 Pode-se usar o comando: apt-get install sqlite3
