@@ -797,6 +797,9 @@ class Cooperative(models.Model):
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 
+    @property
+    def profile_photo(self):
+        return self.user.userprofile.avatar.url
 
     @property
     def photos(self):

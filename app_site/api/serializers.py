@@ -246,6 +246,7 @@ class CooperativeSerializer(serializers.ModelSerializer):
     photos = serializers.SerializerMethodField()
     geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
     phones = MobileSerializer(read_only=True, many=True)
+    profile_photo = serializers.CharField(read_only=True, required=False)
 
     # partners = PartnerSerializer(many=True)
     class Meta:
