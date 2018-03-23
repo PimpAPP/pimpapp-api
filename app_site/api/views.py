@@ -262,7 +262,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def cadastro_catador(request):
     """
-        Save catador in a one olnly method
+        Save catador in a one only method
     """
 
     if not request.data['user'] or not request.data['catador']:
@@ -350,7 +350,7 @@ def cadastro_catador(request):
 @api_view(['POST'])
 def edit_catador(request):
     """
-        Edit catador in a one olnly method
+        Edit catador in a one only method
     """
 
     if not request.data['user'] or not request.data['catador']:
@@ -536,6 +536,84 @@ def cadastro_cooperativa(request):
             err['cooperativa'] = cooperativa_serializer.errors
             return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
+        raise
+
+    return Response('ok', status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def edit_cooperativa(request):
+    """
+        Edit cooperative in a one only method
+    """
+
+    if not request.data['user'] or not request.data['cooperativa']:
+        return Response('Usuario and Cooperativa is required', status=status.HTTP_400_BAD_REQUEST)
+
+    user = None
+    cooperativa = None
+    cooperativa_serializer = None
+
+    try:
+        # register user
+        user_request = request.data['user']
+        if user_request['id']:
+            user = User.objects.get(id=user_request['id'])
+            if user:
+                user.first_name = user_request['first_name']
+                user.last_name = user_request['last_name']
+                user.save()
+
+        # register cooperativa
+        cooperativa_request = request.data['cooperativa']
+        cooperativa = Cooperative.objects.get(pk=cooperativa_request['id'])
+        cooperativa_serializer = CooperativeSerializer(cooperativa, data=cooperativa_request)
+        cooperativa_serializer.is_valid(raise_exception=True)
+        cooperativa = cooperativa_serializer.save()
+
+        # register phones
+        if request.data['phones']:
+            phones_request = request.data['phones']
+            for phone in phones_request:
+                if phone.get('phone'):
+                    if phone.get('id'):
+                        m = Mobile.objects.get(pk=phone.get('id'))
+                        m.phone = phone.get('phone')
+                        m.mno = phone.get('mno')
+                        m.has_whatsapp = int(phone.get('whatsapp'))
+                        m.save()
+                    else:
+                        m = Mobile.objects.create(
+                            phone=phone.get('phone'),
+                            mno=phone.get('mno'),
+                            has_whatsapp=bool(phone.get('whatsapp', False))
+                        )
+                        MobileCooperative.objects.create(mobile=m, cooperative=cooperativa)
+
+        # register avatar
+        try:
+            if request.FILES.get('avatar'):
+                avatar = request.FILES['avatar']
+            elif request.data['avatar']:
+                data = request.data['avatar']
+                avatar = base64ToFile(data)
+
+            up = UserProfile.objects.get(user=user)
+            if up:
+                up.avatar = avatar
+                up.save()
+            else:
+                UserProfile.objects.create(user=user, avatar=avatar)
+
+        except Exception:
+            pass
+
+    except Exception as error:
+        logger.error(error)
+        err = {}
+        if cooperativa_serializer and cooperativa_serializer.errors:
+            err['catador'] = cooperativa_serializer.errors
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
         raise
 
     return Response('ok', status=status.HTTP_200_OK)

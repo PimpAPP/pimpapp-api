@@ -427,7 +427,7 @@ class Catador(BaseMapMarker):
         georef = GeorefCatador.objects.create(georef=lat, catador_id=self.id)
         georef.save()
 
-    modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+
 
 
 @receiver(post_save, sender=Catador)
@@ -743,6 +743,7 @@ class Cooperative(models.Model):
     work_since = models.DateField(null=True, blank=True)
     founded_in = models.DateField(auto_now=False, null=True, blank=True)
     history = models.TextField(blank=True, null=True)
+    modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     # Location
     address_base = models.CharField(
