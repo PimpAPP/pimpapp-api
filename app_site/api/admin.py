@@ -67,7 +67,7 @@ class CatadorAdmin(SimpleHistoryAdmin):
     #form
     exclude = ['mongo_hash', 'slug', 'days_week_work']
     fields = ('name', 'nickname', 'presentation_phrase', 'minibio', 'city',
-              'region', 'country', 'address_base', 'number', 'address_region',
+              'state', 'region', 'country', 'address_base', 'number', 'address_region',
               'has_motor_vehicle', 'has_smartphone_with_internet', 'year_of_birth',
               'works_since', 'registered_by_another_user', 'another_user_name',
               'another_user_email', 'another_user_whatsapp', 'carroca_pimpada', 'active')
@@ -76,11 +76,11 @@ class CatadorAdmin(SimpleHistoryAdmin):
                             'number', 'address_region', 'presentation_phrase']
 
     #list
-    list_filter = ('country', 'city', 'registered_by_another_user')
+    list_filter = ('country', 'state', 'city', 'registered_by_another_user')
     search_fields = ['id', 'name', 'nickname']
     # form = DaysWeekWorkAdminForm
     list_display = ('pk', 'name', 'nickname', 'get_phones', 'get_avatar', 'get_georef',
-                    'city', 'region', 'address_base', 'number', 'address_region',
+                    'state', 'city', 'region', 'address_base', 'number', 'address_region',
                     'presentation_phrase', 'get_registered_by_another_user',
                     'modified_date', 'active')
     filter_vertical = ['materials_collected']
