@@ -120,6 +120,83 @@ class CatadorAdmin(SimpleHistoryAdmin):
 
     get_registered_by_another_user.short_description = 'Cadastrado por'
 
+    def export_xls(self, request, queryset):
+        import xlwt
+        from django.shortcuts import get_object_or_404, HttpResponse
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="catadores.xls"'
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Catadores')
+
+        # Sheet header, first row
+        row_num = 0
+
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        columns = ['pk', 'Nome', 'Apelido', 'Telefone(s)',
+                   'Possui foto?', 'Lat/Long', 'Cidade',
+                   'Endereço onde costuma trabalhar',
+                   'Número', 'Bairro', 'Frase de apresentação',
+                   'Cadastrado por']
+
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, columns[col_num], font_style)
+
+        # Sheet body, remaining rows
+        font_style = xlwt.XFStyle()
+
+        db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
+                      'city', 'address_base', 'number', 'address_region',
+                      'presentation_phrase', 'registered_by_another_user']
+
+        rows = queryset
+
+        for row in rows:
+            row_num += 1
+            count = 0
+            for col in db_columns:
+                if col in ['pk', 'name', 'nickname', 'city', 'address_base',
+                           'number', 'address_region', 'presentation_phrase']:
+                    ws.write(row_num, count, row.__getattribute__(col), font_style)
+                else:
+                    value = ''
+                    if col == 'phones':
+                        try:
+                            value = ', '.join([p.phone for p in row.phones])
+                        except:
+                            value = 'Não informado'
+
+                    if col == 'avatar':
+                        try:
+                            value = 'Sim' if row.user.userprofile.avatar else 'Não'
+                        except:
+                            value = 'Não'
+
+                    if col == 'georef':
+                        try:
+                            geo = GeorefCatador.objects.get(catador_id=row.id)
+                            if geo:
+                                value = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
+                        except:
+                            value = 'Não informado'
+
+                    if col == 'registered_by_another_user':
+                        value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
+
+                    ws.write(row_num, count, value, font_style)
+
+                count += 1
+
+        wb.save(response)
+        return response
+
+    export_xls.short_description = 'Exportar selecionados para Excel'
+
+    actions = [export_xls]
+
+
 # USER
 
 class UserProfileInline(admin.StackedInline):
