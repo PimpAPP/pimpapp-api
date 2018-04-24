@@ -57,6 +57,7 @@ target/
 venv/
 env/
 env34/
+.vEnv/
 
 # cache results from py.test
 integration_test/.cache

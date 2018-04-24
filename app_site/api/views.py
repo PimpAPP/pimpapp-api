@@ -301,7 +301,7 @@ def cadastro_catador(request):
                     m = Mobile.objects.create(
                         phone=phone.get('phone'),
                         mno=phone.get('mno'),
-                        has_whatsapp=bool(phone.get('whatsapp', False))
+                        has_whatsapp=phone.get('has_whatsapp', False)
                     )
                     MobileCatador.objects.create(mobile=m, catador=catador)
 
@@ -390,13 +390,13 @@ def edit_catador(request):
                         m = Mobile.objects.get(pk=phone_id)
                         m.phone = p
                         m.mno = mno
-                        m.has_whatsapp = int(phone.get('whatsapp'))
+                        m.has_whatsapp = int(phone.get('has_whatsapp'))
                         m.save()
                     else:
                         m = Mobile.objects.create(
                             phone=p,
                             mno=mno,
-                            has_whatsapp=bool(phone.get('whatsapp', False))
+                            has_whatsapp=bool(phone.get('has_whatsapp', False))
                         )
                         MobileCatador.objects.create(mobile=m, catador=catador)
 
