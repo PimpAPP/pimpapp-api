@@ -262,7 +262,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def cadastro_catador(request):
     """
-        Save catador in a one only method
+        Save catador in an one only method
     """
 
     if not request.data['user'] or not request.data['catador']:
@@ -350,9 +350,8 @@ def cadastro_catador(request):
 @api_view(['POST'])
 def edit_catador(request):
     """
-        Edit catador in a one only method
+        Edit catador in an one only method
     """
-
     if not request.data['user'] or not request.data['catador']:
         return Response('Usuario and Catador is required', status=status.HTTP_400_BAD_REQUEST)
 
@@ -373,6 +372,7 @@ def edit_catador(request):
         catador_request = request.data['catador']
         catador = Catador.objects.get(pk=catador_request['id'])
         catador_serializer = CatadorSerializer(catador, data=catador_request)
+
         catador_serializer.is_valid(raise_exception=True)
         catador = catador_serializer.save()
 
