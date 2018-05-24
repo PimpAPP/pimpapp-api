@@ -120,6 +120,7 @@ class CatadorAdmin(SimpleHistoryAdmin):
 
     get_registered_by_another_user.short_description = 'Cadastrado por'
 
+
 # USER
 
 class UserProfileInline(admin.StackedInline):

@@ -69,5 +69,6 @@ integration_test/.cache
 *.swp
 static/
 .env
+.vEnv
 *.sqlite3
 requirements-dev.txt

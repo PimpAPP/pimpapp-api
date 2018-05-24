@@ -23,7 +23,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from .models import ModeratedModel
+from .models import ModeratedModel, Partner, PhotoCooperative
 from .models import Catador
 from .models import LatitudeLongitude
 from .models import MobileCatador
@@ -520,6 +520,22 @@ def cadastro_cooperativa(request):
         except Exception:
             pass
 
+        # Photos
+        if cooperativa_request['photos']:
+            for photo in cooperativa_request['photos']:
+                file = base64ToFile(photo)
+                PhotoCooperative.objects.create(
+                    cooperative=cooperativa,
+                    full_photo=file,
+                    author=cooperativa.user)
+
+        # Partners
+        if cooperativa_request['partners']:
+            for partner in cooperativa_request['partners']:
+                file = base64ToFile(partner['image'])
+                p = Partner.objects.create(name=partner['name'], image=file)
+                cooperativa.partners.add(p)
+
     except Exception as error:
         logger.error(error)
 
@@ -607,6 +623,33 @@ def edit_cooperativa(request):
 
         except Exception:
             pass
+
+        # Photos
+        if cooperativa_request['photos']:
+            for photo in cooperativa_request['photos']:
+                if type(photo) is dict:
+                    if 'delete' in photo and photo['delete']:
+                        res = PhotoCooperative.objects.filter(pk=photo['id'])
+                        if res and res[0]:
+                            res[0].delete()
+                else:
+                    file = base64ToFile(photo)
+                    PhotoCooperative.objects.create(
+                        cooperative=cooperativa,
+                        full_photo=file,
+                        author=cooperativa.user)
+
+        # Partners
+        if cooperativa_request['partners']:
+            for partner in cooperativa_request['partners']:
+                if 'delete' in partner and partner['delete']:
+                    p = Partner.objects.filter(pk=partner['pk'])
+                    if p and p[0]:
+                        cooperativa.partners.remove(p[0])
+                elif not 'pk' in partner:
+                    file = base64ToFile(partner['image'])
+                    p = Partner.objects.create(name=partner['name'], image=file)
+                    cooperativa.partners.add(p)
 
     except Exception as error:
         logger.error(error)
@@ -805,6 +848,17 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
             self.get_object().residue_location)
 
         return Response(serializer.data)
+
+
+class PartnerViewSet(viewsets.ModelViewSet):
+    serializer_class = PartnerSerializer
+    queryset = Partner.objects.all()
+    filter_backends = (SearchFilter,)
+    search_fields = ['^name']
+    ordering_fields = ['name']
+    http_method_names = ['get', 'post', 'update', 'patch', 'options', 'delete']
+    # permission_classes = (AllowAny,)
+    # authentication_classes = []
 
 
 class CooperativeViewSet(viewsets.ModelViewSet):

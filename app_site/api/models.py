@@ -804,7 +804,7 @@ class Cooperative(models.Model):
 
     @property
     def photos(self):
-        objs = self.photocooperative.all().order_by('created_on')
+        objs = self.photocooperative_set.all().order_by('created_on')
         return objs
 
     @property
