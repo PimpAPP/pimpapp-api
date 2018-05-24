@@ -238,7 +238,7 @@ class PhotoCooperativeSerializer(serializers.ModelSerializer):
 class PartnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partner
-        fields = '__all__'
+        fields = ('pk', 'name', 'image')
 
 
 class CooperativeSerializer(serializers.ModelSerializer):
@@ -247,8 +247,9 @@ class CooperativeSerializer(serializers.ModelSerializer):
     geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
     phones = MobileSerializer(read_only=True, many=True)
     profile_photo = serializers.CharField(read_only=True, required=False)
-
     # partners = PartnerSerializer(many=True)
+    partners = serializers.SerializerMethodField()
+
     class Meta:
         model = Cooperative
         exclude = []
@@ -258,6 +259,9 @@ class CooperativeSerializer(serializers.ModelSerializer):
 
     def get_photos(self, obj):
         return PhotoCooperativeSerializer(obj.photocooperative_set, many=True).data
+
+    def get_partners(self, obj):
+        return PartnerSerializer(obj.partners, many=True).data
 
 
 class GeorefCatadorSerializer(serializers.ModelSerializer):

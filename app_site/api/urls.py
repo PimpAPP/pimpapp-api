@@ -16,6 +16,7 @@ from .views import cadastro_cooperativa
 from .views import export_catadores_xls
 from .views import edit_catador
 from .views import edit_cooperativa
+from .views import PartnerViewSet
 
 router = routers.DefaultRouter()
 
@@ -27,6 +28,7 @@ router.register(r'catadores', CatadorViewSet)
 router.register(r'collect', CollectViewSet)
 router.register(r'materials', MaterialsViewSet)
 router.register(r'cooperatives', CooperativeViewSet, base_name='cooperative')
+router.register(r'partners', PartnerViewSet, base_name='partners')
 
 
 urlpatterns = [
