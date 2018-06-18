@@ -23,7 +23,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from .models import ModeratedModel
+from .models import ModeratedModel, Partner, PhotoCooperative
 from .models import Catador
 from .models import LatitudeLongitude
 from .models import MobileCatador
@@ -262,7 +262,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def cadastro_catador(request):
     """
-        Save catador in a one only method
+        Save catador in an one only method
     """
 
     if not request.data['user'] or not request.data['catador']:
@@ -301,7 +301,7 @@ def cadastro_catador(request):
                     m = Mobile.objects.create(
                         phone=phone.get('phone'),
                         mno=phone.get('mno'),
-                        has_whatsapp=bool(phone.get('whatsapp', False))
+                        has_whatsapp=phone.get('has_whatsapp', False)
                     )
                     MobileCatador.objects.create(mobile=m, catador=catador)
 
@@ -350,9 +350,8 @@ def cadastro_catador(request):
 @api_view(['POST'])
 def edit_catador(request):
     """
-        Edit catador in a one only method
+        Edit catador in an one only method
     """
-
     if not request.data['user'] or not request.data['catador']:
         return Response('Usuario and Catador is required', status=status.HTTP_400_BAD_REQUEST)
 
@@ -373,6 +372,7 @@ def edit_catador(request):
         catador_request = request.data['catador']
         catador = Catador.objects.get(pk=catador_request['id'])
         catador_serializer = CatadorSerializer(catador, data=catador_request)
+
         catador_serializer.is_valid(raise_exception=True)
         catador = catador_serializer.save()
 
@@ -390,13 +390,13 @@ def edit_catador(request):
                         m = Mobile.objects.get(pk=phone_id)
                         m.phone = p
                         m.mno = mno
-                        m.has_whatsapp = int(phone.get('whatsapp'))
+                        m.has_whatsapp = int(phone.get('has_whatsapp'))
                         m.save()
                     else:
                         m = Mobile.objects.create(
                             phone=p,
                             mno=mno,
-                            has_whatsapp=bool(phone.get('whatsapp', False))
+                            has_whatsapp=bool(phone.get('has_whatsapp', False))
                         )
                         MobileCatador.objects.create(mobile=m, catador=catador)
 
@@ -520,6 +520,22 @@ def cadastro_cooperativa(request):
         except Exception:
             pass
 
+        # Photos
+        if cooperativa_request['photos']:
+            for photo in cooperativa_request['photos']:
+                file = base64ToFile(photo)
+                PhotoCooperative.objects.create(
+                    cooperative=cooperativa,
+                    full_photo=file,
+                    author=cooperativa.user)
+
+        # Partners
+        if cooperativa_request['partners']:
+            for partner in cooperativa_request['partners']:
+                file = base64ToFile(partner['image'])
+                p = Partner.objects.create(name=partner['name'], image=file)
+                cooperativa.partners.add(p)
+
     except Exception as error:
         logger.error(error)
 
@@ -607,6 +623,33 @@ def edit_cooperativa(request):
 
         except Exception:
             pass
+
+        # Photos
+        if cooperativa_request['photos']:
+            for photo in cooperativa_request['photos']:
+                if type(photo) is dict:
+                    if 'delete' in photo and photo['delete']:
+                        res = PhotoCooperative.objects.filter(pk=photo['id'])
+                        if res and res[0]:
+                            res[0].delete()
+                else:
+                    file = base64ToFile(photo)
+                    PhotoCooperative.objects.create(
+                        cooperative=cooperativa,
+                        full_photo=file,
+                        author=cooperativa.user)
+
+        # Partners
+        if cooperativa_request['partners']:
+            for partner in cooperativa_request['partners']:
+                if 'delete' in partner and partner['delete']:
+                    p = Partner.objects.filter(pk=partner['pk'])
+                    if p and p[0]:
+                        cooperativa.partners.remove(p[0])
+                elif not 'pk' in partner:
+                    file = base64ToFile(partner['image'])
+                    p = Partner.objects.create(name=partner['name'], image=file)
+                    cooperativa.partners.add(p)
 
     except Exception as error:
         logger.error(error)
@@ -805,6 +848,17 @@ class ResidueViewSet(RecoBaseView, viewsets.ModelViewSet):
             self.get_object().residue_location)
 
         return Response(serializer.data)
+
+
+class PartnerViewSet(viewsets.ModelViewSet):
+    serializer_class = PartnerSerializer
+    queryset = Partner.objects.all()
+    filter_backends = (SearchFilter,)
+    search_fields = ['^name']
+    ordering_fields = ['name']
+    http_method_names = ['get', 'post', 'update', 'patch', 'options', 'delete']
+    # permission_classes = (AllowAny,)
+    # authentication_classes = []
 
 
 class CooperativeViewSet(viewsets.ModelViewSet):
