@@ -262,7 +262,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def cadastro_catador(request):
     """
-        Save catador in a one only method
+        Save catador in an one only method
     """
 
     if not request.data['user'] or not request.data['catador']:
@@ -301,7 +301,7 @@ def cadastro_catador(request):
                     m = Mobile.objects.create(
                         phone=phone.get('phone'),
                         mno=phone.get('mno'),
-                        has_whatsapp=bool(phone.get('whatsapp', False))
+                        has_whatsapp=phone.get('has_whatsapp', False)
                     )
                     MobileCatador.objects.create(mobile=m, catador=catador)
 
@@ -350,9 +350,8 @@ def cadastro_catador(request):
 @api_view(['POST'])
 def edit_catador(request):
     """
-        Edit catador in a one only method
+        Edit catador in an one only method
     """
-
     if not request.data['user'] or not request.data['catador']:
         return Response('Usuario and Catador is required', status=status.HTTP_400_BAD_REQUEST)
 
@@ -373,6 +372,7 @@ def edit_catador(request):
         catador_request = request.data['catador']
         catador = Catador.objects.get(pk=catador_request['id'])
         catador_serializer = CatadorSerializer(catador, data=catador_request)
+
         catador_serializer.is_valid(raise_exception=True)
         catador = catador_serializer.save()
 
@@ -390,13 +390,13 @@ def edit_catador(request):
                         m = Mobile.objects.get(pk=phone_id)
                         m.phone = p
                         m.mno = mno
-                        m.has_whatsapp = int(phone.get('whatsapp'))
+                        m.has_whatsapp = int(phone.get('has_whatsapp'))
                         m.save()
                     else:
                         m = Mobile.objects.create(
                             phone=p,
                             mno=mno,
-                            has_whatsapp=bool(phone.get('whatsapp', False))
+                            has_whatsapp=bool(phone.get('has_whatsapp', False))
                         )
                         MobileCatador.objects.create(mobile=m, catador=catador)
 
