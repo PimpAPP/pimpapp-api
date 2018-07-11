@@ -531,10 +531,11 @@ def cadastro_cooperativa(request):
 
         # Partners
         if cooperativa_request['partners']:
-            for partner in cooperativa_request['partners']:
-                file = base64ToFile(partner['image'])
-                p = Partner.objects.create(name=partner['name'], image=file)
-                cooperativa.partners.add(p)
+            gen = (p for p in cooperativa_request['partners'] if p.image and p.name)
+            for p in gen:
+                file = base64ToFile(p['image'])
+                partner = Partner.objects.create(name=p['name'], image=file)
+                cooperativa.partners.add(partner)
 
     except Exception as error:
         logger.error(error)
