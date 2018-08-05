@@ -663,6 +663,27 @@ def edit_cooperativa(request):
     return Response('ok', status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def get_docs(request, doc):
+    from django.core.files.storage import FileSystemStorage
+    from django.conf import settings
+    import os
+
+    if doc == '1':
+        file_name = 'cata-duvidas.pdf'
+    elif doc == '2':
+        file_name = 'guia-cadastro.pdf'
+    else:
+        return Response('Doc not found', status=status.HTTP_200_OK)
+
+    fs = FileSystemStorage(os.path.join(settings.BASE_DIR, 'reports'))
+
+    with fs.open(file_name) as pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
+        return response
+
+
 # Analise and see if we have to keep this view
 class RatingViewSet(viewsets.ModelViewSet):
     """

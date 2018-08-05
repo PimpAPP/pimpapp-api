@@ -16,6 +16,7 @@ from .views import cadastro_cooperativa
 from .views import export_catadores_xls
 from .views import edit_catador
 from .views import edit_cooperativa
+from .views import get_docs
 from .views import PartnerViewSet
 
 router = routers.DefaultRouter()
@@ -38,5 +39,6 @@ urlpatterns = [
     url(r'cadastro_catador/$', cadastro_catador),
     url(r'edit_catador/$', edit_catador),
     url(r'cadastro_cooperativa/$', cadastro_cooperativa),
-    url(r'edit_cooperativa/$', edit_cooperativa)
+    url(r'edit_cooperativa/$', edit_cooperativa),
+    url(r'get_docs/([0-9]{1})/$', get_docs)
 ]
