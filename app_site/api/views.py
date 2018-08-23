@@ -14,6 +14,7 @@ from base64 import b64decode
 from django.core.files.base import ContentFile
 # from braces.views import CsrfExemptMixin
 import xlwt
+import datetime as dt
 
 import uuid
 import logging
@@ -1112,8 +1113,18 @@ def export_catadores_xls(request):
     columns = ['pk', 'Nome', 'Apelido', 'Telefone(s)',
                'Possui foto?', 'Lat/Long', 'Cidade',
                'Endereço onde costuma trabalhar',
-               'Número', 'Bairro', 'Frase de apresentação',
-               'Cadastrado por']
+               'Número', 'Bairro', 'Frase de apresentação', 'Mini Biografia',
+               'Cadastrado por', 'Outro usuário - Nome', 'Outro usuário - Email',
+               'Outro usuário - Whatsapp', 'Tem veículo motorizado',
+               'Tem smartphone com internet móvel', 'Teve a Carroça Pimpada?',
+               'Recebeu o Kit de Segurança?', 'Kit de Segurança: Bota',
+               'Kit de Segurança: Luva', 'Kit de Segurança: Freios',
+               'Kit de Segurança: Fitas refletivas', 'Kit de Segurança: Fitas refletivas',
+               'Kit de Segurança: Retrovisor', 'Trabalha com qual ferro velho',
+               'Quantos dias trabalha por semana', 'Há quantos anos coleta',
+               'Quantos Kg coleta por dia?', 'Quantos Kg coleta por semana?',
+               'Ano de nascimento', 'Trabalha desde', 'Criado em', 'Atualizado em'
+               'Ativo']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -1123,7 +1134,15 @@ def export_catadores_xls(request):
 
     db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
                   'city', 'address_base', 'number', 'address_region',
-                  'presentation_phrase', 'registered_by_another_user']
+                  'presentation_phrase', 'minibio', 'registered_by_another_user',
+                  'another_user_name', 'another_user_email', 'another_user_whatsapp',
+                  'has_motor_vehicle', 'has_smartphone_with_internet',
+                  'carroca_pimpada', 'safety_kit', 'safety_kit_boot',
+                  'safety_kit_gloves', 'safety_kit_brakes',
+                  'safety_kit_reflective_tapes', 'safety_kit_reflective_tapes',
+                  'safety_kit_rearview', 'iron_work', 'how_many_days_work_week',
+                  'how_many_years_work', 'kg_day', 'kg_week', 'year_of_birth',
+                  'works_since', 'created_on', 'modified_date', 'active']
 
     rows = Catador.objects.all()
 
@@ -1131,10 +1150,11 @@ def export_catadores_xls(request):
         row_num += 1
         count = 0
         for col in db_columns:
-            if col in ['pk', 'name', 'nickname', 'city', 'address_base',
-                       'number', 'address_region', 'presentation_phrase']:
-                ws.write(row_num, count, row.__getattribute__(col), font_style)
-            else:
+            # if col in ['pk', 'name', 'nickname', 'city', 'address_base',
+            #            'number', 'address_region', 'presentation_phrase']:
+            #     ws.write(row_num, count, row.__getattribute__(col), font_style)
+
+            if col in ['phones', 'avatar', 'georef', 'registered_by_another_user']:
                 value = ''
                 if col == 'phones':
                     try:
@@ -1160,6 +1180,12 @@ def export_catadores_xls(request):
                     value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
 
                 ws.write(row_num, count, value, font_style)
+            else:
+                col_value = row.__getattribute__(col)
+                if isinstance(col_value, (dt.datetime, dt.date, dt.time)):
+                    ws.write(row_num, count, col_value.strftime('%d/%m/%Y'), font_style)
+                else:
+                    ws.write(row_num, count, col_value, font_style)
 
             count += 1
 

@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db import models
 from django import forms
+from rangefilter.filter import DateRangeFilter
 
 from .models import UserProfile
 from .models import Catador
@@ -76,14 +77,14 @@ class CatadorAdmin(SimpleHistoryAdmin):
                             'number', 'address_region', 'presentation_phrase']
 
     #list
-    list_filter = ('country', 'state', 'city', 'registered_by_another_user')
-    search_fields = ['id', 'name', 'nickname']
+    list_filter = ('country', 'state', 'city', 'registered_by_another_user',
+                   ('created_on', DateRangeFilter), 'materials_collected')
+    search_fields = ['id', 'name', 'nickname', 'city', 'address_region']
     # form = DaysWeekWorkAdminForm
     list_display = ('pk', 'name', 'nickname', 'get_phones', 'get_avatar', 'get_georef',
                     'state', 'city', 'region', 'address_base', 'number', 'address_region',
                     'presentation_phrase', 'get_registered_by_another_user',
-                    'modified_date', 'active')
-    filter_vertical = ['materials_collected']
+                    'created_on', 'modified_date', 'active')
 
     def get_avatar(self, obj):
         return True if obj.user.userprofile.avatar else False
