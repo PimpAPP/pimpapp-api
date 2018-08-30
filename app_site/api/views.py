@@ -24,7 +24,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from .models import ModeratedModel, Partner, PhotoCooperative
+from .models import ModeratedModel, Partner, PhotoCooperative, CallStatistics
 from .models import Catador
 from .models import LatitudeLongitude
 from .models import MobileCatador
@@ -683,6 +683,26 @@ def get_docs(request, doc):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
         return response
+
+
+@api_view(['POST'])
+def add_statistic(request):
+    # data = request.data['statistic']
+    data = request.data
+
+    if not data or not data['catador']:
+        return Response('Statistic required', status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        catador = Catador.objects.get(pk=data['catador'])
+        statistic = CallStatistics(catador=catador, phone=data['phone'])
+        statistic.save()
+        return Response('Success', status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(e)
+        return Response('Error on save',
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Analise and see if we have to keep this view

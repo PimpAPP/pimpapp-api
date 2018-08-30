@@ -987,3 +987,15 @@ class GeneralErros(models.Model):
         verbose_name = 'Erros no sistema'
         verbose_name_plural = _('Erros no sistema')
 
+
+class CallStatistics(models.Model):
+    catador = models.ForeignKey('Catador', blank=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    phone = models.CharField(max_length=20, verbose_name=_('Telefone'), null=True)
+
+    class Meta:
+        verbose_name = 'Estatística'
+        verbose_name_plural = _('Estatísticas')
+
+    def __str__(self):
+        return 'Estatística'

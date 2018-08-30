@@ -7,7 +7,7 @@ from django.db import models
 from django import forms
 from rangefilter.filter import DateRangeFilter
 
-from .models import UserProfile
+from .models import UserProfile, CallStatistics
 from .models import Catador
 from .models import Material
 from .models import MobileCatador
@@ -173,6 +173,12 @@ class ChangeNotificaionAdmin(admin.ModelAdmin):
     get_link.short_description = 'Link'
 
 
+class CallStatisticsAdmin(admin.ModelAdmin):
+    list_filter = ('created_on',)
+    search_fields = ['pk', 'catador', 'phone']
+    list_display = ('catador', 'phone', 'created_on')
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Catador, CatadorAdmin)
@@ -198,3 +204,5 @@ admin.site.register(GeorefCatador)
 admin.site.register(Rating)
 admin.site.register(GeneralErros, ErroAdmin)
 admin.site.register(ChangeNotificaion, ChangeNotificaionAdmin)
+admin.site.register(CallStatistics, CallStatisticsAdmin)
+
