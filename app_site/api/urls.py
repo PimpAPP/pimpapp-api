@@ -3,7 +3,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from rest_framework.authtoken import views
 
-from .views import CatadorViewSet
+from .views import CatadorViewSet, add_statistic
 from .views import CollectViewSet
 from .views import UserViewSet
 from .views import CooperativeViewSet
@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'cadastro_catador/$', cadastro_catador),
     url(r'edit_catador/$', edit_catador),
     url(r'cadastro_cooperativa/$', cadastro_cooperativa),
+    url(r'add_statistic/$', add_statistic),
     url(r'edit_cooperativa/$', edit_cooperativa),
     url(r'get_docs/([0-9]{1})/$', get_docs)
 ]
