@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'simple_history',
     'versatileimagefield',
     'django_filters',
+    'rangefilter',
     'api',
     'braces'
 )

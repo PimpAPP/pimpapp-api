@@ -1,5 +1,6 @@
 appdirs==1.4.0
 Django==1.10.5
+django-admin-rangefilter==0.3.7
 django-braces==1.8.1
 django-cors-headers==1.1.0
 django-extensions==1.7.6
