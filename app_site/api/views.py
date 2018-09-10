@@ -1143,8 +1143,8 @@ def export_catadores_xls(request):
                'Kit de Segurança: Retrovisor', 'Trabalha com qual ferro velho',
                'Quantos dias trabalha por semana', 'Há quantos anos coleta',
                'Quantos Kg coleta por dia?', 'Quantos Kg coleta por semana?',
-               'Ano de nascimento', 'Trabalha desde', 'Criado em', 'Atualizado em'
-               'Ativo']
+               'Ano de nascimento', 'Trabalha desde', 'Criado em', 'Atualizado em',
+               'Ativo', 'Materiais coletados']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
@@ -1162,7 +1162,8 @@ def export_catadores_xls(request):
                   'safety_kit_reflective_tapes', 'safety_kit_reflective_tapes',
                   'safety_kit_rearview', 'iron_work', 'how_many_days_work_week',
                   'how_many_years_work', 'kg_day', 'kg_week', 'year_of_birth',
-                  'works_since', 'created_on', 'modified_date', 'active']
+                  'works_since', 'created_on', 'modified_date', 'active',
+                  'materials_collected']
 
     rows = Catador.objects.all()
 
@@ -1174,8 +1175,13 @@ def export_catadores_xls(request):
             #            'number', 'address_region', 'presentation_phrase']:
             #     ws.write(row_num, count, row.__getattribute__(col), font_style)
 
-            if col in ['phones', 'avatar', 'georef', 'registered_by_another_user']:
+            if col in ['phones',
+                       'avatar',
+                       'georef',
+                       'registered_by_another_user',
+                       'materials_collected']:
                 value = ''
+
                 if col == 'phones':
                     try:
                         value = ', '.join([p.phone for p in row.phones])
@@ -1199,7 +1205,18 @@ def export_catadores_xls(request):
                 if col == 'registered_by_another_user':
                     value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
 
+                if col == 'materials_collected':
+                    try:
+                        for material in row.materials_collected.get_queryset():
+                            if value:
+                                value += ', ' + material.name
+                            else:
+                                value = material.name
+                    except:
+                        value = 'Não informado'
+
                 ws.write(row_num, count, value, font_style)
+
             else:
                 col_value = row.__getattribute__(col)
                 if isinstance(col_value, (dt.datetime, dt.date, dt.time)):
