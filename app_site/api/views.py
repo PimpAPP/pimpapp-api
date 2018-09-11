@@ -327,6 +327,9 @@ def cadastro_catador(request):
         except Exception:
             pass
 
+        res = {'catador_pk': catador.pk}
+        return Response(res, status=status.HTTP_200_OK)
+
     except Exception as error:
         logger.error(error)
 
@@ -344,8 +347,6 @@ def cadastro_catador(request):
             return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
         raise
-
-    return Response('ok', status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
