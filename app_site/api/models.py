@@ -568,13 +568,12 @@ class Material(ModeratedModel):
     """
 
     history = HistoricalRecords()
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
 
     class Meta:
         verbose_name = 'Serviços e Materiais'
         verbose_name_plural = 'Serviços e Materiais'
-
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
 
     def __str__(self):
         return '%s - %s' % (self.name, self.description)

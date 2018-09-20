@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, HttpResponse
 from base64 import b64decode
 from django.core.files.base import ContentFile
+from django.db.models import Q
 # from braces.views import CsrfExemptMixin
 import xlwt
 import datetime as dt
@@ -182,6 +183,37 @@ class CatadorViewSet(viewsets.ModelViewSet):
     # queryset = Catador.objects.all()
     queryset = Catador.objects.filter(active=True)
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
+
+    def get_queryset(self):
+        """
+        Adding custom filter by params.
+        :return:
+        """
+
+        # Filter by 'search' will search in
+        # (name, nickname, endereço (rua, bairro, cidade, estado), material)
+
+        search = self.request.query_params.get('search', None)
+        # materials = self.request.query_params.get('materials', None)
+
+        # if search is not None and materials is not None:
+        #     queryset = Catador.objects.filter(
+        #         Q(name__contains=search) | Q(materials_collected__in=materials))
+        # elif
+        if search is not None:
+            queryset = Catador.objects.filter(
+                Q(name__contains=search) |
+                Q(nickname__contains=search) |
+                Q(city__contains=search) |
+                Q(state__contains=search) |
+                Q(address_region__contains=search) |
+                Q(region__contains=search) |
+                Q(country__contains=search)
+            )
+        else:
+            queryset = Catador.objects.all()
+
+        return queryset
 
     @detail_route(methods=['POST', 'OPTIONS'], permission_classes=[AllowAny])
     def add(self, request):
@@ -922,6 +954,23 @@ class CooperativeViewSet(viewsets.ModelViewSet):
     #
     #     return super(self).get_permissions()
 
+    def get_queryset(self):
+        """
+        Adding custom filter by params.
+        :return:
+        """
+
+        # Filter by 'search' will search in
+        # (name, email, phrase)
+
+        search = self.request.query_params.get('search', None)
+        if search is not None:
+            queryset = Cooperative.objects.filter(Q(name__contains=search))
+        else:
+            queryset = Cooperative.objects.all()
+
+        return queryset
+
     @csrf_exempt
     @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'], permission_classes=[])
     def add(self, request, pk=None):
@@ -1132,7 +1181,7 @@ def export_catadores_xls(request):
     font_style.font.bold = True
 
     columns = ['pk', 'Nome', 'Apelido', 'Telefone(s)',
-               'Possui foto?', 'Lat/Long', 'Cidade',
+               'Possui foto?', 'Lat/Long', 'Cidade', 'Estado',
                'Endereço onde costuma trabalhar',
                'Número', 'Bairro', 'Frase de apresentação', 'Mini Biografia',
                'Cadastrado por', 'Outro usuário - Nome', 'Outro usuário - Email',
@@ -1154,7 +1203,7 @@ def export_catadores_xls(request):
     font_style = xlwt.XFStyle()
 
     db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
-                  'city', 'address_base', 'number', 'address_region',
+                  'city', 'state', 'address_base', 'number', 'address_region',
                   'presentation_phrase', 'minibio', 'registered_by_another_user',
                   'another_user_name', 'another_user_email', 'another_user_whatsapp',
                   'has_motor_vehicle', 'has_smartphone_with_internet',
