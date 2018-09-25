@@ -16,6 +16,7 @@ from django.db.models import Q
 # from braces.views import CsrfExemptMixin
 import xlwt
 import datetime as dt
+import operator
 
 import uuid
 import logging
@@ -184,6 +185,7 @@ class CatadorViewSet(viewsets.ModelViewSet):
     queryset = Catador.objects.filter(active=True)
     http_method_names = ['get', 'post', 'update', 'options', 'patch', 'delete']
 
+
     def get_queryset(self):
         """
         Adding custom filter by params.
@@ -192,24 +194,41 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
         # Filter by 'search' will search in
         # (name, nickname, endereço (rua, bairro, cidade, estado), material)
-
         search = self.request.query_params.get('search', None)
-        # materials = self.request.query_params.get('materials', None)
+        filter_by_name = self.request.query_params.get('name', False)
+        filter_by_nickname = self.request.query_params.get('nickname', False)
+        filter_by_address = self.request.query_params.get('address', False)
+        materials = self.request.query_params.getlist('materials')
 
-        # if search is not None and materials is not None:
-        #     queryset = Catador.objects.filter(
-        #         Q(name__contains=search) | Q(materials_collected__in=materials))
-        # elif
-        if search is not None:
-            queryset = Catador.objects.filter(
-                Q(name__contains=search) |
-                Q(nickname__contains=search) |
-                Q(city__contains=search) |
-                Q(state__contains=search) |
-                Q(address_region__contains=search) |
-                Q(region__contains=search) |
-                Q(country__contains=search)
-            )
+        if search is not None or materials:
+
+            queryset = None
+
+            if search is not None:
+                q_objects = Q()
+
+                if filter_by_name:
+                    q_objects |= Q(name__contains=search)
+
+                if filter_by_nickname:
+                    q_objects |= Q(nickname__contains=search)
+
+                if filter_by_address:
+                    q_objects |= Q(name__contains=search)
+                    q_objects |= Q(city__contains=search)
+                    q_objects |= Q(state__contains=search)
+                    q_objects |= Q(address_region__contains=search)
+                    q_objects |= Q(region__contains=search)
+                    q_objects |= Q(country__contains=search)
+
+                queryset = Catador.objects.filter(q_objects)
+
+            if materials:
+                if queryset:
+                    queryset = queryset.filter(materials_collected__in=materials)
+                else:
+                    queryset = Catador.objects.filter(materials_collected__in=materials)
+
         else:
             queryset = Catador.objects.all()
 
@@ -961,12 +980,34 @@ class CooperativeViewSet(viewsets.ModelViewSet):
         :return:
         """
 
-        # Filter by 'search' will search in
-        # (name, email, phrase)
-
+        # Filter by 'search' will search in (name, email, phrase)
         search = self.request.query_params.get('search', None)
-        if search is not None:
-            queryset = Cooperative.objects.filter(Q(name__contains=search))
+        filter_by_name = self.request.query_params.get('name', False)
+        filter_by_address = self.request.query_params.get('address', False)
+        materials = self.request.query_params.getlist('materials')
+
+        if search is not None or materials:
+            q_objects = Q()
+
+            if filter_by_name:
+                q_objects |= Q(name__contains=search)
+
+            if filter_by_address:
+                q_objects |= Q(name__contains=search)
+                q_objects |= Q(city__contains=search)
+                q_objects |= Q(state__contains=search)
+                q_objects |= Q(address_region__contains=search)
+                q_objects |= Q(country__contains=search)
+
+            queryset = Cooperative.objects.filter(q_objects)
+
+            if materials:
+                if queryset:
+                    queryset = queryset\
+                        .filter(materials_collected__in=materials)
+                else:
+                    queryset = Catador.objects\
+                        .filter(materials_collected__in=materials)
         else:
             queryset = Cooperative.objects.all()
 
