@@ -208,28 +208,25 @@ class CatadorViewSet(viewsets.ModelViewSet):
                 if filter_by_nickname:
                     q_objects |= Q(nickname__contains=search)
 
+            queryset = Catador.objects.filter(q_objects)
+
             if filter_by_address:
                 # q_objects |= Q(region__contains=search)
                 # q_objects |= Q(address_region__contains=search)
                 # q_objects |= Q(country__contains=search)
-                state = self.request.query_params.get('city')
+                state = self.request.query_params.get('state')
                 city = self.request.query_params.get('city')
 
                 if state:
-                    q_objects |= Q(state=state)
+                    queryset = queryset.filter(state=state)
 
                 if city:
-                    q_objects |= Q(city=city)
-
-            queryset = Catador.objects.filter(q_objects)
+                    queryset = queryset.filter(city=city)
 
             if materials:
                 if queryset:
                     queryset = queryset\
                         .filter(materials_collected__in=materials)
-                # else:
-                #     queryset = Catador.objects\
-                #         .filter(materials_collected__in=materials)
         else:
             queryset = Catador.objects.all()
 
@@ -993,27 +990,24 @@ class CooperativeViewSet(viewsets.ModelViewSet):
             if search is not None and filter_by_name:
                 q_objects |= Q(name__contains=search)
 
+            queryset = Cooperative.objects.filter(q_objects)
+
             if filter_by_address:
                 # q_objects |= Q(address_region__contains=search)
                 # q_objects |= Q(country__contains=search)
-                state = self.request.query_params.get('city')
+                state = self.request.query_params.get('state')
                 city = self.request.query_params.get('city')
 
                 if state:
-                    q_objects |= Q(state=state)
+                    queryset = queryset.filter(state=state)
 
                 if city:
-                    q_objects |= Q(city=city)
-
-            queryset = Cooperative.objects.filter(q_objects)
+                    queryset = queryset.filter(city=city)
 
             if materials:
                 if queryset:
                     queryset = queryset\
                         .filter(materials_collected__in=materials)
-                # else:
-                #     queryset = Cooperative.objects\
-                #         .filter(materials_collected__in=materials)
         else:
             queryset = Cooperative.objects.all()
 
