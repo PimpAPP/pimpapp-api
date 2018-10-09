@@ -67,7 +67,7 @@ class MaterialInline(admin.StackedInline):
 class CatadorAdmin(SimpleHistoryAdmin):
     #form
     exclude = ['mongo_hash', 'slug', 'days_week_work']
-    fields = ('name', 'nickname', 'presentation_phrase', 'minibio', 'city',
+    fields = ('user', 'name', 'nickname', 'presentation_phrase', 'minibio', 'city',
               'state', 'region', 'country', 'address_base', 'number', 'address_region',
               'has_motor_vehicle', 'has_smartphone_with_internet', 'year_of_birth',
               'works_since', 'registered_by_another_user', 'another_user_name',
