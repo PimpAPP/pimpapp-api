@@ -196,10 +196,10 @@ class CatadorViewSet(viewsets.ModelViewSet):
         search = self.request.query_params.get('search', None)
         filter_by_name = self.request.query_params.get('name', False)
         filter_by_nickname = self.request.query_params.get('nickname', False)
-        filter_by_address = self.request.query_params.get('address', False)
+        # filter_by_address = self.request.query_params.get('address', False)
         materials = self.request.query_params.getlist('materials')
 
-        if search is not None or filter_by_address or materials:
+        if search is not None or materials:
             q_objects = Q()
 
             if search is not None:
@@ -210,18 +210,18 @@ class CatadorViewSet(viewsets.ModelViewSet):
 
             queryset = Catador.objects.filter(q_objects)
 
-            if filter_by_address:
-                # q_objects |= Q(region__contains=search)
-                # q_objects |= Q(address_region__contains=search)
-                # q_objects |= Q(country__contains=search)
-                state = self.request.query_params.get('state')
-                city = self.request.query_params.get('city')
-
-                if state:
-                    queryset = queryset.filter(state=state)
-
-                if city:
-                    queryset = queryset.filter(city=city)
+            # if filter_by_address:
+            #     # q_objects |= Q(region__contains=search)
+            #     # q_objects |= Q(address_region__contains=search)
+            #     # q_objects |= Q(country__contains=search)
+            #     state = self.request.query_params.get('state')
+            #     city = self.request.query_params.get('city')
+            #
+            #     if state:
+            #         queryset = queryset.filter(state=state)
+            #
+            #     if city:
+            #         queryset = queryset.filter(city=city)
 
             if materials:
                 if queryset:
@@ -981,10 +981,10 @@ class CooperativeViewSet(viewsets.ModelViewSet):
         # Filter by 'search' will search in (name, email, phrase)
         search = self.request.query_params.get('search', None)
         filter_by_name = self.request.query_params.get('name', False)
-        filter_by_address = self.request.query_params.get('address', False)
+        # filter_by_address = self.request.query_params.get('address', False)
         materials = self.request.query_params.getlist('materials')
 
-        if search is not None or filter_by_address or materials:
+        if search is not None or materials:
             q_objects = Q()
 
             if search is not None and filter_by_name:
@@ -992,17 +992,17 @@ class CooperativeViewSet(viewsets.ModelViewSet):
 
             queryset = Cooperative.objects.filter(q_objects)
 
-            if filter_by_address:
-                # q_objects |= Q(address_region__contains=search)
-                # q_objects |= Q(country__contains=search)
-                state = self.request.query_params.get('state')
-                city = self.request.query_params.get('city')
-
-                if state:
-                    queryset = queryset.filter(state=state)
-
-                if city:
-                    queryset = queryset.filter(city=city)
+            # if filter_by_address:
+            #     # q_objects |= Q(address_region__contains=search)
+            #     # q_objects |= Q(country__contains=search)
+            #     state = self.request.query_params.get('state')
+            #     city = self.request.query_params.get('city')
+            #
+            #     if state:
+            #         queryset = queryset.filter(state=state)
+            #
+            #     if city:
+            #         queryset = queryset.filter(city=city)
 
             if materials:
                 if queryset:
