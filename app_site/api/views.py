@@ -1263,10 +1263,6 @@ def export_catadores_xls(request):
         row_num += 1
         count = 0
         for col in db_columns:
-            # if col in ['pk', 'name', 'nickname', 'city', 'address_base',
-            #            'number', 'address_region', 'presentation_phrase']:
-            #     ws.write(row_num, count, row.__getattribute__(col), font_style)
-
             if col in ['phones',
                        'avatar',
                        'georef',
@@ -1276,7 +1272,11 @@ def export_catadores_xls(request):
 
                 if col == 'phones':
                     try:
-                        value = ', '.join([p.phone for p in row.phones])
+                        value = ', '.join([
+                            p.phone +
+                            ' (Whatsapp: ' +
+                            ('Sim' if p.has_whatsapp else 'Não') +
+                            ')' for p in row.phones])
                     except:
                         value = 'Não informado'
 
