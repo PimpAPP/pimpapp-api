@@ -1222,7 +1222,7 @@ def export_catadores_xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['pk', 'Nome', 'Apelido', 'Telefone(s)',
+    columns = ['pk', 'Nome', 'Apelido', 'Telefone 1', 'Whatsapp?', 'Telefone 2', 'Whatsapp?',
                'Possui foto?', 'Lat/Long', 'Cidade', 'Estado',
                'Endereço onde costuma trabalhar',
                'Número', 'Bairro', 'Frase de apresentação', 'Mini Biografia',
@@ -1244,8 +1244,9 @@ def export_catadores_xls(request):
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
 
-    db_columns = ['pk', 'name', 'nickname', 'phones', 'avatar', 'georef',
-                  'city', 'state', 'address_base', 'number', 'address_region',
+    db_columns = ['pk', 'name', 'nickname', 'tel1', 'tel1-whatsapp', 'tel2',
+                  'tel2-whatsapp', 'avatar', 'georef', 'city', 'state',
+                  'address_base', 'number', 'address_region',
                   'presentation_phrase', 'minibio', 'registered_by_another_user',
                   'another_user_name', 'another_user_email', 'another_user_whatsapp',
                   'has_motor_vehicle', 'has_smartphone_with_internet',
@@ -1263,49 +1264,46 @@ def export_catadores_xls(request):
         row_num += 1
         count = 0
         for col in db_columns:
-            if col in ['phones',
+            if col in ['tel1',
+                       'tel1-whatsapp',
+                       'tel2',
+                       'tel2-whatsapp',
                        'avatar',
                        'georef',
                        'registered_by_another_user',
                        'materials_collected']:
-                value = ''
-
-                if col == 'phones':
-                    try:
-                        value = ', '.join([
-                            p.phone +
-                            ' (Whatsapp: ' +
-                            ('Sim' if p.has_whatsapp else 'Não') +
-                            ')' for p in row.phones])
-                    except:
-                        value = 'Não informado'
-
-                if col == 'avatar':
-                    try:
-                        value = 'Sim' if row.user.userprofile.avatar else 'Não'
-                    except:
-                        value = 'Não'
-
-                if col == 'georef':
-                    try:
+                try:
+                    value = ''
+                    if col in ['tel1', 'tel1-whatsapp', 'tel2', 'tel2-whatsapp']:
+                        if col == 'tel1':
+                            value = row.phones[0].phone
+                        elif col == 'tel1-whatsapp':
+                            value = 'Sim' \
+                                if row.phones[0].has_whatsapp else 'Não'
+                        elif col == 'tel2':
+                            value = row.phones[0].phone
+                        elif col == 'tel2-whatsapp':
+                            value = 'Sim' \
+                                if row.phones[0].has_whatsapp else 'Não'
+                    elif col == 'avatar':
+                        try:
+                            value = 'Sim' if row.user.userprofile.avatar else 'Não'
+                        except:
+                            value = 'Não'
+                    elif col == 'georef':
                         geo = GeorefCatador.objects.get(catador_id=row.id)
                         if geo:
                             value = str(geo.georef.latitude) + ', ' + str(geo.georef.longitude)
-                    except:
-                        value = 'Não informado'
-
-                if col == 'registered_by_another_user':
-                    value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
-
-                if col == 'materials_collected':
-                    try:
+                    elif col == 'registered_by_another_user':
+                        value = row.another_user_name if row.registered_by_another_user else 'Próprio catador'
+                    elif col == 'materials_collected':
                         for material in row.materials_collected.get_queryset():
                             if value:
                                 value += ', ' + material.name
                             else:
                                 value = material.name
-                    except:
-                        value = 'Não informado'
+                except:
+                    value = 'Não informado'
 
                 ws.write(row_num, count, value, font_style)
 
