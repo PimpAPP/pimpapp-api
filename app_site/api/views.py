@@ -50,6 +50,7 @@ from .models import MobileCooperative
 from .serializers import RatingSerializer, PartnerSerializer
 from .serializers import MobileSerializer
 from .serializers import CatadorSerializer
+from .serializers import CatadorSimpleSerializer
 from .serializers import MaterialSerializer
 from .serializers import CollectSerializer
 from .serializers import UserSerializer
@@ -61,6 +62,7 @@ from .serializers import PhotoCollectCatadorSerializer
 from .serializers import PhotoCollectUserSerializer
 from .serializers import CatadorsPositionsSerializer
 from .serializers import PasswordSerializer
+from .serializers import CooperativeSimpleSerializer
 
 from .permissions import IsObjectOwner
 
@@ -231,6 +233,11 @@ class CatadorViewSet(viewsets.ModelViewSet):
             queryset = Catador.objects.all()
 
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = CatadorSimpleSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @detail_route(methods=['POST', 'OPTIONS'], permission_classes=[AllowAny])
     def add(self, request):
@@ -1012,6 +1019,11 @@ class CooperativeViewSet(viewsets.ModelViewSet):
             queryset = Cooperative.objects.all()
 
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = CooperativeSimpleSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @csrf_exempt
     @detail_route(methods=['GET', 'POST', 'DELETE', 'OPTIONS'], permission_classes=[])

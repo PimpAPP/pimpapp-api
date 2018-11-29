@@ -168,6 +168,14 @@ class CatadorSerializer(serializers.ModelSerializer):
         return obj.user.email
 
 
+class CatadorSimpleSerializer(serializers.ModelSerializer):
+    geolocation = LatitudeLongitudeSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Catador
+        fields = ['id', 'geolocation']
+
+
 class PhotoResidueSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoResidue
@@ -262,6 +270,13 @@ class CooperativeSerializer(serializers.ModelSerializer):
 
     def get_partners(self, obj):
         return PartnerSerializer(obj.partners, many=True).data
+
+
+class CooperativeSimpleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Cooperative
+        fields = ['id', 'latitude', 'longitude']
 
 
 class GeorefCatadorSerializer(serializers.ModelSerializer):
